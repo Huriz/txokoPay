@@ -26,7 +26,7 @@ Iremos contando más a medida que avance.
 
 Capturas de los prototipos con los que se está diseñando. Los datos son de ejemplo y todo puede cambiar.
 
-**TPV: el mostrador.** Botones grandes, categorías a la izquierda, el ticket a la derecha y las acciones principales abajo.
+**TPV: el mostrador.** Botones grandes, grupos a la izquierda, el ticket a la derecha y las acciones principales abajo. Los grupos y artículos son los mismos que se montan en el panel.
 
 ![TPV, consumo](capturas/tpv-consumo.png)
 
@@ -34,10 +34,18 @@ Capturas de los prototipos con los que se está diseñando. Los datos son de eje
 
 ![TPV, pago](capturas/tpv-pago.png)
 
+**Panel de la junta: menú de la TPV.** Se arrastran las consumiciones a los grupos y la TPV lo recoge al momento.
+
+![Panel, menú de la TPV](capturas/panel-menu.png)
+
+**Panel de la junta: artículos.** Cada artículo va en una categoría. Se compra («De barra») o se prepara con otros, con la cantidad que gasta de cada uno: un cubata es una parte de botella más un refresco.
+
+![Panel, artículos](capturas/panel-articulos.png)
+
+**Panel de la junta: almacén.** Existencias, alertas de poco género y albaranes de entrada por unidades, con su precio y su IVA.
+
+![Panel, almacén](capturas/panel-almacen.png)
+
 **Panel de la junta: reservas.** Estados de revisión por colores, avisos a los socios y tickets unidos a cada reserva.
 
 ![Panel, reservas](capturas/panel-reservas.png)
-
-**Panel de la junta: artículos.** Un artículo puede salir de otros, con la cantidad que gasta de cada uno.
-
-![Panel, artículos](capturas/panel-articulos.png)
