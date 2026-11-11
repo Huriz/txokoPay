@@ -270,6 +270,7 @@ body.menu-compacto .menu-acciones{display:none}
 body.menu-compacto .grupo-menu.cerrado .grupo-items{display:block}
 body.menu-compacto .grupo-t{display:none}.canales{display:flex;gap:8px}.canal{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:2px;border:1px solid #e3d9c9;background:#fff;border-radius:12px;padding:9px 12px;font-weight:700;text-align:left;cursor:pointer;box-shadow:0 2px 0 rgba(43,33,24,.12)}.canal small{font-weight:400;color:var(--suave);font-size:11px}.canal.on{border-color:var(--principal);background:#fff3e8;box-shadow:0 2px 0 #c9bba4,0 0 0 3px rgba(200,80,30,.12)}.canal .ico{width:16px;height:16px;margin-right:4px;vertical-align:-3px}
 small.desglose{display:block;text-align:right;font-size:10.5px;line-height:1.35;margin-top:1px}
+.mchip-ico{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#fde9d9;color:var(--principal);flex:none}.mchip-ico .ico{width:16px;height:16px}
 .dia-copia{min-width:44px;padding:5px 8px}.dia-copia.mal{background:#fbe0dc;border-color:#e8a59c;color:#9b2c20}
 .origen-celda{display:flex;align-items:flex-start;gap:0}
 .padre-lista.apilado{flex-direction:column;align-items:flex-start;gap:4px}
@@ -555,30 +556,41 @@ const reservasParaAvisar = () => filtrarReservas().filter(r=>!r.anulada && motiv
 const faltanEnTicket = () => S.reservas.filter(r=>tagsReserva(r).some(x=>x.k==='maquina')).length;
 
 /* ---------- pantalla ---------- */
-S.gruposCerrados = new Set();   // de serie, todo abierto
+const MODULOS = {
+  revision:{t:'Revisión', ic:'alerta', pronto:true}, reservas:{t:'Reservas', ic:'calendario'}, tickets:{t:'Tickets', ic:'recibo'}, avisos:{t:'Avisos', ic:'mensaje', pronto:true},
+  socios:{t:'Socios', ic:'persona'}, llaves:{t:'Llaves', ic:'llave'}, caja:{t:'Ingresos', ic:'caja'}, gastos:{t:'Gastos', ic:'recibo'},
+  genero:{t:'Inventario', ic:'paquete'}, almacen:{t:'Almacén', ic:'paquete'}, articulos:{t:'Artículos', ic:'paquete'}, menu:{t:'Menú de la TPV', ic:'menu'}, pagos:{t:'Formas de pago', ic:'ajustes'},
+  copias:{t:'Copias de seguridad', ic:'paquete'}, alertas:{t:'Alertas', ic:'alerta'}, accesos:{t:'Accesos al back', ic:'persona'}, auditoria:{t:'Auditoría', ic:'recibo'}, menupanel:{t:'Menú del panel', ic:'menu'}
+};
+S.menuPanel = [
+  {id:'dia', nombre:'Día a día', items:['revision','reservas','tickets','avisos']},
+  {id:'usu', nombre:'Usuarios y llaves', items:['socios','llaves']},
+  {id:'din', nombre:'Dinero', items:['caja','gastos']},
+  {id:'gen', nombre:'Género', items:['genero','almacen','articulos']},
+  {id:'tpv', nombre:'TPV', items:['menu','pagos']},
+  {id:'cfg', nombre:'Configuración', items:['menupanel','copias','alertas','accesos','auditoria']}
+];
+S.mqp = '';S.gruposCerrados = new Set();   // de serie, todo abierto
 const GRUPO_DE = {reservas:'dia',tickets:'dia',socios:'usu',llaves:'usu',caja:'din',gastos:'din',genero:'gen',almacen:'gen',articulos:'gen',menu:'tpv',pagos:'tpv',copias:'cfg',alertas:'cfg',accesos:'cfg',auditoria:'cfg'};
 const GRUPOS_MENU = ['dia','usu','din','gen','tpv','cfg'];
 const grupoMenu = (id, titulo, items) => `<section class="grupo-menu ${S.gruposCerrados.has(id)?'cerrado':''}" data-g="${id}"><button class="grupo-t" data-ac="grupoMenu" data-g="${id}" title="Abrir o cerrar «${titulo}»"><svg class="chev ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><span class="txt">${titulo}</span></button><div class="grupo-items">${items}</div></section>`;const aplicarMenu = () => document.body.classList.toggle('menu-compacto', S.menuCompacto);
 function pintarTodo(){
-  if(GRUPO_DE[S.pagina]) S.gruposCerrados.delete(GRUPO_DE[S.pagina]);
+  { const gp=S.menuPanel.find(g=>g.items.includes(S.pagina)); if(gp) S.gruposCerrados.delete(gp.id); }
   const it = (id,icono,txt,on,pronto) => pronto
     ? `<div class="nav pronto" title="${txt} (pronto)">${ico(icono)} <span class="txt">${txt}</span><span class="tag">pronto</span></div>`
     : `<button class="nav ${on?'on':''}" data-ac="nav" data-p="${id}" title="${txt}">${ico(icono)} <span class="txt">${txt}</span></button>`;
+  const mi = m => { const d=MODULOS[m]; return d ? it(m, d.ic, d.t, S.pagina===m, d.pronto) : ''; };
   $('#app').innerHTML = `
   <nav class="lateral">
     <div class="marca-fila"><button class="burger" data-ac="menu" title="Abrir o cerrar el menú" aria-label="Abrir o cerrar el menú">${ico('menu')}</button><div class="marca">txokoPay<small>Panel de la junta</small></div></div>
     <div class="menu-acciones"><button class="ib" data-ac="menuAbrirTodo" title="Desplegar todo" aria-label="Desplegar todo">${ico('desplegar')}<span class="txt">Abrir todo</span></button><button class="ib" data-ac="menuCerrarTodo" title="Cerrar todo" aria-label="Cerrar todo">${ico('plegar')}<span class="txt">Cerrar todo</span></button></div>
-    ${grupoMenu('dia','Día a día', it('revision','alerta','Revisión',false,true)+it('reservas','calendario','Reservas',S.pagina==='reservas')+it('tickets','recibo','Tickets',S.pagina==='tickets')+it('avisos','mensaje','Avisos',false,true))}
-    ${grupoMenu('usu','Usuarios y llaves', it('socios','persona','Socios',S.pagina==='socios')+it('llaves','llave','Llaves',S.pagina==='llaves'))}
-    ${grupoMenu('din','Dinero', it('caja','caja','Ingresos',S.pagina==='caja')+it('gastos','recibo','Gastos',S.pagina==='gastos'))}
-    ${grupoMenu('gen','Género', it('genero','paquete','Inventario',S.pagina==='genero')+it('almacen','paquete','Almacén',S.pagina==='almacen')+it('articulos','paquete','Artículos',S.pagina==='articulos'))}
-    ${grupoMenu('tpv','TPV', it('menu','menu','Menú de la TPV',S.pagina==='menu')+it('pagos','ajustes','Formas de pago',S.pagina==='pagos'))}
-    ${grupoMenu('cfg','Configuración', it('copias','paquete','Copias de seguridad',S.pagina==='copias')+it('alertas','alerta','Alertas',S.pagina==='alertas')+it('accesos','persona','Accesos al back',S.pagina==='accesos')+it('auditoria','recibo','Auditoría',S.pagina==='auditoria'))}    <div class="usuario"><b>${esc(S.sesion.nombre)}</b>Administrador · <a class="enlace" data-ac="salirBack">Salir</a><br><a class="enlace" data-ac="verSaldos">${ico(S.verSaldos?'ojoOff':'ojo')} ${S.verSaldos?'Ocultar saldos':'Ver saldos'}</a></div>
+    ${S.menuPanel.map(g=>grupoMenu(g.id, g.nombre, g.items.map(mi).join(''))).join('')}
+    <div class="usuario"><b>${esc(S.sesion.nombre)}</b>Administrador · <a class="enlace" data-ac="salirBack">Salir</a><br><a class="enlace" data-ac="verSaldos">${ico(S.verSaldos?'ojoOff':'ojo')} ${S.verSaldos?'Ocultar saldos':'Ver saldos'}</a></div>
   </nav>
   <main class="principal" id="pag"></main>`;
   aplicarMenu(); pintarPagina(); pintarCajon();
 }
-function pintarPagina(){ $('#pag').innerHTML = bannerClave() + ({reservas:paginaReservas, tickets:paginaTickets, caja:paginaCaja, socios:paginaSocios, llaves:paginaLlaves, accesos:paginaAccesos, auditoria:paginaAuditoria, gastos:paginaGastos, genero:paginaGenero, almacen:paginaAlmacen, pagos:paginaPagos, copias:paginaCopias, alertas:paginaAlertas, articulos:paginaArticulos, menu:paginaMenu})[S.pagina](); pintarResultado(); }
+function pintarPagina(){ $('#pag').innerHTML = bannerClave() + ({reservas:paginaReservas, tickets:paginaTickets, caja:paginaCaja, menupanel:paginaMenuPanel, socios:paginaSocios, llaves:paginaLlaves, accesos:paginaAccesos, auditoria:paginaAuditoria, gastos:paginaGastos, genero:paginaGenero, almacen:paginaAlmacen, pagos:paginaPagos, copias:paginaCopias, alertas:paginaAlertas, articulos:paginaArticulos, menu:paginaMenu})[S.pagina](); pintarResultado(); }
 
 const atajosHtml = () => `<div class="atajos">Atajos: ${[['hoy','Hoy'],['ayer','Ayer'],['7','Últimos 7 días'],['mes','Este mes'],['30','Últimos 30 días'],['pasado','Mes pasado'],['todo','Todo']].map(([k,t])=>`<button class="atajo" data-ac="atajo" data-r="${k}">${t}</button>`).join('')}</div>`;
 
@@ -1160,7 +1172,64 @@ function registrarAviso(ent, id, canal, n){
   if(ent==='reserva'){ x.avisos++; x.marca='Notificado'; } else if(MARCAS_PISABLES.includes(x.marca||'')) x.marca='Notificado';
   anota(ent==='reserva'?'reserva':'ticket', id, `Aviso enviado por ${canal==='email'?'correo':'WhatsApp'} a ${socio(n).nombre} (${donde}): ${txt}`);
   auditar('Aviso enviado', `${canal==='email'?'correo':'WhatsApp'} a ${etSocioTxt(n)} · ${ent} #${id}`);
-}/* --- Acceso al back, socios (fichas de ejemplo), llaves y auditoría --- */
+}/* --- Menú del panel: títulos y módulos, un módulo puede estar en varios sitios --- */
+const vecesModulo = m => S.menuPanel.reduce((n,g)=>n+g.items.filter(x=>x===m).length,0);
+const chipPM = (m,g) => { const d=MODULOS[m]; return `<div class="mchip" draggable="true" data-pm="${m}" data-pmfrom="${g}"><span class="mchip-ico">${ico(d.ic)}</span><span>${esc(d.t)}${d.pronto?' <small>pronto</small>':''}</span><button class="x" data-ac="pmQuitar" data-g="${g}" data-m="${m}" title="Quitar de este título" aria-label="Quitar de este título">×</button></div>`; };
+const htmlGruposPM = () => S.menuPanel.map(g=>`<section class="mgrupo" data-pmgd="${g.id}">
+    <div class="mgrupo-cab"><span class="asa" draggable="true" data-pmg="${g.id}" title="Arrastra para cambiar el orden de los títulos">⠿</span><input type="text" class="gnom" data-pmgn="${g.id}" value="${esc(g.nombre)}"><span class="muted">${g.items.length} módulo${g.items.length===1?'':'s'}</span><button class="ib" data-ac="confPedir" data-k="grupop:${g.id}" title="Borrar el título">${ico('papelera')}</button></div>
+    ${confirmarEn('grupop:'+g.id, g.items.length?`¿Seguro que quieres borrar «${esc(g.nombre)}»? Los módulos no se borran: solo dejan de salir ahí.`:`¿Seguro que quieres borrar «${esc(g.nombre)}»?`)}
+    <div class="mitems" data-pmz="${g.id}">${g.items.length ? g.items.map(m=>chipPM(m,g.id)).join('') : '<span class="muted vacioz">Arrastra aquí módulos</span>'}</div></section>`).join('')
+  + `<div class="fila-form"><input type="text" id="npNombre" placeholder="Nuevo título (p. ej. Accesos rápidos)" style="width:260px"><button class="btn principal" data-ac="pmGrupoNuevo">Añadir título</button></div>`;
+function htmlListaPM(){
+  const q=normT(S.mqp.trim());
+  return Object.entries(MODULOS).filter(([m,d])=>!q||normT(d.t).includes(q)).map(([m,d])=>{ const n=vecesModulo(m);
+    return `<div class="mchip lista" draggable="true" data-pm="${m}"><span class="mchip-ico">${ico(d.ic)}</span><span>${esc(d.t)}${d.pronto?' <small>pronto</small>':''}</span><span class="tg ${n?'verde':'naranja'}">${n?n+' sitio'+(n>1?'s':''):'sin sitio'}</span></div>`; }).join('') || '<div class="muted">Nada con ese nombre.</div>';
+}
+function paginaMenuPanel(){
+  return `<div class="tit"><h1>Menú del panel</h1></div><p class="sub">El menú de la izquierda. Crea <b>títulos</b>, cámbiales el nombre, bórralos y <b>arrastra los módulos</b> de la derecha a donde quieras. Un mismo módulo puede estar en <b>varios títulos</b>: así puedes montarte unos <b>accesos rápidos</b> con lo más importante. Arrastra el asa ⠿ para ordenar los títulos y arrastra los módulos dentro de un título para ordenarlos.</p>
+  <div class="menu2"><div id="mgrupos">${htmlGruposPM()}</div><aside class="bloque marts"><h3>Módulos</h3><input type="search" id="mqp" placeholder="Buscar…" value="${esc(S.mqp)}" style="width:100%;margin-bottom:8px"><div id="mlista">${htmlListaPM()}</div></aside></div>`;
+}
+const refrescarMenuPanel = () => { const g=$('#mgrupos'), l=$('#mlista'); if(g) g.innerHTML=htmlGruposPM(); if(l) l.innerHTML=htmlListaPM(); pintarMenuLateral(); };
+// solo se vuelve a pintar la barra lateral, no la página
+function pintarMenuLateral(){ const nav=document.querySelector('nav.lateral'); if(!nav) return; const ac=nav.querySelector('.menu-acciones'); const usu=nav.querySelector('.usuario'); const marca=nav.querySelector('.marca-fila');
+  const it2 = (id,icono,txt,on,pronto) => pronto ? `<div class="nav pronto" title="${txt} (pronto)">${ico(icono)} <span class="txt">${txt}</span><span class="tag">pronto</span></div>` : `<button class="nav ${on?'on':''}" data-ac="nav" data-p="${id}" title="${txt}">${ico(icono)} <span class="txt">${txt}</span></button>`;
+  const html = S.menuPanel.map(g=>grupoMenu(g.id, g.nombre, g.items.map(m=>{ const d=MODULOS[m]; return d?it2(m,d.ic,d.t,S.pagina===m,d.pronto):''; }).join(''))).join('');
+  nav.querySelectorAll('.grupo-menu').forEach(x=>x.remove()); usu.insertAdjacentHTML('beforebegin', html); }
+function soltarModulo(arr, destId, e){
+  const dest=S.menuPanel.find(g=>g.id===destId); let idx=dest.items.length;
+  const ch=e.target.closest('.mchip[data-pmfrom]');
+  if(ch && ch.dataset.pm!==arr.m){ idx=dest.items.indexOf(ch.dataset.pm); const r=ch.getBoundingClientRect(); if((e.clientX-r.left)>r.width/2) idx++; }
+  if(arr.from===destId){ const i=dest.items.indexOf(arr.m); dest.items.splice(i,1); if(idx>i) idx--; dest.items.splice(idx,0,arr.m); refrescarMenuPanel(); aviso('Orden cambiado'); return; }
+  if(dest.items.includes(arr.m)) return aviso('Ya está en ese título');
+  if(arr.from){ const o=S.menuPanel.find(g=>g.id===arr.from); o.items=o.items.filter(x=>x!==arr.m); }
+  dest.items.splice(idx,0,arr.m); refrescarMenuPanel(); aviso(arr.from ? `Pasado a «${dest.nombre}»` : `Añadido a «${dest.nombre}»`);
+}
+function soltarGrupoPM(src, dest){
+  const si=S.menuPanel.findIndex(g=>g.id===src), di=S.menuPanel.findIndex(g=>g.id===dest); if(si<0||di<0||si===di) return;
+  const [g]=S.menuPanel.splice(si,1); S.menuPanel.splice(di,0,g); refrescarMenuPanel(); aviso('Títulos reordenados');
+}
+let arrPM=null;
+document.addEventListener('dragstart', e=>{
+  const c=e.target.closest && e.target.closest('[data-pm]');
+  if(c){ arrPM={m:c.dataset.pm, from:c.dataset.pmfrom||null}; e.dataTransfer.effectAllowed='copyMove'; e.dataTransfer.setData('text/plain',arrPM.m); setTimeout(()=>c.classList.add('arrastrando'),0); return; }
+  const g=e.target.closest && e.target.closest('[data-pmg]');
+  if(g){ arrPM={grupo:g.dataset.pmg}; e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain','titulo'); }
+});
+document.addEventListener('dragend', ()=>{ arrPM=null; limpiarMarcas(); });
+document.addEventListener('dragover', e=>{
+  if(!arrPM) return;
+  if(arrPM.m){ const z=e.target.closest('[data-pmz]'); if(!z) return; e.preventDefault(); e.dataTransfer.dropEffect = arrPM.from ? 'move' : 'copy'; limpiarMarcas(); z.classList.add('sobre');
+    const ch=e.target.closest('.mchip[data-pmfrom]'); if(ch && ch.dataset.pm!==arrPM.m){ const r=ch.getBoundingClientRect(); ch.classList.add((e.clientX-r.left)>r.width/2?'insertar-d':'insertar'); } }
+  else if(arrPM.grupo){ const g=e.target.closest('[data-pmgd]'); if(!g || g.dataset.pmgd===arrPM.grupo) return; e.preventDefault(); limpiarMarcas(); g.classList.add('sobre'); }
+});
+document.addEventListener('drop', e=>{
+  if(!arrPM) return;
+  if(arrPM.m){ const z=e.target.closest('[data-pmz]'); if(z){ e.preventDefault(); soltarModulo(arrPM, z.dataset.pmz, e); setTimeout(()=>vigilar('drop','Menú del panel (arrastrar)'),0); } }
+  else if(arrPM.grupo){ const g=e.target.closest('[data-pmgd]'); if(g){ e.preventDefault(); soltarGrupoPM(arrPM.grupo, g.dataset.pmgd); setTimeout(()=>vigilar('drop','Menú del panel (arrastrar)'),0); } }
+  arrPM=null; limpiarMarcas();
+});
+document.addEventListener('input', e=>{ if(e.target.id==='mqp'){ S.mqp=e.target.value; const l=$('#mlista'); if(l) l.innerHTML=htmlListaPM(); } });
+document.addEventListener('change', e=>{ const t=e.target; if(t.dataset && t.dataset.pmgn){ const g=S.menuPanel.find(x=>x.id===t.dataset.pmgn), v=t.value.trim(); if(v){ g.nombre=v; refrescarMenuPanel(); aviso('Título renombrado'); } else t.value=g.nombre; } });/* --- Acceso al back, socios (fichas de ejemplo), llaves y auditoría --- */
 S.accesos=[{usuario:'admin', nombre:'Administrador', socio:null, activo:true, clave:'admin', integrado:true, ultimo:''}];
 S.sesion=null; S.audit=[]; S.fAu={q:'',usuario:''}; S.fS={q:'',estado:''}; S.fL={q:'',socio:'',estado:''};
 S.verSaldos=false; S.asig=null; S.confSoc=null; S.edIban=null; S.formAcc=null; S.cambClave=null;
@@ -1185,7 +1254,7 @@ const llaveRepetida = c => todasLlaves().some(x=>x.k.codigo.toLowerCase()===c.to
 const enlaceSocio = n => `<a class="enlace" data-ac="abrir" data-t="socio" data-id="${n}" title="Ver los datos del socio a la derecha">${etSocio(n)}</a>`;
 const botonSaldos = () => `<button class="btn" data-ac="verSaldos" title="Mostrar u ocultar los saldos de todo el panel">${ico(S.verSaldos?'ojoOff':'ojo')} ${S.verSaldos?'Ocultar saldos':'Ver saldos'}</button>`;
 const confirmarEn = (k, texto) => S.confSoc===k ? `<span class="conf">${texto} <button class="btn rojo" data-ac="confSi" data-k="${k}">Sí, seguro</button> <button class="btn" data-ac="confNo">No</button></span>` : '';
-const refrescarSocios = () => { pintarPagina(); pintarCajon(true); };
+const refrescarSocios = () => { if(S.pagina==='menupanel'){ refrescarMenuPanel(); return; } pintarPagina(); pintarCajon(true); };
 const bannerClave = () => (S.sesion && S.pagina!=='accesos' && S.accesos.some(a=>a.integrado&&a.clave==='admin')) ? `<div class="aviso-clave">El usuario <b>admin</b> sigue con la contraseña de fábrica. Cámbiala antes de usar txokoPay de verdad. <button class="btn rojo" data-ac="irCambiarClave">Cambiarla ahora</button></div>` : '';
 function pintarLogin(msg){
   $('#app').innerHTML=`<div class="login"><div class="login-card"><div class="marca" style="font-size:32px;padding:0">txokoPay<small>Panel de la junta</small></div>
@@ -1286,7 +1355,7 @@ function resultadoAuditoria(){
   return `<div class="pills"><span class="pill">Registros <b>${l.length}</b></span></div>`+(l.length?`<div class="scrollx"><table class="tabla" style="width:100%;min-width:0"><thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Acción</th><th>Detalle</th></tr></thead><tbody>${l.map(x=>`<tr><td>${fmtFechaHora(x.at)}</td><td><b>${esc(x.usuario)}</b></td><td>${esc(x.accion)}</td><td class="muted">${esc(x.detalle)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="vacio">Todavía no hay registros.</div>');
 }
 // Auditoría automática: cualquier clic o cambio que modifique datos queda anotado con qué datos cambiaron
-const VIGILADO = () => ({'Gastos':S.gastos,'Categorías de gasto':S.catGastos,'Cuentas':S.cuentas,'Albaranes':S.albaranes,'Correcciones de existencias':S.corr,'Inventarios':S.inventarios,'Traspasos a la barra':S.repos,'Recuentos de vidrio':S.recuentos,'Artículos':ART,'Categorías':CATS,'Menú de la TPV':S.menu,'Formas de pago':S.pagos,'Alertas':S.alertas,'Franjas':S.franjas,'Máquinas':MAQUINAS,'Días cerrados':S.cerrados,'Copias de seguridad':S.copias,'Socios y llaves':S.fichas,'Tickets':S.tickets,'Reservas':S.reservas,'Almacén aparte':S.usaAlmacen,'Antelación':S.antelacion});
+const VIGILADO = () => ({'Gastos':S.gastos,'Categorías de gasto':S.catGastos,'Cuentas':S.cuentas,'Albaranes':S.albaranes,'Correcciones de existencias':S.corr,'Inventarios':S.inventarios,'Traspasos a la barra':S.repos,'Recuentos de vidrio':S.recuentos,'Artículos':ART,'Categorías':CATS,'Menú de la TPV':S.menu,'Formas de pago':S.pagos,'Alertas':S.alertas,'Franjas':S.franjas,'Máquinas':MAQUINAS,'Días cerrados':S.cerrados,'Copias de seguridad':S.copias,'Socios y llaves':S.fichas,'Menú del panel':S.menuPanel,'Tickets':S.tickets,'Reservas':S.reservas,'Almacén aparte':S.usaAlmacen,'Antelación':S.antelacion});
 const fotoDatos = () => { const o=VIGILADO(), r={}; for(const k in o) r[k]=JSON.stringify(o[k]); return r; };
 let _foto=null;
 const ETIQ_ACC={guardarGasto:'Nuevo gasto',anularGasto:'Gasto anulado o reactivado',guardarAlbaran:'Albarán guardado',confirmarInventario:'Inventario aplicado',confirmarReponer:'Género pasado a la barra',corregirExist:'Corrección de existencias',togglePago:'Forma de pago',toggleAj:'Ajuste de reservas',toggleAl:'Alerta',toggleActivo:'Artículo activo o inactivo',naCrear:'Artículo creado',duplicarArt:'Artículo duplicado',confirmarBorrarArt:'Artículo borrado',copiaAhora:'Copia de seguridad',confirmarRestaurar:'Copia restaurada',restaurarAlertas:'Alertas restauradas',altaBajaSocio:'Alta o baja de socio',telAnadir:'Teléfono añadido',telQuitar:'Teléfono quitado',llaveAnadir:'Llave añadida',llaveNueva:'Llave añadida',llaveToggle:'Llave activada o desactivada',confSi:'Borrado confirmado',ibanGuardar:'Cuenta bancaria guardada',sobreOk:'Sobre comprobado',confirmarIncidencia:'Alerta en un sobre'};
@@ -1570,6 +1639,7 @@ Object.assign(ACC, {
   confSi: el=>{ const k=el.dataset.k, p=k.split(':'); S.confSoc=null;
     if(p[0]==='iban'){ const n=+p[1]; S.fichas[n].iban=''; auditar('Cuenta bancaria borrada', `${n} - ${socio(n).nombre}`); aviso('Cuenta borrada'); }
     else if(p[0]==='llave'){ const n=+p[1], i=+p[2], c=S.fichas[n].llaves[i].codigo; S.fichas[n].llaves.splice(i,1); auditar('Llave borrada', `${c} (era de ${socio(n).nombre}, nº ${n})`); aviso('Llave borrada'); }
+    else if(p[0]==='grupop'){ const id=p.slice(1).join(':'), g=S.menuPanel.find(x=>x.id===id); if(g && g.items.includes('menupanel') && vecesModulo('menupanel')<=1){ aviso('Antes pasa «Menú del panel» a otro título'); } else if(g){ S.menuPanel=S.menuPanel.filter(x=>x.id!==id); aviso('Título borrado'); } refrescarMenuPanel(); return; }
     else if(p[0]==='asig'){ const a=S.asig; if(a&&a.destino){ const k=S.fichas[a.n].llaves.splice(a.i,1)[0]; S.fichas[a.destino].llaves.push(k); auditar('Llave pasada a otro socio', `${k.codigo}: de ${a.n} - ${socio(a.n).nombre} a ${a.destino} - ${socio(a.destino).nombre}`); aviso(`Llave dada a ${socio(a.destino).nombre}`); } S.asig=null; }
     else if(p[0]==='acceso'){ const a=S.accesos.find(x=>x.usuario===p.slice(1).join(':')); if(a.integrado||a.usuario===S.sesion.usuario){ aviso('Ese acceso no se puede quitar'); } else { a.activo=false; auditar('Acceso al back retirado', `${a.nombre} («${a.usuario}»)`); aviso('Acceso retirado (no se borra)'); } }
     refrescarSocios(); },
@@ -1599,7 +1669,9 @@ Object.assign(ACC, {
   guardarClave: el=>{ const a=S.accesos.find(x=>x.usuario===el.dataset.u), n1=$('#ckN1').value, n2=$('#ckN2').value, e=$('#mErr'); if(n1.length<4){ e.textContent='Al menos 4 caracteres.'; return; } if(n1!==n2){ e.textContent='No coinciden.'; return; }
     a.clave=n1; S.cambClave=null; auditar('Contraseña cambiada', `${a.nombre} («${a.usuario}»)`); pintarTodo(); aviso('Contraseña cambiada'); },  grupoMenu: el=>{ const g=el.dataset.g, sec=el.closest('.grupo-menu'); if(S.gruposCerrados.has(g)) S.gruposCerrados.delete(g); else S.gruposCerrados.add(g); sec.classList.toggle('cerrado', S.gruposCerrados.has(g)); },
   menuAbrirTodo: ()=>{ S.gruposCerrados.clear(); document.querySelectorAll('.grupo-menu').forEach(x=>x.classList.remove('cerrado')); },
-  menuCerrarTodo: ()=>{ GRUPOS_MENU.forEach(g=>S.gruposCerrados.add(g)); document.querySelectorAll('.grupo-menu').forEach(x=>x.classList.add('cerrado')); },  pestGen: el=>{ S.pestGen=el.dataset.p; pintarPagina(); },
+  menuCerrarTodo: ()=>{ S.menuPanel.forEach(g=>S.gruposCerrados.add(g.id)); document.querySelectorAll('.grupo-menu').forEach(x=>x.classList.add('cerrado')); },  pmQuitar: el=>{ const g=S.menuPanel.find(x=>x.id===el.dataset.g), m=el.dataset.m; if(m==='menupanel' && vecesModulo('menupanel')<=1) return aviso('«Menú del panel» tiene que estar en algún título, si no no podrías volver aquí'); g.items=g.items.filter(x=>x!==m); refrescarMenuPanel(); aviso('Quitado de ese título'); },
+  pmGrupoNuevo: ()=>{ const n=$('#npNombre').value.trim(); if(!n) return aviso('Ponle un nombre al título'); if(S.menuPanel.some(g=>g.nombre.toLowerCase()===n.toLowerCase())) return aviso('Ya hay un título con ese nombre');
+    S.menuPanel.push({id:idUnico(n,S.menuPanel.map(g=>g.id)), nombre:n, items:[]}); refrescarMenuPanel(); aviso(`Título «${n}» creado`); },  pestGen: el=>{ S.pestGen=el.dataset.p; pintarPagina(); },
   restaurarAlertas: ()=>{ S.alertas=JSON.parse(JSON.stringify(ALERTAS_BASE)); pintarPagina(); pintarCajon(true); aviso('Alertas restauradas'); },
   /* ingresos / sobres */
   sobreOk: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id); marcarSobre(t,'comprobado',totalDe(t),'',''); t.marca='Conforme'; refrescar(true); aviso('✉ Sobre comprobado: conforme'); },
