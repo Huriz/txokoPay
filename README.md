@@ -21,3 +21,23 @@ Una aplicación para sociedades gastronómicas: lleva el día a día del local, 
 - La TPV nunca se bloquea: si algo no cuadra, queda como aviso para revisarlo después.
 
 Iremos contando más a medida que avance.
+
+## Cómo va
+
+Capturas de los prototipos con los que se está diseñando. Los datos son de ejemplo y todo puede cambiar.
+
+**TPV: el mostrador.** Botones grandes, categorías a la izquierda, el ticket a la derecha y las acciones principales abajo.
+
+![TPV, consumo](capturas/tpv-consumo.png)
+
+**TPV: elegir cómo pagar.** Cada forma de pago tiene su color y la banca muestra el saldo del socio.
+
+![TPV, pago](capturas/tpv-pago.png)
+
+**Panel de la junta: reservas.** Estados de revisión por colores, avisos a los socios y tickets unidos a cada reserva.
+
+![Panel, reservas](capturas/panel-reservas.png)
+
+**Panel de la junta: artículos.** Un artículo puede salir de otros, con la cantidad que gasta de cada uno.
+
+![Panel, artículos](capturas/panel-articulos.png)
