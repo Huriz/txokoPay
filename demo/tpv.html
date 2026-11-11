@@ -424,7 +424,8 @@ const tk = (f,forma,items,estado='comprobado')=>{
 };
 const ing = (f,forma,importe,estado='comprobado')=>({f, tipo:'ingreso', forma, importe, estado});
 
-function pagosGuardados(){ const base={cobro:true, banca:true, efectivo:true, tarjeta:true}; try{ const g=JSON.parse(localStorage.getItem('txokopay.pagos')||'null'); if(g) Object.assign(base,g); }catch(e){} return base; }
+function impConfig(){ try{ const g=JSON.parse(localStorage.getItem('txokopay.impresoras')||'null'); if(g && g.usadas) return g; }catch(e){} return JSON.parse(JSON.stringify(CATALOGO.impresoras)); }
+const destinoImp = job => { const c=impConfig(), ids=(c.trabajos&&c.trabajos[job])||[], n=c.usadas.filter(p=>p.activa && ids.includes(p.id)).map(p=>p.nombre); return n.length ? '→ '+n.join(' y ') : '→ sin impresora asignada: no se imprime'; };function pagosGuardados(){ const base={cobro:true, banca:true, efectivo:true, tarjeta:true}; try{ const g=JSON.parse(localStorage.getItem('txokopay.pagos')||'null'); if(g) Object.assign(base,g); }catch(e){} return base; }
 function estadoInicial(idioma){
   return {
     idioma: idioma || 'es', pantalla:'entrada', aviso:'',
@@ -770,7 +771,7 @@ function terminarTicket(forma){
   if(conSobre){
     abrirVentana(`<h2>${icono('ok','icobien')} ${tx('ticketCerrado')} · ${euros(total)}</h2>
       <div class="hecho">
-        <div><div class="imprimiendo">${icono('impresora')} ${tx('imprimiendo')}</div><div class="recibo">${rec}</div></div>
+        <div><div class="imprimiendo">${icono('impresora')} ${tx('imprimiendo')} <b>${destinoImp('ticket')}</b></div><div class="recibo">${rec}</div></div>
         <div>${cajaSobre(forma, total)}<button class="boton verde entero xl" style="margin-top:24px" data-accion="v" data-k="fin">${tx('terminar')}</button></div>
       </div>`, 'ancha');
   } else {
@@ -803,7 +804,7 @@ function ingresoHecho(c, forma){
   V.ok = cerrarVentana;
   abrirVentana(`<h2>${icono('ok','icobien')} ${tx('ingresoHecho')} · ${euros(c)}</h2>
     <div class="hecho">
-      <div><div class="imprimiendo">${icono('impresora')} ${tx('imprimiendo')}</div><div class="recibo">${recibo('ingreso', forma, c)}</div></div>
+      <div><div class="imprimiendo">${icono('impresora')} ${tx('imprimiendo')} <b>${destinoImp('ingreso')}</b></div><div class="recibo">${recibo('ingreso', forma, c)}</div></div>
       <div>${cajaSobre(forma, c)}
         <p class="importe" style="margin-top:20px">${tx('ingresoYaDisponible')}</p>
         <p class="importe">${tx('saldoAhora')} <span class="pastilla ${claseSaldo(E.saldo)}">${icono('banca')} ${euros(E.saldo)}</span></p>
@@ -1003,7 +1004,7 @@ function confirmarReserva(){
   V.ok = cerrarVentana;
   abrirVentana(`<h2>${icono('ok')} ${tx(r.editando?'reservaCambiada':'reservaHecha')}</h2>
     <div class="hecho">
-      <div><div class="imprimiendo">${icono('impresora')} ${tx('imprimiendo')}</div><div class="recibo">${reciboReserva(b)}</div></div>
+      <div><div class="imprimiendo">${icono('impresora')} ${tx('imprimiendo')} <b>${destinoImp('reserva')}</b></div><div class="recibo">${reciboReserva(b)}</div></div>
       <div><div class="resumen">${textoReservaLarga(b)}</div>
         <p class="importe" style="margin-top:20px">${tx('guardaTicket')}</p>
         <button class="boton verde entero xl" style="margin-top:12px" data-accion="v" data-k="ok">${tx('entendido')}</button></div>

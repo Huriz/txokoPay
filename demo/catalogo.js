@@ -54,6 +54,17 @@ window.CATALOGO = {
     {id:'varios',     nombre:'Varios',     items:['mantel','servilletas','carbon','aceite','hielo']},
     {id:'vinos',      nombre:'Vinos',      items:['rioja','txakoli','blanco','sidra','descorche','copa_vino']}
   ],
-  poca:{ cats:['refresco','cerveza','vino','agua','chupito','botellalicor','combinado'], comen:'comensal' }
+  impresoras:{
+    // lo que «ve» el sistema donde está instalado el servidor (en la app real se lee del propio sistema)
+    sistema:[
+      {id:'s1', nombre:'EPSON TM-T20III Receipt', tipo:'Térmica de tickets', conexion:'USB', papel:'80 mm', estado:'lista'},
+      {id:'s2', nombre:'Star TSP143III', tipo:'Térmica de tickets', conexion:'Red · 192.168.1.50', papel:'80 mm', estado:'lista'},
+      {id:'s3', nombre:'HP LaserJet Pro M404', tipo:'Láser', conexion:'Red · 192.168.1.60', papel:'A4', estado:'lista'},
+      {id:'s4', nombre:'Brother QL-800', tipo:'Etiquetas', conexion:'USB', papel:'62 mm', estado:'sin papel'},
+      {id:'s5', nombre:'Microsoft Print to PDF', tipo:'Virtual (PDF)', conexion:'Virtual', papel:'A4', estado:'lista'}
+    ],
+    usadas:[{id:'p1', sis:'s1', nombre:'Barra', papel:'80 mm', activa:true}, {id:'p2', sis:'s3', nombre:'Oficina', papel:'A4', activa:true}],
+    trabajos:{ticket:['p1'], ingreso:['p1'], reserva:['p1'], informe:['p2']}
+  },  poca:{ cats:['refresco','cerveza','vino','agua','chupito','botellalicor','combinado'], comen:'comensal' }
 };
 })();

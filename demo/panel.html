@@ -271,6 +271,7 @@ body.menu-compacto .grupo-menu.cerrado .grupo-items{display:block}
 body.menu-compacto .grupo-t{display:none}.canales{display:flex;gap:8px}.canal{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:2px;border:1px solid #e3d9c9;background:#fff;border-radius:12px;padding:9px 12px;font-weight:700;text-align:left;cursor:pointer;box-shadow:0 2px 0 rgba(43,33,24,.12)}.canal small{font-weight:400;color:var(--suave);font-size:11px}.canal.on{border-color:var(--principal);background:#fff3e8;box-shadow:0 2px 0 #c9bba4,0 0 0 3px rgba(200,80,30,.12)}.canal .ico{width:16px;height:16px;margin-right:4px;vertical-align:-3px}
 small.desglose{display:block;text-align:right;font-size:10.5px;line-height:1.35;margin-top:1px}
 .mchip-ico{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#fde9d9;color:var(--principal);flex:none}.mchip-ico .ico{width:16px;height:16px}
+.chips-imp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.chip-imp{border:1px solid #e3d9c9;background:#fff;border-radius:99px;padding:4px 11px;font-size:12px;font-weight:700;cursor:pointer;color:var(--suave)}.chip-imp .ico{width:14px;height:14px;vertical-align:-2px}.chip-imp.on{background:#e4f3e8;border-color:#7fc08e;color:#1b6a35}
 .dia-copia{min-width:44px;padding:5px 8px}.dia-copia.mal{background:#fbe0dc;border-color:#e8a59c;color:#9b2c20}
 .origen-celda{display:flex;align-items:flex-start;gap:0}
 .padre-lista.apilado{flex-direction:column;align-items:flex-start;gap:4px}
@@ -327,6 +328,7 @@ function ico(n){ const P={
   escudo:'<path d="M12 3 4 6v6c0 4.5 3.2 8 8 9 4.8-1 8-4.5 8-9V6Z"/><path d="m9 12 2 2 4-4"/>',
   desplegar:'<path d="m7 7 5 5 5-5M7 13l5 5 5-5"/>',
   plegar:'<path d="m7 11 5-5 5 5M7 17l5-5 5 5"/>',
+  impresora:'<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect width="12" height="8" x="6" y="14" rx="1"/>',
   llave:'<circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 9.8-9.8M17 6l3 3M14 9l2 2"/>',
   ojo:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
   ojoOff:'<path d="M3 3l18 18M10.6 5.1A9.7 9.7 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.7A17 17 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 4.3-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
@@ -560,7 +562,7 @@ const MODULOS = {
   revision:{t:'Revisión', ic:'alerta', pronto:true}, reservas:{t:'Reservas', ic:'calendario'}, tickets:{t:'Tickets', ic:'recibo'}, avisos:{t:'Avisos', ic:'mensaje', pronto:true},
   socios:{t:'Socios', ic:'persona'}, llaves:{t:'Llaves', ic:'llave'}, caja:{t:'Ingresos', ic:'caja'}, gastos:{t:'Gastos', ic:'recibo'},
   genero:{t:'Inventario', ic:'paquete'}, almacen:{t:'Almacén', ic:'paquete'}, articulos:{t:'Artículos', ic:'paquete'}, menu:{t:'Menú de la TPV', ic:'menu'}, pagos:{t:'Formas de pago', ic:'ajustes'},
-  copias:{t:'Copias de seguridad', ic:'paquete'}, alertas:{t:'Alertas', ic:'alerta'}, accesos:{t:'Accesos al back', ic:'persona'}, auditoria:{t:'Auditoría', ic:'recibo'}, menupanel:{t:'Menú del panel', ic:'menu'}
+  copias:{t:'Copias de seguridad', ic:'paquete'}, alertas:{t:'Alertas', ic:'alerta'}, accesos:{t:'Accesos al back', ic:'persona'}, auditoria:{t:'Auditoría', ic:'recibo'}, menupanel:{t:'Menú del panel', ic:'menu'}, impresoras:{t:'Impresoras', ic:'impresora'}
 };
 S.menuPanel = [
   {id:'dia', nombre:'Día a día', items:['revision','reservas','tickets','avisos']},
@@ -568,7 +570,7 @@ S.menuPanel = [
   {id:'din', nombre:'Dinero', items:['caja','gastos']},
   {id:'gen', nombre:'Género', items:['genero','almacen','articulos']},
   {id:'tpv', nombre:'TPV', items:['menu','pagos']},
-  {id:'cfg', nombre:'Configuración', items:['menupanel','copias','alertas','accesos','auditoria']}
+  {id:'cfg', nombre:'Configuración', items:['menupanel','impresoras','copias','alertas','accesos','auditoria']}
 ];
 S.mqp = '';S.gruposCerrados = new Set();   // de serie, todo abierto
 const GRUPO_DE = {reservas:'dia',tickets:'dia',socios:'usu',llaves:'usu',caja:'din',gastos:'din',genero:'gen',almacen:'gen',articulos:'gen',menu:'tpv',pagos:'tpv',copias:'cfg',alertas:'cfg',accesos:'cfg',auditoria:'cfg'};
@@ -590,7 +592,7 @@ function pintarTodo(){
   <main class="principal" id="pag"></main>`;
   aplicarMenu(); pintarPagina(); pintarCajon();
 }
-function pintarPagina(){ $('#pag').innerHTML = bannerClave() + ({reservas:paginaReservas, tickets:paginaTickets, caja:paginaCaja, menupanel:paginaMenuPanel, socios:paginaSocios, llaves:paginaLlaves, accesos:paginaAccesos, auditoria:paginaAuditoria, gastos:paginaGastos, genero:paginaGenero, almacen:paginaAlmacen, pagos:paginaPagos, copias:paginaCopias, alertas:paginaAlertas, articulos:paginaArticulos, menu:paginaMenu})[S.pagina](); pintarResultado(); }
+function pintarPagina(){ $('#pag').innerHTML = bannerClave() + ({reservas:paginaReservas, tickets:paginaTickets, caja:paginaCaja, menupanel:paginaMenuPanel, impresoras:paginaImpresoras, socios:paginaSocios, llaves:paginaLlaves, accesos:paginaAccesos, auditoria:paginaAuditoria, gastos:paginaGastos, genero:paginaGenero, almacen:paginaAlmacen, pagos:paginaPagos, copias:paginaCopias, alertas:paginaAlertas, articulos:paginaArticulos, menu:paginaMenu})[S.pagina](); pintarResultado(); }
 
 const atajosHtml = () => `<div class="atajos">Atajos: ${[['hoy','Hoy'],['ayer','Ayer'],['7','Últimos 7 días'],['mes','Este mes'],['30','Últimos 30 días'],['pasado','Mes pasado'],['todo','Todo']].map(([k,t])=>`<button class="atajo" data-ac="atajo" data-r="${k}">${t}</button>`).join('')}</div>`;
 
@@ -1229,7 +1231,23 @@ document.addEventListener('drop', e=>{
   arrPM=null; limpiarMarcas();
 });
 document.addEventListener('input', e=>{ if(e.target.id==='mqp'){ S.mqp=e.target.value; const l=$('#mlista'); if(l) l.innerHTML=htmlListaPM(); } });
-document.addEventListener('change', e=>{ const t=e.target; if(t.dataset && t.dataset.pmgn){ const g=S.menuPanel.find(x=>x.id===t.dataset.pmgn), v=t.value.trim(); if(v){ g.nombre=v; refrescarMenuPanel(); aviso('Título renombrado'); } else t.value=g.nombre; } });/* --- Acceso al back, socios (fichas de ejemplo), llaves y auditoría --- */
+document.addEventListener('change', e=>{ const t=e.target; if(t.dataset && t.dataset.impn){ const u=S.imp.usadas.find(x=>x.id===t.dataset.impn), v=t.value.trim(); if(v){ u.nombre=v; guardarImp(); aviso('Guardado'); } else t.value=u.nombre; return; }
+  if(t.dataset && t.dataset.pmgn){ const g=S.menuPanel.find(x=>x.id===t.dataset.pmgn), v=t.value.trim(); if(v){ g.nombre=v; refrescarMenuPanel(); aviso('Título renombrado'); } else t.value=g.nombre; } });/* --- Impresoras: se leen del sistema donde está instalado; aquí se eligen y se reparte qué se imprime en cada una --- */
+S.imp = JSON.parse(JSON.stringify(CATALOGO.impresoras));
+const TRABAJOS_IMP = [['ticket','Ticket de consumo','Lo que sale al cerrar un ticket'],['ingreso','Ticket de ingreso','El recibo cuando un socio mete dinero'],['reserva','Ticket de reserva','Al reservar o cambiar una reserva'],['informe','Informes y listados','Inventarios, recuentos, albaranes…']];
+function guardarImp(){ try{ localStorage.setItem('txokopay.impresoras', JSON.stringify(S.imp)); }catch(e){} }
+const impSis = id => S.imp.sistema.find(s=>s.id===id);
+function paginaImpresoras(){
+  const usadas=S.imp.usadas, anadidas=new Set(usadas.map(u=>u.sis));
+  return `<div class="tit"><h1>Impresoras</h1></div><p class="sub">txokoPay <b>coge las impresoras del sistema en el que está instalado</b> (Windows, Linux…): no hay que escribir direcciones. Aquí eliges cuáles usar y a cuál va cada cosa que se imprime.</p>
+  <div class="cuadro" style="margin-bottom:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><h3 style="margin:0">Impresoras de este sistema</h3><button class="btn" data-ac="impBuscar" style="margin-left:auto">Buscar de nuevo</button></div>
+    <table><tr><th>Impresora</th><th>Tipo</th><th>Conexión</th><th>Papel</th><th>Estado</th><th></th></tr>
+    ${S.imp.sistema.map(s=>`<tr><td><b>${esc(s.nombre)}</b></td><td>${esc(s.tipo)}</td><td class="muted">${esc(s.conexion)}</td><td>${esc(s.papel)}</td><td>${s.estado==='lista'?'<span class="tg verde">lista</span>':`<span class="tg naranja">${esc(s.estado)}</span>`}</td><td>${anadidas.has(s.id)?'<span class="tg gris">ya la usas</span>':`<button class="btn principal" data-ac="impAnadir" data-s="${s.id}">Usar en txokoPay</button>`}</td></tr>`).join('')}</table></div>
+  <div class="cuadro" style="margin-bottom:14px"><h3 style="margin:0 0 8px">Impresoras que usa txokoPay</h3>
+    ${usadas.length ? `<table><tr><th>Activa</th><th>Nombre</th><th>Impresora del sistema</th><th>Papel</th><th></th></tr>${usadas.map(u=>`<tr class="${u.activa?'':'inactivo'}"><td>${icoSiNo(u.activa, `data-ac="impToggle" data-id="${u.id}"`)}</td><td><input type="text" data-impn="${u.id}" value="${esc(u.nombre)}" style="width:170px"></td><td class="muted">${esc((impSis(u.sis)||{nombre:'(ya no está en el sistema)'}).nombre)}</td><td>${esc(u.papel)}</td><td><button class="btn" data-ac="impPrueba" data-id="${u.id}">Imprimir prueba</button> <button class="ib" data-ac="confPedir" data-k="impr:${u.id}" title="Dejar de usarla">${ico('papelera')}</button>${confirmarEn('impr:'+u.id, '¿Seguro que quieres dejar de usar esta impresora?')}</td></tr>`).join('')}</table>` : '<div class="muted">Todavía no usas ninguna: elige una de la lista de arriba.</div>'}</div>
+  <div class="cuadro"><h3 style="margin:0 0 4px">Qué se imprime en cada una</h3><p class="nota" style="margin:0 0 8px">Cada vez que algo se imprima, irá a las impresoras que marques. Puedes marcar <b>más de una</b> (por ejemplo, el ticket en la barra y en la cocina).</p>
+    <table><tr><th>Se imprime</th><th>Va a</th></tr>${TRABAJOS_IMP.map(([k,t,d])=>{ const ids=S.imp.trabajos[k]||[], act=ids.filter(i=>{ const u=usadas.find(x=>x.id===i); return u&&u.activa; }); return `<tr><td><b>${t}</b><br><small class="m">${d}</small></td><td><div class="chips-imp">${usadas.filter(u=>u.activa).map(u=>`<button class="chip-imp ${ids.includes(u.id)?'on':''}" data-ac="impTrabajo" data-j="${k}" data-id="${u.id}">${ico('impresora')} ${esc(u.nombre)}</button>`).join('')||'<span class="muted">No hay impresoras activas</span>'}${act.length?'':' <span class="tg naranja">no se imprime en ningún sitio</span>'}</div></td></tr>`; }).join('')}</table></div>`;
+}/* --- Acceso al back, socios (fichas de ejemplo), llaves y auditoría --- */
 S.accesos=[{usuario:'admin', nombre:'Administrador', socio:null, activo:true, clave:'admin', integrado:true, ultimo:''}];
 S.sesion=null; S.audit=[]; S.fAu={q:'',usuario:''}; S.fS={q:'',estado:''}; S.fL={q:'',socio:'',estado:''};
 S.verSaldos=false; S.asig=null; S.confSoc=null; S.edIban=null; S.formAcc=null; S.cambClave=null;
@@ -1355,7 +1373,7 @@ function resultadoAuditoria(){
   return `<div class="pills"><span class="pill">Registros <b>${l.length}</b></span></div>`+(l.length?`<div class="scrollx"><table class="tabla" style="width:100%;min-width:0"><thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Acción</th><th>Detalle</th></tr></thead><tbody>${l.map(x=>`<tr><td>${fmtFechaHora(x.at)}</td><td><b>${esc(x.usuario)}</b></td><td>${esc(x.accion)}</td><td class="muted">${esc(x.detalle)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="vacio">Todavía no hay registros.</div>');
 }
 // Auditoría automática: cualquier clic o cambio que modifique datos queda anotado con qué datos cambiaron
-const VIGILADO = () => ({'Gastos':S.gastos,'Categorías de gasto':S.catGastos,'Cuentas':S.cuentas,'Albaranes':S.albaranes,'Correcciones de existencias':S.corr,'Inventarios':S.inventarios,'Traspasos a la barra':S.repos,'Recuentos de vidrio':S.recuentos,'Artículos':ART,'Categorías':CATS,'Menú de la TPV':S.menu,'Formas de pago':S.pagos,'Alertas':S.alertas,'Franjas':S.franjas,'Máquinas':MAQUINAS,'Días cerrados':S.cerrados,'Copias de seguridad':S.copias,'Socios y llaves':S.fichas,'Menú del panel':S.menuPanel,'Tickets':S.tickets,'Reservas':S.reservas,'Almacén aparte':S.usaAlmacen,'Antelación':S.antelacion});
+const VIGILADO = () => ({'Gastos':S.gastos,'Categorías de gasto':S.catGastos,'Cuentas':S.cuentas,'Albaranes':S.albaranes,'Correcciones de existencias':S.corr,'Inventarios':S.inventarios,'Traspasos a la barra':S.repos,'Recuentos de vidrio':S.recuentos,'Artículos':ART,'Categorías':CATS,'Menú de la TPV':S.menu,'Formas de pago':S.pagos,'Alertas':S.alertas,'Franjas':S.franjas,'Máquinas':MAQUINAS,'Días cerrados':S.cerrados,'Copias de seguridad':S.copias,'Socios y llaves':S.fichas,'Menú del panel':S.menuPanel,'Impresoras':S.imp,'Tickets':S.tickets,'Reservas':S.reservas,'Almacén aparte':S.usaAlmacen,'Antelación':S.antelacion});
 const fotoDatos = () => { const o=VIGILADO(), r={}; for(const k in o) r[k]=JSON.stringify(o[k]); return r; };
 let _foto=null;
 const ETIQ_ACC={guardarGasto:'Nuevo gasto',anularGasto:'Gasto anulado o reactivado',guardarAlbaran:'Albarán guardado',confirmarInventario:'Inventario aplicado',confirmarReponer:'Género pasado a la barra',corregirExist:'Corrección de existencias',togglePago:'Forma de pago',toggleAj:'Ajuste de reservas',toggleAl:'Alerta',toggleActivo:'Artículo activo o inactivo',naCrear:'Artículo creado',duplicarArt:'Artículo duplicado',confirmarBorrarArt:'Artículo borrado',copiaAhora:'Copia de seguridad',confirmarRestaurar:'Copia restaurada',restaurarAlertas:'Alertas restauradas',altaBajaSocio:'Alta o baja de socio',telAnadir:'Teléfono añadido',telQuitar:'Teléfono quitado',llaveAnadir:'Llave añadida',llaveNueva:'Llave añadida',llaveToggle:'Llave activada o desactivada',confSi:'Borrado confirmado',ibanGuardar:'Cuenta bancaria guardada',sobreOk:'Sobre comprobado',confirmarIncidencia:'Alerta en un sobre'};
@@ -1640,6 +1658,7 @@ Object.assign(ACC, {
     if(p[0]==='iban'){ const n=+p[1]; S.fichas[n].iban=''; auditar('Cuenta bancaria borrada', `${n} - ${socio(n).nombre}`); aviso('Cuenta borrada'); }
     else if(p[0]==='llave'){ const n=+p[1], i=+p[2], c=S.fichas[n].llaves[i].codigo; S.fichas[n].llaves.splice(i,1); auditar('Llave borrada', `${c} (era de ${socio(n).nombre}, nº ${n})`); aviso('Llave borrada'); }
     else if(p[0]==='grupop'){ const id=p.slice(1).join(':'), g=S.menuPanel.find(x=>x.id===id); if(g && g.items.includes('menupanel') && vecesModulo('menupanel')<=1){ aviso('Antes pasa «Menú del panel» a otro título'); } else if(g){ S.menuPanel=S.menuPanel.filter(x=>x.id!==id); aviso('Título borrado'); } refrescarMenuPanel(); return; }
+    else if(p[0]==='impr'){ const id=p.slice(1).join(':'); S.imp.usadas=S.imp.usadas.filter(x=>x.id!==id); Object.keys(S.imp.trabajos).forEach(j=>{ S.imp.trabajos[j]=S.imp.trabajos[j].filter(x=>x!==id); }); guardarImp(); aviso('Impresora quitada'); }
     else if(p[0]==='asig'){ const a=S.asig; if(a&&a.destino){ const k=S.fichas[a.n].llaves.splice(a.i,1)[0]; S.fichas[a.destino].llaves.push(k); auditar('Llave pasada a otro socio', `${k.codigo}: de ${a.n} - ${socio(a.n).nombre} a ${a.destino} - ${socio(a.destino).nombre}`); aviso(`Llave dada a ${socio(a.destino).nombre}`); } S.asig=null; }
     else if(p[0]==='acceso'){ const a=S.accesos.find(x=>x.usuario===p.slice(1).join(':')); if(a.integrado||a.usuario===S.sesion.usuario){ aviso('Ese acceso no se puede quitar'); } else { a.activo=false; auditar('Acceso al back retirado', `${a.nombre} («${a.usuario}»)`); aviso('Acceso retirado (no se borra)'); } }
     refrescarSocios(); },
@@ -1671,7 +1690,12 @@ Object.assign(ACC, {
   menuAbrirTodo: ()=>{ S.gruposCerrados.clear(); document.querySelectorAll('.grupo-menu').forEach(x=>x.classList.remove('cerrado')); },
   menuCerrarTodo: ()=>{ S.menuPanel.forEach(g=>S.gruposCerrados.add(g.id)); document.querySelectorAll('.grupo-menu').forEach(x=>x.classList.add('cerrado')); },  pmQuitar: el=>{ const g=S.menuPanel.find(x=>x.id===el.dataset.g), m=el.dataset.m; if(m==='menupanel' && vecesModulo('menupanel')<=1) return aviso('«Menú del panel» tiene que estar en algún título, si no no podrías volver aquí'); g.items=g.items.filter(x=>x!==m); refrescarMenuPanel(); aviso('Quitado de ese título'); },
   pmGrupoNuevo: ()=>{ const n=$('#npNombre').value.trim(); if(!n) return aviso('Ponle un nombre al título'); if(S.menuPanel.some(g=>g.nombre.toLowerCase()===n.toLowerCase())) return aviso('Ya hay un título con ese nombre');
-    S.menuPanel.push({id:idUnico(n,S.menuPanel.map(g=>g.id)), nombre:n, items:[]}); refrescarMenuPanel(); aviso(`Título «${n}» creado`); },  pestGen: el=>{ S.pestGen=el.dataset.p; pintarPagina(); },
+    S.menuPanel.push({id:idUnico(n,S.menuPanel.map(g=>g.id)), nombre:n, items:[]}); refrescarMenuPanel(); aviso(`Título «${n}» creado`); },  impBuscar: ()=>{ aviso(`Buscadas las impresoras de este sistema: ${S.imp.sistema.length} encontradas`); pintarPagina(); },
+  impAnadir: el=>{ const s=impSis(el.dataset.s); if(!s) return; if(S.imp.usadas.some(u=>u.sis===s.id)) return aviso('Ya la usas'); const id='p'+Date.now().toString(36);
+    S.imp.usadas.push({id, sis:s.id, nombre:s.nombre, papel:s.papel, activa:true}); guardarImp(); pintarPagina(); aviso('Añadida: ahora elige qué se imprime en ella'); },
+  impToggle: el=>{ const u=S.imp.usadas.find(x=>x.id===el.dataset.id); u.activa=!u.activa; guardarImp(); pintarPagina(); },
+  impTrabajo: el=>{ const j=el.dataset.j, id=el.dataset.id, l=S.imp.trabajos[j]||(S.imp.trabajos[j]=[]); const i=l.indexOf(id); if(i>=0) l.splice(i,1); else l.push(id); guardarImp(); pintarPagina(); },
+  impPrueba: el=>{ const u=S.imp.usadas.find(x=>x.id===el.dataset.id); auditar('Prueba de impresión', `${u.nombre} (${(impSis(u.sis)||{}).nombre||'?'})`); aviso(`Prueba enviada a «${u.nombre}»`); },  pestGen: el=>{ S.pestGen=el.dataset.p; pintarPagina(); },
   restaurarAlertas: ()=>{ S.alertas=JSON.parse(JSON.stringify(ALERTAS_BASE)); pintarPagina(); pintarCajon(true); aviso('Alertas restauradas'); },
   /* ingresos / sobres */
   sobreOk: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id); marcarSobre(t,'comprobado',totalDe(t),'',''); t.marca='Conforme'; refrescar(true); aviso('✉ Sobre comprobado: conforme'); },
