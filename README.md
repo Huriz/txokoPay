@@ -22,30 +22,13 @@ Una aplicación para sociedades gastronómicas: lleva el día a día del local, 
 
 Iremos contando más a medida que avance.
 
-## Cómo va
+## Pruébalo
 
-Capturas de los prototipos con los que se está diseñando. Los datos son de ejemplo y todo puede cambiar.
+Dos maquetas para tocar, con **datos inventados**. Todo ocurre en tu navegador: no se guarda nada y, al recargar la página, vuelve todo a como estaba. Cambia lo que quieras.
 
-**TPV: el mostrador.** Botones grandes, grupos a la izquierda, el ticket a la derecha y las acciones principales abajo. Los grupos y artículos son los mismos que se montan en el panel.
+- **[TPV, el mostrador](demo/tpv.html)**: pantalla táctil con los grupos a la izquierda, el ticket a la derecha, reservas y formas de pago. Para entrar pulsa «Entrar con número de socio» y escribe cualquier número de tres o más cifras (por ejemplo `2371`).
+- **[Panel de la junta](demo/panel.html)**: reservas y tickets con su revisión, socios y llaves, ingresos y gastos, almacén e inventario, artículos y menú de la TPV, formas de pago, copias de seguridad y auditoría. Para entrar: usuario `admin`, contraseña `admin`.
 
-![TPV, consumo](capturas/tpv-consumo.png)
+Las formas de pago que activas en el panel son las que ofrece la TPV, y los dos comparten los mismos artículos y menú. Para que se vea, abre las dos en pestañas del mismo navegador.
 
-**TPV: elegir cómo pagar.** Cada forma de pago tiene su color y la banca muestra el saldo del socio.
-
-![TPV, pago](capturas/tpv-pago.png)
-
-**Panel de la junta: menú de la TPV.** Se arrastran las consumiciones a los grupos y la TPV lo recoge al momento.
-
-![Panel, menú de la TPV](capturas/panel-menu.png)
-
-**Panel de la junta: artículos.** Cada artículo va en una categoría. Se compra («De barra») o se prepara con otros, con la cantidad que gasta de cada uno: un cubata es una parte de botella más un refresco.
-
-![Panel, artículos](capturas/panel-articulos.png)
-
-**Panel de la junta: almacén.** Existencias, alertas de poco género y albaranes de entrada por unidades, con su precio y su IVA.
-
-![Panel, almacén](capturas/panel-almacen.png)
-
-**Panel de la junta: reservas.** Estados de revisión por colores, avisos a los socios y tickets unidos a cada reserva.
-
-![Panel, reservas](capturas/panel-reservas.png)
+Son un boceto para enseñar cómo va a ser; muchas cosas cambiarán.

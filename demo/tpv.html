@@ -1,0 +1,1199 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>txokoPay · TPV</title>
+<!--
+  Prototipo clicable de la TPV (sin servidor y sin tecnología elegida).
+  Sirve para probar con socios los flujos de docs/01-requisitos.md §3
+  antes de hacer la app de verdad. Abrir en Chrome/Edge; F11 para pantalla completa.
+  Preparado para varios idiomas (TEXTOS), de momento solo castellano.
+-->
+<style>
+:root{
+  --fondo:#fbf5ec; --panel:#ffffff; --tinta:#2b2118; --suave:#6b5b4d; --borde:#e8dccb;
+  --principal:#c8501a; --principal-claro:#ffe9d9;
+  --verde:#25803f; --amarillo:#ffc83d; --amarillo-tinta:#2b1d00; --rojo:#c23a2b;
+  --altoDemo:56px; --radio:12px; --grosor:1px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#2b333a;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--tinta)}
+button{font:inherit;color:inherit;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button:active{transform:scale(.98)}
+
+#escenario{position:fixed;left:0;right:0;top:0;bottom:var(--altoDemo);display:flex;align-items:center;justify-content:center;overflow:hidden}
+#marco{width:1280px;height:1024px;flex:none;background:var(--fondo);position:relative;overflow:hidden;font-size:26px;line-height:1.2;transform-origin:center center;user-select:none}
+#pantalla{position:absolute;inset:0;display:flex;flex-direction:column}
+
+.ico{width:1.1em;height:1.1em;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.ico.grande{width:64px;height:64px}
+.ico.enorme{width:96px;height:96px}
+/* ficha: icono dentro de un cuadrado redondeado de color */
+.ficha{display:inline-grid;place-items:center;flex:none;width:72px;height:72px;border-radius:22px;background:var(--principal-claro);color:var(--principal)}
+.ficha .ico{width:42px;height:42px}
+.ficha.m{width:60px;height:60px;border-radius:18px}
+.ficha.m .ico{width:34px;height:34px}
+.ficha.xl{width:132px;height:132px;border-radius:40px}
+.ficha.xl .ico{width:78px;height:78px}
+.ficha.s{width:48px;height:48px;border-radius:15px}
+.ficha.s .ico{width:28px;height:28px}
+.ficha.claro{background:rgba(255,255,255,.2);color:#fff}
+.saldo.s-amarillo .ficha,.saldo.s-rojo .ficha{background:rgba(255,255,255,.35);color:inherit}
+/* relieve: sombra inferior marcada, como un botón que se pulsa */
+.articulo,.grupo,.boton,.abajo button,.saldo,.paginas button,.tecla,.grupos-pag button,.modo{box-shadow:0 5px 0 rgba(43,33,24,.22),0 8px 14px rgba(43,33,24,.14);transition:transform .05s,box-shadow .05s}
+.boton.plano{box-shadow:0 3px 0 rgba(43,33,24,.16),0 5px 8px rgba(43,33,24,.08)}
+.grupo.activo{box-shadow:0 5px 0 #8f3a15,0 8px 14px rgba(143,58,21,.3)}
+.modo{box-shadow:none}.modo.on{box-shadow:0 3px 0 rgba(43,33,24,.25)}
+.boton.verde,.abajo .cerrar,.tecla.si{box-shadow:0 5px 0 #136b36,0 8px 14px rgba(19,107,54,.35)!important}
+.boton.rojo{box-shadow:0 5px 0 #8f241b,0 8px 14px rgba(143,36,27,.3)}
+.boton.p-banca{box-shadow:0 5px 0 #0a5f6e,0 8px 14px rgba(10,95,110,.3)}.boton.p-efectivo{box-shadow:0 5px 0 #8a2c57,0 8px 14px rgba(138,44,87,.3)}.boton.p-tarjeta{box-shadow:0 5px 0 #5d3b1c,0 8px 14px rgba(93,59,28,.3)}
+.boton.ensocio{background:var(--principal);color:#fff;border-color:#a8431a;box-shadow:0 6px 0 #8f3a15,0 10px 16px rgba(143,58,21,.35)}
+.articulo:active,.grupo:active,.boton:active,.abajo button:active,.saldo:active,.paginas button:active,.tecla:active,.grupos-pag button:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(43,33,24,.25)!important}
+.paginas button[disabled],.grupos-pag button[disabled],.tecla[disabled],.boton[disabled]{box-shadow:none!important}
+.ficha.azul{background:#dbe9fb;color:#1f5fa8}
+.ficha.violeta{background:#ebe2fa;color:#6a3fb5}
+.ficha.rosa{background:#fde1dc;color:#b3392b}
+.abajo .b-cuenta{background:#f1f6fd;border-color:#c9dcf3}
+.abajo .b-ingreso{background:#f6f1fd;border-color:#dccff2}
+.abajo .b-salir{background:#fef3f1;border-color:#f4cfc8}
+.ficha.verde{background:var(--verde);color:#fff}
+.boton.verde .ficha,.boton.p-banca .ficha,.boton.p-efectivo .ficha,.boton.p-tarjeta .ficha,.abajo .cerrar .ficha{background:rgba(255,255,255,.22);color:#fff}
+.icocentro{display:flex;justify-content:center;margin-bottom:12px}
+
+/* barra superior */
+.arriba{height:92px;flex:none;display:flex;align-items:center;gap:18px;padding:0 20px;background:var(--principal);color:#fff}
+.quien{display:flex;align-items:center;gap:14px;flex:1;min-width:0}
+.quien .ico{width:44px;height:44px}
+.nombre{font-size:30px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.quien .sub{font-size:22px;opacity:.9;margin:0;color:#fff}
+.saldo{display:flex;align-items:center;gap:12px;padding:0 20px;height:68px;border-radius:var(--radio);font-size:24px}
+.saldo .ico{width:36px;height:36px}
+.saldo b{font-size:30px;font-variant-numeric:tabular-nums}
+.s-bien{background:#fff;color:var(--tinta)}
+.s-amarillo{background:var(--amarillo);color:var(--amarillo-tinta)}
+.s-rojo{background:var(--rojo);color:#fff}
+.reloj{font-size:30px;font-weight:700;min-width:92px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* TPV */
+.tpv{flex:1;display:grid;grid-template-columns:215px 1fr 330px;gap:14px;padding:14px;min-height:0}
+.grupos{display:flex;flex-direction:column;gap:10px;min-height:0}
+.grupo{flex:none;height:88px;background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:var(--radio);font-weight:700;text-align:left;padding:0 18px}
+.grupo.activo{background:var(--principal);color:#fff;border-color:var(--principal)}
+.grupos-pag{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:10px;height:88px}
+.grupos-pag button{background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:var(--radio);display:grid;place-items:center}
+.grupos-pag button[disabled]{opacity:.35}
+.grupos-pag .ico{width:44px;height:44px}
+.articulos{display:flex;flex-direction:column;gap:12px;min-height:0}
+.rejilla{flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);gap:12px;min-height:0}
+.articulo{position:relative;background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:var(--radio);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:10px;gap:8px}
+.articulo .n{font-weight:700}
+.articulo .p{font-size:22px;color:var(--suave)}
+.articulo.dentro{border-width:2px;border-color:var(--principal);background:var(--principal-claro)}
+.cantidad{position:absolute;top:8px;right:8px;background:var(--principal);color:#fff;border-radius:999px;min-width:46px;height:46px;display:grid;place-items:center;font-weight:800;font-size:24px;padding:0 10px}
+.paginas{display:flex;gap:12px;height:84px;flex:none}
+.paginas button{flex:1;background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:var(--radio);font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px}
+.paginas button[disabled]{opacity:.35}
+.paginas .ico{width:40px;height:40px}
+
+.ticket{background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:var(--radio);display:flex;flex-direction:column;min-height:0}
+.ticket h2{margin:0;padding:14px 18px;font-size:28px;border-bottom:var(--grosor) solid var(--borde);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.etiqueta{font-size:20px;background:var(--principal-claro);color:var(--principal);padding:4px 10px;border-radius:8px;font-weight:700}
+.lineas{flex:1;overflow:hidden;margin:0;padding:0}
+.linea{width:100%;display:grid;grid-template-columns:1fr auto;gap:4px 10px;text-align:left;padding:12px 18px;border-bottom:var(--grosor) solid var(--borde);background:none}
+.linea .n{font-weight:700}
+.linea .c{font-size:22px;color:var(--suave)}
+.linea .i{grid-row:1/3;grid-column:2;align-self:center;font-weight:700;font-variant-numeric:tabular-nums}
+.vacio{padding:30px 18px;color:var(--suave);font-size:24px}
+.total{display:flex;justify-content:space-between;align-items:baseline;padding:14px 18px;border-top:2px solid var(--tinta);font-size:30px;font-weight:800}
+.total b{font-size:42px;font-variant-numeric:tabular-nums}
+
+.abajo{height:110px;flex:none;display:grid;grid-template-columns:200px 90px 1fr 1fr 330px;gap:14px;padding:0 14px 14px}
+.abajo button{background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:var(--radio);display:flex;align-items:center;justify-content:center;gap:12px;font-weight:700}
+.abajo .cerrar{background:var(--verde);color:#fff;border-color:var(--verde);font-size:34px}
+
+/* entrada */
+.entrada{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;position:relative}
+.marca{position:absolute;top:28px;left:32px;font-size:34px;font-weight:800;color:var(--principal)}
+.cajallave{background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:var(--radio);padding:40px 60px;display:flex;flex-direction:column;align-items:center;gap:18px;width:760px}
+.cajallave h1{margin:0;font-size:52px}
+#campoLlave{width:100%;height:84px;font-size:36px;text-align:center;border:2px solid var(--principal);border-radius:var(--radio);letter-spacing:.3em;background:var(--fondo)}
+#campoLlave:focus{outline:4px solid var(--amarillo);outline-offset:2px}
+.pista{font-size:22px;color:var(--suave);margin:0}
+.o{font-size:28px;color:var(--suave)}
+.aviso{position:absolute;bottom:40px;background:var(--tinta);color:#fff;padding:18px 28px;border-radius:var(--radio);font-size:26px}
+
+/* ventanas */
+#ventana{position:absolute;inset:0;background:rgba(10,20,28,.62);display:none;align-items:center;justify-content:center;z-index:10}
+#ventana.abierta{display:flex}
+.hoja{background:var(--panel);border-radius:24px;padding:30px;width:660px;max-height:990px;overflow:auto;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.hoja.teclado{width:560px}
+.hoja.ancha{width:1140px;text-align:left}
+.hoja h2{margin:0 0 12px;font-size:38px}
+.hoja h3{margin:0 0 10px;font-size:28px}
+.hoja p{margin:0 0 12px}
+.hoja .sub{font-size:26px;color:var(--suave)}
+.visor{font-size:76px;font-weight:800;border:2px solid var(--tinta);border-radius:var(--radio);padding:6px 22px;margin:10px 0;text-align:right;min-height:108px;font-variant-numeric:tabular-nums}
+.visor small{font-size:44px}
+.ayuda{font-size:22px;color:var(--suave)}
+.teclas{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}
+.tecla{height:104px;border-radius:var(--radio);background:var(--fondo);border:var(--grosor) solid var(--borde);font-size:46px;font-weight:800;display:grid;place-items:center}
+.tecla.si{background:#1c8a48;color:#fff;border-color:#136b36;font-size:38px;font-weight:900;box-shadow:0 5px 0 #136b36,0 8px 14px rgba(19,107,54,.35)!important;transform:translateY(-2px)}
+.tecla.si:active{transform:translateY(4px);box-shadow:0 1px 0 #136b36!important}
+.tecla .ico{width:50px;height:50px}
+.boton{min-height:88px;border-radius:var(--radio);background:var(--fondo);border:var(--grosor) solid var(--borde);font-weight:700;font-size:28px;padding:0 24px;display:inline-flex;align-items:center;justify-content:center;gap:12px}
+.boton.verde{background:var(--verde);color:#fff;border-color:var(--verde)}
+.saldo-caja{background:#fff;color:#2b1d12;border-radius:10px;padding:6px 16px;font-size:24px;font-weight:400;margin-top:6px}.saldo-caja b{font-weight:800}.saldo-caja.neg,.saldo-caja.neg b{color:#c0281c}
+.boton.p-banca{background:#0f8a9d;color:#fff;border-color:#0f8a9d}.boton.p-efectivo{background:#c0407a;color:#fff;border-color:#c0407a}.boton.p-tarjeta{background:#8a5a2b;color:#fff;border-color:#8a5a2b}
+.boton.rojo{background:var(--rojo);color:#fff;border-color:var(--rojo)}
+.boton.plano{background:none}
+.boton.entero{width:100%}
+.boton.xl{min-height:130px;font-size:44px}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.pagos{display:grid;gap:16px;margin:20px 0}
+.boton.pago{flex-direction:column;min-height:210px;font-size:32px}
+.importe{font-size:30px;margin:6px 0}
+.importe b{font-size:48px;font-variant-numeric:tabular-nums}
+.tarjetareserva{background:var(--principal-claro);border-radius:var(--radio);padding:20px 24px;font-size:30px;margin:14px 0;text-align:left;line-height:1.5}
+.hecho{display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:start;text-align:left}
+.recibo{font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:16px;line-height:1.35;background:#fff;border:2px dashed #9aa5ae;width:376px;overflow:hidden;padding:16px;white-space:pre;color:#000}
+.imprimiendo{display:flex;align-items:center;gap:10px;font-size:22px;color:var(--suave);margin-bottom:10px}
+.sobre{background:#fff6d6;border:2px solid var(--amarillo);border-radius:var(--radio);padding:22px;font-size:30px;line-height:1.4}
+.sobre-tit .ico.inline{width:40px;height:40px;vertical-align:-8px}
+.sobre-tit{font-size:34px;font-weight:800;margin-bottom:14px}
+.sobre-tit mark{background:var(--amarillo);color:var(--amarillo-tinta);padding:0 10px;border-radius:8px}
+.sobre-item{display:flex;align-items:center;gap:16px;background:#fff;border-radius:var(--radio);padding:12px 16px;margin-bottom:10px;font-weight:700;box-shadow:0 1px 3px rgba(43,33,24,.12)}
+.sobre-item .num{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:50%;background:var(--tinta);color:#fff;font-size:26px;font-weight:800}
+.sobre-item .sobre-imp{margin-left:auto;background:var(--amarillo);color:var(--amarillo-tinta);padding:2px 12px;border-radius:8px;font-variant-numeric:tabular-nums}
+.sobre-fin{display:flex;align-items:center;gap:14px;margin-top:16px;padding-top:16px;border-top:2px dashed var(--amarillo);font-weight:700}
+.pastilla{display:inline-flex;align-items:center;gap:10px;padding:6px 16px;border-radius:12px;font-weight:800}
+
+/* mi cuenta */
+.cuenta-saldo{display:flex;align-items:center;gap:28px;border-radius:var(--radio);padding:22px 30px}
+.cuenta-saldo .titulo{font-size:28px}
+.cuenta-saldo .cifra{font-size:64px;font-weight:800;font-variant-numeric:tabular-nums}
+.cuenta-saldo .estado{font-size:26px;font-weight:700}
+.cuenta-saldo.s-bien{border:var(--grosor) solid var(--borde)}
+.cuenta-cols{display:grid;grid-template-columns:1.3fr 1fr;gap:24px;margin-top:22px}
+.cuenta-cols h3{padding-bottom:10px;margin-bottom:4px;border-bottom:var(--grosor) solid var(--borde)}
+.cuenta-cols section + section{border-left:var(--grosor) solid var(--borde);padding-left:24px}
+.pie{border-top:var(--grosor) solid var(--borde);padding-top:18px;margin-top:20px}
+.lista{list-style:none;margin:0;padding:0}
+.lista li{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:var(--grosor) solid var(--borde);font-size:24px}
+.lista .f{color:var(--suave);min-width:80px}
+.lista .t{flex:1}
+.lista .s{display:block;font-size:20px;color:var(--suave)}
+.lista .i{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.filas{list-style:none;margin:0;padding:0}
+.filas li{border-bottom:var(--grosor) solid var(--borde)}
+.fila{display:flex;align-items:center;gap:12px;width:100%;background:none;text-align:left;padding:14px 6px;border-radius:var(--radio);font-size:24px}
+.fila:active{background:var(--principal-claro)}
+.fila .f{color:var(--suave);min-width:76px}
+.fila .t{flex:1}
+.fila .s{display:block;font-size:20px;color:var(--suave)}
+.fila .i{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fila .ico{color:var(--suave);width:28px;height:28px}
+.scroll{max-height:470px;overflow-y:auto}
+.hoja.media{width:760px}
+.hoja.media .t{text-align:left}
+.total-det{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--tinta);margin:14px 0 18px;padding-top:12px;font-size:30px;font-weight:800}
+.total-det b{font-size:44px;font-variant-numeric:tabular-nums}
+.p-pendiente{background:var(--amarillo);color:var(--amarillo-tinta);font-size:22px}
+.p-comprobado{background:#dff3e6;color:var(--verde);font-size:22px}
+
+/* pestañas Consumo / Reservas */
+.modos{display:flex;gap:5px;padding:5px;background:rgba(255,255,255,.18);border-radius:var(--radio)}
+.modo{height:58px;padding:0 20px;border-radius:9px;background:none;color:#fff;font-weight:700;font-size:26px;display:flex;align-items:center;gap:10px}
+.modo .ico{width:30px;height:30px}
+.modo.on{background:#fff;color:var(--principal)}
+/* reservas dentro de la TPV */
+.paso{flex:none;height:88px;display:flex;align-items:center;gap:10px;text-align:left;padding:0 12px;background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:var(--radio);box-shadow:0 1px 3px rgba(43,33,24,.10)}
+.paso .pn{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:50%;background:var(--borde);color:var(--tinta);font-weight:800;font-size:24px}
+.paso .pn .ico{width:24px;height:24px}
+.paso .pt{display:flex;flex-direction:column;min-width:0}
+.paso .pt b{font-size:25px}
+.paso .pt small{font-size:20px;color:var(--suave);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.paso.hecho .pn{background:var(--verde);color:#fff}
+.paso.activo{background:var(--principal);color:#fff;border-color:var(--principal);box-shadow:none}
+.paso.activo small{color:#ffe9d9}
+.paso.activo .pn{background:#fff;color:var(--principal)}
+.paso.mis{margin-top:auto}
+.paso.mis .pt b{font-size:22px;white-space:nowrap}
+.centro .tecla.si{font-size:26px}
+.fila .f{min-width:112px}
+.centro{gap:10px}
+.rtit{margin:0;font-size:34px}
+.centro .sub{font-size:26px;color:var(--suave);margin:0}
+.mesesTit{font-size:26px;font-weight:600;color:var(--suave);margin-left:8px;text-transform:capitalize}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:6px}
+.cal .sem{text-align:center;font-size:20px;color:var(--suave);text-transform:uppercase;font-weight:700;padding-bottom:2px}
+.cd{height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:var(--radio);background:var(--panel);border:var(--grosor) solid var(--borde);box-shadow:0 1px 3px rgba(43,33,24,.10)}
+.cd b{font-size:38px;line-height:1}
+.cd small{font-size:18px;color:var(--suave);text-transform:uppercase;font-weight:700}
+.cd.hoy{border:2px solid var(--principal)}
+.cd.sel{background:var(--principal);border-color:var(--principal);color:#fff}
+.cd.sel small{color:#ffe9d9}
+.cd.cerrado{background:#f6e6e3;border-color:#ebcbc5;color:#a05a4f;box-shadow:none}
+.cd.cerrado small{color:#b0584b;font-size:16px;text-transform:uppercase;font-weight:700}
+.cd.fuera{background:none;border-color:transparent;box-shadow:none;color:#cbbda9}
+.dias{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:150px;gap:12px;margin:6px 0}
+.dia{background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:var(--radio);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:0 1px 3px rgba(43,33,24,.10)}
+.dia .sem{font-size:22px;text-transform:uppercase;color:var(--suave);font-weight:700}
+.dia .num{font-size:56px;font-weight:800;line-height:1}
+.dia .mes{font-size:22px;color:var(--suave)}
+.dia.hoy{border:2px solid var(--principal)}
+.dia.sel{background:var(--principal);border-color:var(--principal);color:#fff}
+.dia.sel .sem,.dia.sel .mes{color:#ffe9d9}
+.franjas{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(0,230px);gap:14px;margin-top:6px}
+.franja{flex:1;max-height:240px;background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:var(--radio);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;box-shadow:0 1px 3px rgba(43,33,24,.10)}
+.franja .t{font-size:44px;font-weight:800}
+.franja .h{font-size:26px;color:var(--suave)}
+.franja .l{font-size:28px;font-weight:700;color:var(--verde)}
+.franja .l.malo{color:var(--rojo)}
+.franja.sel{background:var(--principal-claro);border:2px solid var(--principal)}
+.franja[disabled]{opacity:.45}
+.info{margin:0;text-align:center;font-size:28px;color:var(--suave)}
+.info .mal{color:var(--rojo);font-weight:800}
+.tecla[disabled]{opacity:.4}
+.maq{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:center;padding:10px 0;border-bottom:var(--grosor) solid var(--borde)}
+.maq .nm{font-size:30px;font-weight:700}
+.tramos{display:flex;gap:10px;flex-wrap:wrap}
+.tramo{min-height:76px;padding:0 16px;font-size:24px}
+.tramo.sel{background:var(--principal);color:#fff;border-color:var(--principal)}
+.tramo[disabled]{opacity:.4;text-decoration:line-through}
+.maquinas{display:flex;flex-direction:column;gap:14px;margin-top:8px}
+.maqbtn{height:120px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:var(--radio);font-size:38px;font-weight:700;box-shadow:0 1px 3px rgba(43,33,24,.10)}
+.maqbtn .est{font-size:28px;font-weight:700;color:var(--verde)}
+.maqbtn.sel{background:var(--principal);border-color:var(--principal);color:#fff}
+.maqbtn.sel .est{color:#fff}
+.maqbtn[disabled]{opacity:.45}
+.maqbtn[disabled] .est{color:var(--rojo)}
+.rl{padding:14px 18px;border-bottom:var(--grosor) solid var(--borde)}
+.rl .k{display:block;font-size:20px;color:var(--suave);text-transform:uppercase;letter-spacing:.04em}
+.rl .v{display:block;font-size:26px;font-weight:700;margin-top:2px}
+.rl .v.diag{font-size:36px}
+.rl .v2{display:block;font-size:26px;color:var(--suave)}
+.chipdia{display:flex;flex-direction:column;align-items:center;flex:none;min-width:96px;background:var(--principal-claro);color:var(--principal);border-radius:10px;padding:8px 10px;line-height:1.1}
+.chipdia b{font-size:20px;letter-spacing:.04em}
+.chipdia span{font-size:26px;font-weight:700;color:var(--tinta)}
+.rl .vacio2{color:var(--suave);font-weight:400}
+.pie-res{padding:12px;border-top:var(--grosor) solid var(--borde)}
+.pie-res .boton.plano{background:#fdeae6;border-color:#f0bdb4;color:#a8342a;box-shadow:0 1px 3px rgba(43,33,24,.10)}
+.resumen{background:var(--principal-claro);border-radius:var(--radio);padding:10px 26px;font-size:30px;line-height:1.3;text-align:left}
+.resumen .rlin{padding:12px 0;border-bottom:3px dotted #e0b79a}
+.resumen .rlin:last-child{border-bottom:0}
+.abajo .cerrar[disabled]{background:#a9bfae;border-color:#a9bfae}
+/* barra de demo (no es parte de la TPV) */
+#demo{position:fixed;left:0;right:0;bottom:0;height:var(--altoDemo);background:#1a2026;color:#dfe6ec;display:flex;align-items:center;gap:14px;padding:0 14px;font-size:14px;overflow-x:auto;white-space:nowrap}
+#demo strong{color:#fff}
+#demo button{background:#334049;color:#fff;border-radius:6px;padding:7px 12px;font-size:14px}
+#demo label{display:flex;align-items:center;gap:4px}
+#demo .sep{width:1px;height:28px;background:#445}
+#panelMarcas{position:fixed;right:14px;bottom:calc(var(--altoDemo) + 8px);width:440px;max-height:60vh;overflow:auto;background:#fff;color:#14212b;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.4);padding:14px;font-size:14px;z-index:50}
+#panelBack{position:fixed;left:14px;bottom:calc(var(--altoDemo) + 8px);width:520px;max-height:70vh;overflow:auto;background:#fff;color:#14212b;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.4);padding:14px;font-size:14px;z-index:50}
+#panelBack h4{margin:0 0 6px;font-size:16px}
+#panelBack p{margin:0 0 10px;color:#4a5a66}
+#panelBack table{border-collapse:collapse;width:100%}
+#panelBack th{font-size:12px;text-align:left;color:#4a5a66;padding:2px 6px}
+#panelBack td{padding:5px 6px;border-top:1px solid #e4e8ec}
+#panelBack input[type=number]{width:70px}
+#panelBack input[type=time]{width:92px}
+#panelBack .fila-meses{margin-top:12px;padding-top:10px;border-top:1px solid #e4e8ec}
+#panelMarcas h4{margin:0 0 6px;font-size:16px}
+#panelMarcas p{margin:0 0 10px;color:#4a5a66}
+#panelMarcas li{margin:6px 0}
+.m-pendiente{background:#f2c230;padding:1px 6px;border-radius:4px;font-weight:700}
+.m-alerta{background:#b3261e;color:#fff;padding:1px 6px;border-radius:4px;font-weight:700}
+.ico-sn{border:none;background:transparent;cursor:pointer;padding:2px}.ico-sn.si{color:#2e8b57}.ico-sn.no{color:#a39a8c}
+.muted-demo{font-size:12px;opacity:.8}
+</style>
+</head>
+<body>
+<div id="escenario"><div id="marco"><div id="pantalla"></div><div id="ventana"></div></div></div>
+
+<script src="catalogo.js"></script>
+<div id="demo">
+  <strong>Prototipo</strong>
+  <button id="dLlave">Simular llave</button>
+  <span class="sep"></span>
+  <span class="muted-demo">Formas de pago: se activan en el panel (Formas de pago)</span>
+  <span class="sep"></span>
+  <button id="dMarcas">Revisión junta (0)</button>
+  <button id="dBack">Back: reservas</button>
+  <span id="dInactivo"></span>
+  <span class="sep"></span>
+  <button id="dReiniciar" title="Reinicia la demo y borra la contraseña guardada">Reiniciar</button>
+</div>
+<div id="panelMarcas" hidden></div>
+<div id="panelBack" hidden></div>
+
+<script>
+/* ---------- textos por idioma (de momento solo castellano) ---------- */
+const TEXTOS = {
+  es: {
+    socio:'Socio', banca:'Banca', miCuenta:'Mi cuenta', ingreso:'Ingreso', salir:'Salir', cerrarTicket:'Cerrar ticket',
+    ticket:'Ticket', total:'Total', ticketVacio:'Toca un producto para añadirlo.',
+    pasaLlave:'Pasa tu llave', pistaLlave:'Acerca la llave al lector', o:'o',
+    entrarNumero:'Entrar con número de socio', contrasena:'Escribe tu contraseña', numeroSocio:'Número de socio', cifrasDni:'Últimas 2 cifras de tu DNI',
+    cancelar:'Cancelar', aceptar:'Aceptar', datosIncorrectos:'Datos incorrectos', borrar:'Borrar', precioUnidad:'{0} cada uno', ayudaQuitar:'0 = quitar del ticket',
+    avisoTicketVacio:'El ticket está vacío. Toca un producto para añadirlo.', entendido:'Entendido',
+    esDeReserva:'¿Este ticket es de tu reserva?', si:'Sí', no:'No', comensales:'comensales',
+    cuantosComensales:'¿Cuántos habéis comido?', reservados:'Reservados: {0}',
+    horasDe:'¿Cuántas horas habéis usado: {0}?', ayudaHoras:'Pon 0 si no lo habéis usado', reservadoDe:'Reservado de {0} a {1}',
+    comoPagas:'¿Cómo pagas?', pagoBanca:'Con banca', pagoEfectivo:'Efectivo', pagoTarjeta:'Tarjeta', volver:'Volver al ticket',
+    ticketCerrado:'Ticket cerrado', cobradoBanca:'Cobrado de tu banca:', cargadoBanca:'Cargado en tu banca:', saldoAhora:'Tu saldo ahora:', tuSaldo:'Tu saldo',
+    sobreTitulo:'Mete en un sobre y échalo a la caja fuerte:', sobreTicket:'el ticket impreso', sobreDinero:'el dinero ({0})', sobreRecibo:'el recibo del datáfono',
+    imprimiendo:'Imprimiendo ticket…', terminar:'Terminar',
+    ingresoCuanto:'¿Cuánto quieres ingresar?', ingresoComo:'¿Cómo lo pagas?', ingresoAntesDatafono:'Paga antes en el datáfono',
+    ingresoHecho:'Ingreso hecho', ingresoYaDisponible:'Ya puedes gastarlo. El tesorero lo comprobará.',
+    salirSinCerrar:'El ticket no está cerrado', salirSinCerrarSub:'Se guarda y lo verás al volver a entrar.',
+    alDia:'Al día', enNegativo:'En negativo', muyNegativo:'Muy en negativo',
+    ultimosMovimientos:'Últimos movimientos', proximasReservas:'Mis próximas reservas', cambiarContrasena:'Cambiar contraseña', cerrar:'Cerrar',
+    pendiente:'pendiente de comprobar', comprobado:'comprobado', hoy:'Hoy', reserva:'Reserva', cierrePorInactividad:'Sesión cerrada por no usarla',
+    noEnPrototipo:'En el prototipo esto no hace nada todavía.', pagadoCon:'pagado con {0}', lineaIngreso:'Ingreso · {0}',
+    mas:'Más', atras:'Atrás', formaBanca:'banca', formaEfectivo:'efectivo', formaTarjeta:'tarjeta',
+    sobreDentro:'Mete <mark>dentro del sobre</mark>:', sobreElDinero:'el dinero', sobreFin:'Cierra el sobre y échalo a la caja fuerte',
+    modoConsumo:'Consumo', modoReservas:'Reservas', manana:'Mañana', hoyM:'HOY', mananaM:'MAÑANA',
+    pasoDia:'Día', pasoFranja:'Franja', pasoComensales:'Comensales', pasoMaquinas:'Máquinas', misReservas:'Mis reservas',
+    queDia:'¿Qué día?', cerrado:'Cerrado', hastaEl:'Puedes reservar hasta el {0}', queFranja:'¿Para qué comida?', cuantosComen:'¿Cuántos comensales?', quierMaquinas:'¿Quieres horno o freidora?',
+    eligePrimeroDia:'Elige primero el día.', eligePrimeroFranja:'Elige primero el día y la comida.',
+    quedanPlazas:'Quedan {0} plazas', completo:'Completo', soloQuedan:'Solo quedan {0} plazas',
+    maquinasAyuda:'Una reserva por comida. Se cobra por horas al cerrar el ticket.', ocupado:'Ocupado', libre:'Libre', reservadoM:'Reservado ✓', reservadoM2:'Reservado para vosotros', siguiente:'Siguiente',
+    sinMaquinas2:'Sin horno ni freidora', ninguna:'Ninguna', tuReserva:'Tu reserva', cambiando:'Cambiando', empezarDeNuevo:'Empezar de nuevo',
+    reservar:'Reservar', guardar:'Guardar', diasAntes:'Días anteriores', diasDespues:'Días siguientes', anteriores:'Anteriores', siguientes:'Siguientes',
+    sinReservas:'No tienes reservas.', reservaHecha:'Reserva hecha', reservaCambiada:'Reserva cambiada', guardaTicket:'Guarda este ticket.', cambiarReserva:'Cambiar', anularReserva:'Anular reserva',
+    seguroAnular:'¿Seguro que quieres anular la reserva?', seQuedaRegistro:'Quedará anotada como anulada.', siAnular:'Sí, anular',
+    masRecientes:'Más recientes', masAntiguos:'Más antiguos', volverCuenta:'Volver a mi cuenta', ingresoYaCuenta:'Ya cuenta en tu banca. El tesorero lo comprobará.', ingresoComprobado:'El tesorero ya lo ha comprobado.',
+    contrasenaNueva:'Escribe tu nueva contraseña', contrasenaRepite:'Repite la contraseña', contrasenaCambiada:'Contraseña cambiada. Ya vale para siempre.',
+    contrasenaNoCoincide:'No coinciden. Inténtalo otra vez.', contrasenaIncorrecta:'Contraseña incorrecta'
+  }
+};
+
+/* ---------- datos de ejemplo ---------- */
+// Menú y artículos: vienen del catálogo compartido con el panel (catalogo.js), que es donde se editan
+const GRUPOS = CATALOGO.menu.map(g=>({id:g.id, nombre:{es:g.nombre}}));
+const tipoDe = a => a.cat===CATALOGO.poca.comen ? 'comensal' : CATALOGO.poca.cats.includes(a.cat) ? 'bebida' : 'otro';
+const artDe = (id,grupo) => { const a=CATALOGO.art[id]; return {id, grupo, nombre:{es:a.nombre}, precio:a.precio, tipo:tipoDe(a)}; };
+const ARTICULOS = CATALOGO.menu.flatMap(g=>g.items.map(id=>artDe(id,g.id)));
+const ARTICULO = Object.fromEntries(Object.keys(CATALOGO.art).map(id=>[id, artDe(id,null)]));
+const POR_PAGINA = 12;
+const LIMITE_AMARILLO = 10000; // −100 €
+
+/* ---------- reservas: configuración (en la app real saldrá de `ajuste`) ---------- */
+const PLAZAS_MESA = 4;
+let ANTELACION_DIAS = 30;   // antelación máxima por defecto: 30 días (configurable desde el panel)
+// Franjas del día (las configura la junta desde el panel): activa o no, y máximo de comensales de cada una
+const FRANJAS_BASE = [
+  {id:'almuerzo', nombre:{es:'Almuerzo'}, desde:'09:00', hasta:'12:00', comensalesMax:20, activa:true},
+  {id:'comida',   nombre:{es:'Comida'},   desde:'12:00', hasta:'17:00', comensalesMax:40, activa:true},
+  {id:'merienda', nombre:{es:'Merienda'}, desde:'17:00', hasta:'19:00', comensalesMax:20, activa:true},
+  {id:'cena',     nombre:{es:'Cena'},     desde:'19:00', hasta:'02:00', comensalesMax:40, activa:true}
+];
+const FRANJAS = JSON.parse(JSON.stringify(FRANJAS_BASE));
+const franjasActivas = () => FRANJAS.filter(f=>f.activa);
+const maxMesas = id => Math.floor(FRANJAS.find(f=>f.id===id).comensalesMax/PLAZAS_MESA);
+const MAQUINAS = [
+  {id:'horno1',   nombre:{es:'Horno 1'},  articulo:'hora_horno'},
+  {id:'horno2',   nombre:{es:'Horno 2'},  articulo:'hora_horno'},
+  {id:'freidora', nombre:{es:'Freidora'}, articulo:'freidora'}
+];
+const HORAS_POR_DEFECTO = 1;   // horas que propone la TPV al cerrar el ticket
+const hash =s => { let x=0; for(const c of String(s)) x=(x*31+c.charCodeAt(0))>>>0; return x; };
+const mins = hm => { const [a,b]=hm.split(':').map(Number); return a*60+b; };
+const pad2 = n => String(n).padStart(2,'0');
+const HOY = new Date(); HOY.setHours(0,0,0,0);
+const diasAdelante = ()=>ANTELACION_DIAS+1;   // hoy y los N días siguientes
+const sumarDias = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+const fechaClave = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+const diaDe = clave => { const [a,m,d]=clave.split('-').map(Number); return new Date(a,m-1,d); };
+function crearReserva(id, dia, franjaId, comensales, maq){
+  const fr = FRANJAS.find(f=>f.id===franjaId);
+  return {id, dia, franjaId, franja:fr.nombre, comensales, unida:false, anulada:false,
+    maquinas: maq.map(mid=>{ const mq=MAQUINAS.find(x=>x.id===mid); return {id:mid, nombre:mq.nombre, articulo:mq.articulo}; })};
+}
+
+// Días cerrados a reservas (por eventos): los pone la junta desde el panel
+const diasCerradosBase = () => [{dia:fechaClave(sumarDias(HOY,3)), motivo:'Evento'}];
+let DIAS_CERRADOS = diasCerradosBase();
+const diaCerrado = clave => DIAS_CERRADOS.find(d=>d.dia===clave);
+
+// movimientos de ejemplo: tickets con sus líneas (precio de ese momento) e ingresos
+const tk = (f,forma,items,estado='comprobado')=>{
+  const lineas = items.map(([id,cantidad])=>({id,cantidad,precio:ARTICULO[id].precio}));
+  return {f, tipo:'ticket', forma, estado, lineas, importe:lineas.reduce((s,l)=>s+l.cantidad*l.precio,0)};
+};
+const ing = (f,forma,importe,estado='comprobado')=>({f, tipo:'ingreso', forma, importe, estado});
+
+function pagosGuardados(){ const base={cobro:true, banca:true, efectivo:true, tarjeta:true}; try{ const g=JSON.parse(localStorage.getItem('txokopay.pagos')||'null'); if(g) Object.assign(base,g); }catch(e){} return base; }
+function estadoInicial(idioma){
+  return {
+    idioma: idioma || 'es', pantalla:'entrada', aviso:'',
+    socio:{numero:23, nombre:'Josu Etxeberria'},
+    saldo:-4530,
+    reservas:[
+      crearReserva(1, fechaClave(HOY), 'cena', 8, ['horno1','freidora']),
+      crearReserva(2, fechaClave(sumarDias(HOY,5)), 'comida', 4, [])
+    ],
+    siguienteIdReserva:3, modo:'consumo', rVista:'pasos', R:nuevoR(),
+    movimientos:[
+      tk('08/11','banca',[['rioja',2],['agua',1],['solo',3]]),
+      ing('08/11','efectivo',5000),
+      tk('05/11','efectivo',[['comensal',6],['rioja',2],['hora_horno',2],['solo',6]]),
+      tk('01/11','banca',[['vermut',3],['cerveza',2],['bonito',1]]),
+      tk('29/10','banca',[['cola',4],['hielo',1]]),
+      ing('25/10','tarjeta',3000),
+      tk('22/10','banca',[['comensal',4],['txakoli',1],['freidora',1]]),
+      tk('18/10','efectivo',[['pacharan',4],['whisky',2]])
+    ],
+    lineas:[], grupo:'refrescos', pagina:0,
+    ticketUnido:false, comensalesReales:null, horasMaquina:{},
+    marcas:[],
+    ajustes:pagosGuardados()
+  };
+}
+let E = estadoInicial();
+
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s);
+const marco = $('#marco');
+// iconos de trazo fino y puntas redondeadas (estilo Lucide), dentro de fichas de color
+const ICONOS = {
+  banca:'<path d="M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M12 2l8 5H4z"/>',
+  efectivo:'<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+  tarjeta:'<rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20M6 15h4"/>',
+  caja:'<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="12" cy="12" r="2"/><path d="m7.9 7.9 2.7 2.7M16.1 7.9l-2.7 2.7M7.9 16.1l2.7-2.7M16.1 16.1l-2.7-2.7"/>',
+  persona:'<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',
+  salir:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+  ok:'<path d="M20 6 9 17l-5-5"/>',
+  llave:'<path d="M2.6 17.4A2 2 0 0 0 2 18.8V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.2a2 2 0 0 0 1.4-.6l.8-.8a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>',
+  calendario:'<path d="M8 2v4M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>',
+  borrar:'<path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2ZM18 9l-6 6M12 9l6 6"/>',
+  impresora:'<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect width="12" height="8" x="6" y="14" rx="1"/>',
+  sobre:'<rect width="20" height="14" x="2" y="5" rx="2"/><path d="m2 7 10 7 10-7"/>',
+  recibo:'<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  arriba:'<path d="m18 15-6-6-6 6"/>', abajo:'<path d="m6 9 6 6 6-6"/>', derecha:'<path d="m9 18 6-6-6-6"/>', izquierda:'<path d="m15 18-6-6 6-6"/>',
+  info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>'
+};
+const icono = (n,c='') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${ICONOS[n]}</svg>`;
+const fichaIcono = (n,c='') => `<span class="ficha ${c}">${icono(n)}</span>`;
+function tx(clave,...args){ let s = TEXTOS[E.idioma]?.[clave] ?? TEXTOS.es[clave] ?? clave; args.forEach((v,i)=>{ s = s.replace('{'+i+'}', v); }); return s; }
+const nom = o => (o.nombre || o)[E.idioma] ?? (o.nombre || o).es;
+function euros(c){ const s = Math.abs(c/100).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2}); return (c<0?'−':'')+s+' €'; }
+const claseSaldo = s => s>=0 ? 's-bien' : s>=-LIMITE_AMARILLO ? 's-amarillo' : 's-rojo';
+const textoSaldo = s => s>=0 ? tx('alDia') : s>=-LIMITE_AMARILLO ? tx('enNegativo') : tx('muyNegativo');
+const cantidadDe = id => (E.lineas.find(l=>l.id===id)||{}).cantidad || 0;
+const totalTicket = () => E.lineas.reduce((s,l)=>s+l.cantidad*ARTICULO[l.id].precio,0);
+const contarComensales = () => E.lineas.reduce((s,l)=>s+(ARTICULO[l.id].tipo==='comensal'?l.cantidad:0),0);
+const nombreForma = f => tx({banca:'formaBanca',efectivo:'formaEfectivo',tarjeta:'formaTarjeta'}[f]);
+function horas(m){ const h = s => +s.split(':')[0] + (+s.split(':')[1])/60; return Math.max(0, Math.round(h(m.hasta)-h(m.desde))); }
+
+function ponerCantidad(id,c){
+  const l = E.lineas.find(x=>x.id===id);
+  if(c<=0){ E.lineas = E.lineas.filter(x=>x.id!==id); return; }
+  if(l) l.cantidad = c; else E.lineas.push({id, cantidad:c});
+  E.pagTicket = 1e9;   // al tocar un artículo, el ticket enseña la última página
+}
+
+/* ---------- pintar ---------- */
+function pintar(){
+  $('#pantalla').innerHTML = E.pantalla==='entrada' ? pintarEntrada() : pintarTpv();
+  if(E.pantalla==='entrada') enfocarLlave();
+  actualizarReloj(); pintarDemo();
+}
+
+function pintarEntrada(){
+  return `<div class="entrada">
+    <div class="marca">txokoPay</div>
+    <div class="cajallave">
+      ${fichaIcono('llave','xl')}
+      <h1>${tx('pasaLlave')}</h1>
+      <input id="campoLlave" type="password" autocomplete="off" aria-label="${tx('pasaLlave')}">
+      <p class="pista">${tx('pistaLlave')}</p>
+    </div>
+    <div class="o">${tx('o')}</div>
+    <button class="boton xl ensocio" data-accion="entrarNumero" style="width:760px">${tx('entrarNumero')}</button>
+    ${E.aviso?`<div class="aviso">${E.aviso}</div>`:''}
+  </div>`;
+}
+
+// menú izquierdo: orden alfabético, 7 grupos por página y dos botones (subir / bajar) al final
+const GRUPOS_POR_PAG = 7;
+function pintarGrupos(){
+  const orden = [...GRUPOS].sort((a,b)=>nom(a).localeCompare(nom(b),'es'));
+  const total = Math.ceil(orden.length/GRUPOS_POR_PAG);
+  E.pagGrupos = Math.max(0, Math.min(E.pagGrupos||0, total-1));
+  const vis = orden.slice(E.pagGrupos*GRUPOS_POR_PAG, (E.pagGrupos+1)*GRUPOS_POR_PAG);
+  return `<nav class="grupos">${vis.map(g=>`<button class="grupo ${g.id===E.grupo?'activo':''}" data-accion="grupo" data-id="${g.id}">${nom(g)}</button>`).join('')}
+    <div class="grupos-pag">
+      <button data-accion="pagGrupos" data-paso="-1" aria-label="${tx('atras')}" ${E.pagGrupos===0?'disabled':''}>${icono('arriba')}</button>
+      <button data-accion="pagGrupos" data-paso="1" aria-label="${tx('mas')}" ${E.pagGrupos>=total-1?'disabled':''}>${icono('abajo')}</button>
+    </div></nav>`;
+}
+// el ticket no tiene barra de desplazamiento: se pasa de página con dos flechas
+const POR_TICKET = 6;
+function lineasVisibles(){
+  const total = Math.max(1, Math.ceil(E.lineas.length/POR_TICKET));
+  E.pagTicket = Math.max(0, Math.min(E.pagTicket ?? 1e9, total-1));
+  return E.lineas.slice(E.pagTicket*POR_TICKET, (E.pagTicket+1)*POR_TICKET);
+}
+function pintarTpv(){
+  const lista = ARTICULOS.filter(a=>a.grupo===E.grupo);
+  const paginas = Math.ceil(lista.length/POR_PAGINA);
+  if(E.pagina>=paginas) E.pagina = 0;
+  const visibles = lista.slice(E.pagina*POR_PAGINA, E.pagina*POR_PAGINA+POR_PAGINA);
+  const enReservas = E.modo==='reservas';
+  const etiquetaReserva = E.ticketUnido ? `<span class="etiqueta">${tx('reserva')} · ${nom(reservaDeHoy().franja)}</span>` : '';
+  return `
+  <header class="arriba">
+    <div class="quien">${fichaIcono('persona','m claro')}<div><div class="nombre">${E.socio.nombre}</div><p class="sub">${tx('socio')} ${E.socio.numero}</p></div></div>
+    <div class="modos">
+      <button class="modo ${E.modo==='consumo'?'on':''}" data-accion="modo" data-m="consumo">${icono('recibo')} ${tx('modoConsumo')}</button>
+      <button class="modo ${E.modo==='reservas'?'on':''}" data-accion="modo" data-m="reservas">${icono('calendario')} ${tx('modoReservas')}</button>
+    </div>
+    <button class="saldo ${claseSaldo(E.saldo)}" data-accion="cuenta">${fichaIcono('banca','s')}<span>${tx('banca')}</span><b>${euros(E.saldo)}</b></button>
+    <div class="reloj" id="reloj"></div>
+  </header>
+  <main class="tpv">
+    ${enReservas ? pintarReservas() : `${pintarGrupos()}
+    <section class="articulos">
+      <div class="rejilla">${visibles.map(a=>{ const c=cantidadDe(a.id); return `
+        <button class="articulo ${c?'dentro':''}" data-accion="articulo" data-id="${a.id}">
+          ${c?`<span class="cantidad">${c}</span>`:''}
+          <span class="n">${nom(a)}</span><span class="p">${euros(a.precio)}</span>
+        </button>`; }).join('')}</div>
+      ${paginas>1?`<div class="paginas">
+        <button data-accion="pagina" data-paso="-1" ${E.pagina===0?'disabled':''}>${icono('arriba')} ${tx('atras')}</button>
+        <button data-accion="pagina" data-paso="1" ${E.pagina>=paginas-1?'disabled':''}>${icono('abajo')} ${tx('mas')}</button>
+      </div>`:''}
+    </section>
+    <aside class="ticket">
+      <h2><span>${tx('ticket')}</span>${etiquetaReserva}</h2>
+      <div class="lineas">${E.lineas.length ? lineasVisibles().map(l=>{ const a=ARTICULO[l.id]; return `
+        <button class="linea" data-accion="articulo" data-id="${a.id}">
+          <span class="n">${nom(a)}</span><span class="i">${euros(l.cantidad*a.precio)}</span>
+          <span class="c">${l.cantidad} × ${euros(a.precio)}</span>
+        </button>`; }).join('') : `<div class="vacio">${tx('ticketVacio')}</div>`}</div>
+      ${E.lineas.length>POR_TICKET ? `<div class="paginas" style="height:64px;padding:8px;gap:8px"><button data-accion="pagTicket" data-paso="-1" aria-label="Líneas anteriores" ${E.pagTicket===0?'disabled':''}>${icono('arriba')}</button><button data-accion="pagTicket" data-paso="1" aria-label="Líneas siguientes" ${E.pagTicket>=Math.ceil(E.lineas.length/POR_TICKET)-1?'disabled':''}>${icono('abajo')}</button></div>` : ''}
+      <div class="total"><span>${tx('total')}</span><b>${euros(totalTicket())}</b></div>
+    </aside>`}
+  </main>
+  <footer class="abajo">
+    <button class="b-salir" data-accion="salir">${fichaIcono('salir','m rosa')} ${tx('salir')}</button>
+    <div aria-hidden="true"></div>
+    <button class="b-cuenta" data-accion="cuenta">${fichaIcono('persona','m azul')} ${tx('miCuenta')}</button>
+    <button class="b-ingreso" data-accion="ingreso">${fichaIcono('banca','m violeta')} ${tx('ingreso')}</button>
+    ${enReservas
+      ? `<button class="cerrar" data-accion="rConfirmar" ${estadoR().ok?'':'disabled'}>${fichaIcono('ok','m')} ${tx(E.R.editando?'guardar':'reservar')}</button>`
+      : `<button class="cerrar" data-accion="cerrar">${fichaIcono('ok','m')} ${tx('cerrarTicket')}</button>`}
+  </footer>`;
+}
+
+function actualizarReloj(){
+  const r = document.getElementById('reloj');
+  if(r) r.textContent = new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+}
+
+/* ---------- ventanas y teclado numérico ---------- */
+let V = {};   // acciones de la ventana abierta
+let K = null; // estado del teclado numérico
+const ventanaAbierta = () => $('#ventana').classList.contains('abierta');
+function abrirVentana(html, clase=''){ const v=$('#ventana'); v.innerHTML = `<div class="hoja ${clase}">${html}</div>`; v.classList.add('abierta'); }
+function cerrarVentana(){ const v=$('#ventana'); v.classList.remove('abierta'); v.innerHTML=''; V={}; if(E.pantalla==='entrada') enfocarLlave(); }
+function mensaje(texto, despues){ V.ok = despues || cerrarVentana; abrirVentana(`<div class="icocentro">${fichaIcono('info')}</div><h2>${texto}</h2><button class="boton verde entero" data-accion="v" data-k="ok">${tx('entendido')}</button>`); }
+
+function teclado(o){ K = {...o, valor: o.valor!=null && o.valor!=='' ? String(o.valor) : '', nuevo:true}; pintarTeclado(); }
+function pintarTeclado(){
+  const visto = K.oculto ? (K.valor ? '•'.repeat(K.valor.length) : '&nbsp;') : (K.valor==='' ? (K.sinCero ? '&nbsp;' : '0') : K.valor);
+  abrirVentana(`<h2>${K.titulo}</h2>${K.sub?`<p class="sub">${K.sub}</p>`:''}
+    <div class="visor">${visto}${K.unidad?` <small>${K.unidad}</small>`:''}</div>
+    ${K.ayuda?`<p class="ayuda">${K.ayuda}</p>`:''}
+    <div class="teclas">
+      ${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="tecla" data-accion="kd" data-d="${n}">${n}</button>`).join('')}
+      <button class="tecla" data-accion="kborrar" aria-label="${tx('borrar')}">${icono('borrar')}</button>
+      <button class="tecla" data-accion="kd" data-d="0">0</button>
+      <button class="tecla si" data-accion="kok">${tx('aceptar')}</button>
+    </div>
+    <button class="boton plano entero" data-accion="kcancelar">${tx('cancelar')}</button>`, 'teclado');
+}
+// entrada a mano: UN solo valor numérico = número de socio seguido de las 2 últimas cifras del DNI (p. ej. 23 y 71 → 2371); sin pistas en pantalla
+function tecladoSocio(){
+  teclado({titulo:tx('entrarNumero'), max:7, sinCero:true, alAceptar:(v,txt)=>{ if(txt.length<3){ E.aviso=tx('datosIncorrectos'); pintar(); return; } entrar(); }});
+}
+function teclaDigito(d){
+  if(K.nuevo){ K.valor=''; K.nuevo=false; }   // la primera cifra sustituye el valor actual
+  if(K.valor.length < (K.max||3)) K.valor = (K.valor==='0' && !K.oculto && !K.sinCero ? '' : K.valor) + d;
+  pintarTeclado();
+}
+function teclaBorrar(){ K.nuevo=false; K.valor = K.valor.slice(0,-1); pintarTeclado(); }
+function teclaAceptar(){ const txt=K.valor, v=parseInt(txt||'0',10), f=K.alAceptar; K=null; cerrarVentana(); f && f(v, txt); }
+function teclaCancelar(){ const f=K.alCancelar; K=null; cerrarVentana(); f && f(); }/* ---------- entrada ---------- */
+function enfocarLlave(){ const c=document.getElementById('campoLlave'); if(c && !ventanaAbierta()) c.focus(); }
+function leerLlave(){
+  const c = document.getElementById('campoLlave'); if(!c || !c.value.trim()) return;
+  c.value = '';
+  teclado({titulo:tx('contrasena'), oculto:true, max:12, alAceptar:comprobarContrasena});
+}
+// contraseña: mientras no se cambie vale cualquiera; al cambiarla se guarda para siempre
+const CLAVE_ALMACEN = 'app_contrasena';
+let contrasenaMemoria = null;
+function leerContrasena(){ try{ return localStorage.getItem(CLAVE_ALMACEN) ?? contrasenaMemoria; }catch(e){ return contrasenaMemoria; } }
+function guardarContrasena(v){ contrasenaMemoria = v; try{ localStorage.setItem(CLAVE_ALMACEN, v); }catch(e){} }
+function borrarContrasena(){ contrasenaMemoria = null; try{ localStorage.removeItem(CLAVE_ALMACEN); }catch(e){} }
+function comprobarContrasena(v, txt){
+  const guardada = leerContrasena();
+  if(guardada!==null && txt!==guardada){ E.aviso = tx('contrasenaIncorrecta'); pintar(); return; }
+  entrar();
+}
+function cambiarContrasena(){
+  teclado({titulo:tx('contrasenaNueva'), oculto:true, max:12, alCancelar:verCuenta,
+    alAceptar:(v,a)=>{
+      if(!a){ verCuenta(); return; }
+      teclado({titulo:tx('contrasenaRepite'), oculto:true, max:12, alCancelar:verCuenta,
+        alAceptar:(v2,b)=>{
+          if(a===b){ guardarContrasena(a); mensaje(tx('contrasenaCambiada'), verCuenta); }
+          else mensaje(tx('contrasenaNoCoincide'), cambiarContrasena);
+        }});
+    }});
+}
+function entrar(){ E.pantalla='tpv'; E.aviso=''; inactivo=0; pintar(); }
+function salirSesion(texto){ K=null; cerrarVentana(); E.pantalla='entrada'; E.aviso = texto||''; pintar(); }
+
+/* ---------- cerrar ticket ---------- */
+function textoReserva(r){
+  return `<b>${tx('hoy')} · ${nom(r.franja)}</b><br>${r.comensales} ${tx('comensales')}<br>${r.maquinas.map(m=>nom(m)).join('<br>')}`;
+}
+function cerrarTicket(){
+  if(!E.lineas.length){ mensaje(tx('avisoTicketVacio')); return; }
+  const r = reservaDeHoy();
+  if(r && !r.unida && !E.ticketUnido) preguntarReserva(); else elegirPago();
+}
+function preguntarReserva(){
+  V.si = ()=>{ cerrarVentana(); E.ticketUnido=true; preguntarComensales(); };
+  V.no = ()=>{ cerrarVentana(); elegirPago(); };
+  abrirVentana(`<div class="icocentro">${fichaIcono('calendario')}</div><h2>${tx('esDeReserva')}</h2>
+    <div class="tarjetareserva">${textoReserva(reservaDeHoy())}</div>
+    <div class="dos"><button class="boton verde xl" data-accion="v" data-k="si">${tx('si')}</button><button class="boton xl" data-accion="v" data-k="no">${tx('no')}</button></div>`);
+}
+function preguntarComensales(){
+  const r = reservaDeHoy();
+  teclado({titulo:tx('cuantosComensales'), sub:tx('reservados',r.comensales), valor:r.comensales,
+    alAceptar:n=>{
+      E.comensalesReales = n;
+      // comensales reales = todas las líneas de comensal; «Comensal» completa lo que no cubren almuerzo y bocadillo
+      ponerCantidad('comensal', Math.max(0, n - cantidadDe('almuerzo') - cantidadDe('bocadillo')));
+      preguntarHoras(0);
+    },
+    alCancelar:()=>{ E.ticketUnido=false; pintar(); }});
+}
+function preguntarHoras(i){
+  const ms = reservaDeHoy().maquinas;
+  if(i>=ms.length){ pintar(); elegirPago(); return; }
+  const m = ms[i];
+  teclado({titulo:tx('horasDe', nom(m)), sub:tx('reservadoM2'), valor:HORAS_POR_DEFECTO, ayuda:tx('ayudaHoras'),
+    alAceptar:h=>{ E.horasMaquina[m.id]=h; ponerCantidad(m.articulo, h); preguntarHoras(i+1); },
+    alCancelar:()=>{ pintar(); }});
+}
+function elegirPago(){
+  pintar();
+  const a = E.ajustes;
+  const formas = [['banca','banca','pagoBanca'],['efectivo','efectivo','pagoEfectivo'],['tarjeta','tarjeta','pagoTarjeta']].filter(f=>a[f[0]]);
+  if(!a.cobro || !formas.length){ terminarTicket('banca'); return; }
+  V.volver = cerrarVentana;
+  formas.forEach(f=>{ V['pago_'+f[0]] = ()=>{ cerrarVentana(); terminarTicket(f[0]); }; });
+  abrirVentana(`<h2>${tx('comoPagas')}</h2><div class="importe">${tx('total')}: <b>${euros(totalTicket())}</b></div>
+    <div class="pagos" style="grid-template-columns:repeat(${formas.length},1fr)">
+      ${formas.map(f=>`<button class="boton pago p-${f[0]}" data-accion="v" data-k="pago_${f[0]}">${fichaIcono(f[1])}<span>${tx(f[2])}</span>${f[0]==='banca'?`<span class="saldo-caja ${E.saldo<0?'neg':''}">${tx('tuSaldo')}: <b>${euros(E.saldo)}</b></span>`:''}</button>`).join('')}
+    </div>
+    <button class="boton plano entero" data-accion="v" data-k="volver">${tx('volver')}</button>`, formas.length>2?'ancha':'');
+  if(formas.length>2) $('#ventana .hoja').style.textAlign='center';
+}
+
+// parte un texto en líneas de como mucho `ancho` caracteres (la impresora tiene 32 por línea)
+function ajustar(texto, ancho){
+  const out=[]; let linea='';
+  texto.split(' ').forEach(p=>{ const prueba = linea ? linea+' '+p : p; if(prueba.length>ancho && linea){ out.push(linea); linea=p; } else linea=prueba; });
+  if(linea) out.push(linea);
+  return out;
+}
+function recibo(tipo, forma, importe){
+  const ANCHO=32, raya='-'.repeat(ANCHO);
+  const dos = (izq,der) => izq + ' '.repeat(Math.max(1, ANCHO-izq.length-der.length)) + der;
+  const ahora = new Date();
+  const out = ['SOCIEDAD GASTRONÓMICA',
+    ahora.toLocaleDateString('es-ES')+' '+ahora.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}),
+    ...ajustar(`${tx('socio')} ${E.socio.numero} · ${E.socio.nombre}`, ANCHO), raya];
+  if(tipo==='ingreso'){
+    out.push(`*** ${tx('ingreso').toUpperCase()}: ${euros(importe)} ***`, raya, dos(tx('total').toUpperCase(), euros(importe)), nombreForma(forma));
+  } else {
+    E.lineas.forEach(l=>{ const a=ARTICULO[l.id]; out.push(nom(a).slice(0,ANCHO), dos(`  ${l.cantidad} x ${euros(a.precio)}`, euros(l.cantidad*a.precio))); });
+    out.push(raya, dos(tx('total').toUpperCase(), euros(importe)), nombreForma(forma));
+  }
+  out.push(raya, ...ajustar('→ '+tx('sobreTitulo').replace(':',''), ANCHO));
+  return out.join('\n');
+}
+function cajaSobre(forma, importe){
+  const segundo = forma==='efectivo' ? tx('sobreElDinero') : tx('sobreRecibo');
+  return `<div class="sobre">
+    <div class="sobre-tit">${icono('sobre','inline')} ${tx('sobreDentro')}</div>
+    <div class="sobre-item"><span class="num">1</span>${fichaIcono('recibo','m')}<span>${tx('sobreTicket')}</span></div>
+    <div class="sobre-item"><span class="num">2</span>${fichaIcono(forma==='efectivo'?'efectivo':'tarjeta','m')}<span>${segundo}</span><span class="sobre-imp">${euros(importe)}</span></div>
+    <div class="sobre-fin">${fichaIcono('sobre','m')}<span>${tx('sobreFin')}</span></div>
+  </div>`;
+}
+
+function calcularMarcas(){
+  const comensales = contarComensales(), r = reservaDeHoy();
+  if(comensales>0 && !E.ticketUnido) marcar('pendiente', `Comensales sin reserva (${comensales})`);
+  if(E.ticketUnido){
+    if(E.comensalesReales < r.comensales) marcar('pendiente', `Menos comensales que reservados (${E.comensalesReales} de ${r.comensales})`);
+    r.maquinas.forEach(m=>{ if(!E.horasMaquina[m.id]) marcar('pendiente', `${nom(m)} reservado con 0 horas`); });
+  }
+  if(comensales>0){
+    const bebidas = E.lineas.reduce((s,l)=>{ const t=ARTICULO[l.id].tipo; return s + l.cantidad*(t==='bebida'?1:0); },0);
+    if(bebidas < comensales) marcar('alerta', `Poca bebida para el grupo (${bebidas} bebidas, ${comensales} comensales)`);
+  }
+}
+function marcar(nivel, texto){
+  E.marcas.unshift({nivel, texto, hora:new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})});
+}
+
+function terminarTicket(forma){
+  const total = totalTicket();
+  calcularMarcas();
+  const conSobre = forma==='efectivo' || forma==='tarjeta';
+  const rec = conSobre ? recibo('ticket', forma, total) : '';
+  if(!conSobre) E.saldo -= total;   // efectivo/tarjeta: el ingreso oculto (+X) y el cargo (−X) se anulan
+  E.movimientos.unshift({f:tx('hoy'), tipo:'ticket', forma, importe:total, estado: conSobre?'pendiente':'comprobado',
+    lineas:E.lineas.map(l=>({id:l.id, cantidad:l.cantidad, precio:ARTICULO[l.id].precio}))});
+  if(E.ticketUnido) reservaDeHoy().unida = true;
+  V.fin = ()=>{ E.lineas=[]; E.ticketUnido=false; E.comensalesReales=null; E.horasMaquina={}; salirSesion(); };
+  if(conSobre){
+    abrirVentana(`<h2>${icono('ok','icobien')} ${tx('ticketCerrado')} · ${euros(total)}</h2>
+      <div class="hecho">
+        <div><div class="imprimiendo">${icono('impresora')} ${tx('imprimiendo')}</div><div class="recibo">${rec}</div></div>
+        <div>${cajaSobre(forma, total)}<button class="boton verde entero xl" style="margin-top:24px" data-accion="v" data-k="fin">${tx('terminar')}</button></div>
+      </div>`, 'ancha');
+  } else {
+    abrirVentana(`<div class="icocentro">${fichaIcono('ok','xl verde')}</div><h2>${tx('ticketCerrado')}</h2>
+      <p class="importe">${E.ajustes.cobro?tx('cobradoBanca'):tx('cargadoBanca')} <b>${euros(total)}</b></p>
+      <p class="importe">${tx('saldoAhora')} <span class="pastilla ${claseSaldo(E.saldo)}">${icono('banca')} ${euros(E.saldo)}</span></p>
+      <button class="boton verde entero xl" style="margin-top:20px" data-accion="v" data-k="fin">${tx('terminar')}</button>`);
+  }
+}
+
+/* ---------- ingreso ---------- */
+function hacerIngreso(){
+  teclado({titulo:tx('ingresoCuanto'), unidad:'€', valor:'', max:4, alAceptar:e=>{ if(e>0) elegirFormaIngreso(e*100); }});
+}
+function elegirFormaIngreso(c){
+  V.efectivo = ()=>{ cerrarVentana(); ingresoHecho(c,'efectivo'); };
+  V.tarjeta  = ()=>{ cerrarVentana(); ingresoHecho(c,'tarjeta'); };
+  V.volver = cerrarVentana;
+  abrirVentana(`<h2>${tx('ingresoComo')}</h2><div class="importe">${tx('ingreso')}: <b>${euros(c)}</b></div>
+    <div class="pagos" style="grid-template-columns:1fr 1fr">
+      <button class="boton pago p-efectivo" data-accion="v" data-k="efectivo">${fichaIcono('efectivo')}<span>${tx('pagoEfectivo')}</span></button>
+      <button class="boton pago p-tarjeta" data-accion="v" data-k="tarjeta">${fichaIcono('tarjeta')}<span>${tx('pagoTarjeta')}</span><small style="font-size:20px;font-weight:400">${tx('ingresoAntesDatafono')}</small></button>
+    </div>
+    <button class="boton plano entero" data-accion="v" data-k="volver">${tx('cancelar')}</button>`);
+}
+function ingresoHecho(c, forma){
+  E.saldo += c;   // se puede gastar al momento; el tesorero lo comprueba después
+  E.movimientos.unshift({f:tx('hoy'), tipo:'ingreso', forma, importe:c, estado:'pendiente'});
+  pintar();
+  V.ok = cerrarVentana;
+  abrirVentana(`<h2>${icono('ok','icobien')} ${tx('ingresoHecho')} · ${euros(c)}</h2>
+    <div class="hecho">
+      <div><div class="imprimiendo">${icono('impresora')} ${tx('imprimiendo')}</div><div class="recibo">${recibo('ingreso', forma, c)}</div></div>
+      <div>${cajaSobre(forma, c)}
+        <p class="importe" style="margin-top:20px">${tx('ingresoYaDisponible')}</p>
+        <p class="importe">${tx('saldoAhora')} <span class="pastilla ${claseSaldo(E.saldo)}">${icono('banca')} ${euros(E.saldo)}</span></p>
+        <button class="boton verde entero xl" style="margin-top:12px" data-accion="v" data-k="ok">${tx('entendido')}</button></div>
+    </div>`, 'ancha');
+}
+
+/* ---------- reservas (dentro de la propia TPV) ---------- */
+function nuevoR(){ return {paso:1, dia:null, franjaId:null, comensales:'', maquinas:[], editando:null, pagDias:0, pagMias:0, nuevoNum:true}; }
+const mesasDe = n => Math.ceil(n/PLAZAS_MESA);
+const txtMesas = n => `${n} ${n===1?'mesa':'mesas'}`;
+const reservaDeHoy = ()=>{
+  const h = fechaClave(HOY);
+  return E.reservas.find(r=>r.dia===h && !r.anulada && !r.unida) || E.reservas.find(r=>r.dia===h && !r.anulada);
+};
+function reservasVigentes(){
+  const h = fechaClave(HOY), orden = id => FRANJAS.findIndex(f=>f.id===id);
+  return E.reservas.filter(r=>!r.anulada && r.dia>=h).sort((a,b)=> a.dia<b.dia?-1 : a.dia>b.dia?1 : orden(a.franjaId)-orden(b.franjaId));
+}
+// siempre con día de la semana y número: «mar 10 nov»
+const diaCorto = clave => diaDe(clave).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}).replace(/[,.]/g,'');
+const rotuloDia = clave => { const dif = Math.round((diaDe(clave)-HOY)/864e5); return dif===0 ? tx('hoyM') : dif===1 ? tx('mananaM') : diaDe(clave).toLocaleDateString('es-ES',{weekday:'short'}).replace('.','').toUpperCase(); };
+const chipDia = clave => `<span class="chipdia"><b>${rotuloDia(clave)}</b><span>${diaDe(clave).getDate()} ${diaDe(clave).toLocaleDateString('es-ES',{month:'short'}).replace('.','')}</span></span>`;
+const nombreDia = clave => diaDe(clave).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'}).replace(',','');
+// lo que ocupan ya otros (simulado) + las demás reservas propias de ese día y franja
+function ocupacion(dia, franjaId, excluirId){
+  const hs = hash('m'+dia+franjaId) % 20;   // simulado: casi siempre medio vacío y algún día completo
+  let mesas = hs===0 ? maxMesas(franjaId) : Math.floor(maxMesas(franjaId)*(hs%10)/12);
+  const maquinas = new Set(MAQUINAS.filter(mq=>hash(mq.id+dia+franjaId)%4===0).map(mq=>mq.id));
+  E.reservas.filter(r=>!r.anulada && r.dia===dia && r.franjaId===franjaId && r.id!==excluirId).forEach(r=>{
+    mesas += mesasDe(r.comensales);
+    r.maquinas.forEach(m=>maquinas.add(m.id));
+  });
+  return {mesasLibres:Math.max(0, maxMesas(franjaId)-mesas), maquinas};
+}
+
+function estadoR(){
+  const r = E.R, c = parseInt(r.comensales||'0',10);
+  const plazas = (r.dia && r.franjaId) ? ocupacion(r.dia, r.franjaId, r.editando).mesasLibres*PLAZAS_MESA : null;
+  return {c, plazas, comenOk: plazas!==null && c>=1 && c<=plazas, ok: !!r.dia && !!r.franjaId && plazas!==null && c>=1 && c<=plazas && !diaCerrado(r.dia)};
+}
+function maquinasDeR(){
+  const r = E.R; if(!r.franjaId) return [];
+  return MAQUINAS.filter(mq=>r.maquinas.includes(mq.id)).map(mq=>({id:mq.id, nombre:mq.nombre, articulo:mq.articulo}));
+}
+
+function textoReservaLarga(b){
+  const fr = FRANJAS.find(f=>f.id===b.franjaId);
+  return `<div class="rlin"><b>${nombreDia(b.dia)}</b></div><div class="rlin">${nom(b.franja)} · ${fr.desde}–${fr.hasta}</div><div class="rlin">${b.comensales} ${tx('comensales')}</div><div class="rlin">${b.maquinas.length ? b.maquinas.map(m=>nom(m)).join(' · ') : tx('sinMaquinas2')}</div>`;
+}
+
+function resumenPaso(n){
+  const r = E.R, st = estadoR();
+  if(n===1) return r.dia ? diaCorto(r.dia) : '—';
+  if(n===2) return r.franjaId ? nom(FRANJAS.find(f=>f.id===r.franjaId)) : '—';
+  if(n===3) return st.c ? `${st.c} ${tx('comensales')}` : '—';
+  const k = maquinasDeR().length; return k ? `${k} ${k===1?'máquina':'máquinas'}` : tx('ninguna');
+}
+function navPasos(){
+  const r = E.R, st = estadoR();
+  const hecho = {1:!!r.dia, 2:!!r.franjaId, 3:st.comenOk, 4:maquinasDeR().length>0};
+  const pasos = [[1,'pasoDia'],[2,'pasoFranja'],[3,'pasoComensales'],[4,'pasoMaquinas']].map(([n,k])=>
+    `<button class="paso ${E.rVista==='pasos' && r.paso===n?'activo':''} ${hecho[n]?'hecho':''}" data-accion="rPaso" data-p="${n}">
+      <span class="pn">${hecho[n]?icono('ok'):n}</span><span class="pt"><b>${tx(k)}</b><small>${resumenPaso(n)}</small></span></button>`).join('');
+  const n = reservasVigentes().length;
+  return `<nav class="grupos">${pasos}
+    <button class="paso mis ${E.rVista==='mias'?'activo':''}" data-accion="rMias"><span class="pn">${icono('calendario')}</span><span class="pt"><b>${tx('misReservas')}</b><small>${n} ${n===1?'reserva':'reservas'}</small></span></button></nav>`;
+}
+// calendario por semanas (lunes a domingo): todo el mes a la vista, sin pasar de página
+function centroDia(){
+  const r = E.R, lim = sumarDias(HOY, diasAdelante()-1), dow = d => (d.getDay()+6)%7;
+  const ini = sumarDias(HOY, -dow(HOY)), fin = sumarDias(lim, 6-dow(lim));
+  const celdas = Math.round((fin-ini)/864e5)+1, hoyClave = fechaClave(HOY);
+  const mesDe = d => d.toLocaleDateString('es-ES',{month:'long'});
+  let h = ['lun','mar','mié','jue','vie','sáb','dom'].map(s=>`<span class="sem">${s}</span>`).join('');
+  for(let i=0;i<celdas;i++){
+    const d = sumarDias(ini,i), clave = fechaClave(d), dentro = d>=HOY && d<=lim;
+    const marca = (d.getDate()===1 || clave===hoyClave) ? `<small>${d.toLocaleDateString('es-ES',{month:'short'}).replace('.','')}</small>` : '';
+    h += (dentro && diaCerrado(clave))
+      ? `<span class="cd cerrado"><b>${d.getDate()}</b><small>${tx('cerrado')}</small></span>`
+      : dentro
+      ? `<button class="cd ${clave===hoyClave?'hoy':''} ${r.dia===clave?'sel':''}" data-accion="rDiaClave" data-c="${clave}"><b>${d.getDate()}</b>${marca}</button>`
+      : `<span class="cd fuera"><b>${d.getDate()}</b></span>`;
+  }
+  const meses = mesDe(HOY)===mesDe(lim) ? mesDe(HOY) : `${mesDe(HOY)} – ${mesDe(lim)}`;
+  return `<h2 class="rtit">${tx('queDia')} <span class="mesesTit">${meses}</span></h2><div class="cal">${h}</div>`;
+}
+function centroFranja(){
+  const r = E.R, tit = `<h2 class="rtit">${tx('queFranja')}</h2>`;
+  if(!r.dia) return tit + `<p class="sub">${tx('eligePrimeroDia')}</p>`;
+  const tarjetas = franjasActivas().map(f=>{
+    const plazas = ocupacion(r.dia, f.id, r.editando).mesasLibres*PLAZAS_MESA;
+    return `<button class="franja ${r.franjaId===f.id?'sel':''}" data-accion="rFranja" data-id="${f.id}" ${plazas===0?'disabled':''}>
+      <span class="t">${nom(f)}</span><span class="h">${f.desde}–${f.hasta}</span><span class="l ${plazas===0?'malo':''}">${plazas===0?tx('completo'):tx('quedanPlazas',plazas)}</span></button>`;
+  }).join('');
+  return tit + `<p class="sub">${nombreDia(r.dia)}</p><div class="franjas">${tarjetas}</div>`;
+}
+function centroComensales(){
+  const r = E.R, tit = `<h2 class="rtit">${tx('cuantosComen')}</h2>`;
+  if(!r.franjaId) return tit + `<p class="sub">${tx('eligePrimeroFranja')}</p>`;
+  const st = estadoR();
+  const info = st.c>st.plazas ? `<span class="mal">${tx('soloQuedan',st.plazas)}</span>` : tx('quedanPlazas',st.plazas);
+  return tit + `<div class="visor">${r.comensales||'0'}</div><p class="info">${info}</p>
+    <div class="teclas" style="max-width:520px;margin:6px auto 0">
+      ${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="tecla" data-accion="rDigito" data-d="${n}">${n}</button>`).join('')}
+      <button class="tecla" data-accion="rBorrar" aria-label="${tx('borrar')}">${icono('borrar')}</button>
+      <button class="tecla" data-accion="rDigito" data-d="0">0</button>
+      <button class="tecla si" data-accion="rSigComen" ${st.comenOk?'':'disabled'}>${tx('siguiente')}</button>
+    </div>`;
+}
+function centroMaquinas(){
+  const r = E.R, tit = `<h2 class="rtit">${tx('quierMaquinas')}</h2>`;
+  if(!r.franjaId) return tit + `<p class="sub">${tx('eligePrimeroFranja')}</p>`;
+  const o = ocupacion(r.dia, r.franjaId, r.editando);
+  const botones = MAQUINAS.map(mq=>{
+    const sel = r.maquinas.includes(mq.id), ocup = o.maquinas.has(mq.id);
+    return `<button class="maqbtn ${sel?'sel':''}" data-accion="rMaquina" data-m="${mq.id}" ${ocup?'disabled':''}><span>${nom(mq)}</span><span class="est">${ocup?tx('ocupado'):sel?tx('reservadoM'):tx('libre')}</span></button>`;
+  }).join('');
+  return tit + `<p class="sub">${tx('maquinasAyuda')}</p><div class="maquinas">${botones}</div>`;
+}
+
+function centroMias(){
+  const r = E.R, POR = 5, lista = reservasVigentes(), total = Math.max(1, Math.ceil(lista.length/POR));
+  r.pagMias = Math.max(0, Math.min(r.pagMias, total-1));
+  const filas = lista.slice(r.pagMias*POR, (r.pagMias+1)*POR).map(b=>`<li><button class="fila" data-accion="rVer" data-id="${b.id}">
+      ${chipDia(b.dia)}<span class="t">${nom(b.franja)} · ${b.comensales} ${tx('comensales')}<span class="s">${b.maquinas.length ? b.maquinas.map(m=>nom(m)).join(' · ') : tx('sinMaquinas2')}</span></span>${icono('derecha')}</button></li>`).join('');
+  return `<h2 class="rtit">${tx('misReservas')}</h2>` + (lista.length ? `<ul class="filas">${filas}</ul>` : `<p class="sub">${tx('sinReservas')}</p>`)
+    + (total>1 ? `<div class="paginas" style="margin-top:auto"><button data-accion="rPagMias" data-paso="-1" ${r.pagMias===0?'disabled':''}>${icono('arriba')} ${tx('anteriores')}</button><button data-accion="rPagMias" data-paso="1" ${r.pagMias>=total-1?'disabled':''}>${icono('abajo')} ${tx('siguientes')}</button></div>` : '');
+}
+function panelResumen(){
+  const r = E.R, st = estadoR(), fr = FRANJAS.find(f=>f.id===r.franjaId), maq = maquinasDeR();
+  const fila = (k,v)=>`<div class="rl"><span class="k">${k}</span><span class="v ${v?'':'vacio2'}">${v||'—'}</span></div>`;
+  const filaDia = r.dia ? (()=>{
+    const d = diaDe(r.dia), dif = Math.round((d-HOY)/864e5), sem = d.toLocaleDateString('es-ES',{weekday:'long'});
+    const cuando = dif===0 ? ' · '+tx('hoy').toLowerCase() : dif===1 ? ' · '+tx('manana').toLowerCase() : '';
+    return `<div class="rl"><span class="k">${tx('pasoDia')}</span><span class="v diag">${sem[0].toUpperCase()+sem.slice(1)} ${d.getDate()}</span><span class="v2">${d.toLocaleDateString('es-ES',{month:'long'})}${cuando}</span></div>`;
+  })() : fila(tx('pasoDia'), '');
+  return `<aside class="ticket">
+    <h2><span>${tx('tuReserva')}</span>${r.editando?`<span class="etiqueta">${tx('cambiando')}</span>`:''}</h2>
+    <div class="lineas">
+      ${filaDia}
+      ${fila(tx('pasoFranja'), fr?`${nom(fr)} · ${fr.desde}–${fr.hasta}`:'')}
+      ${fila(tx('pasoComensales'), st.c?`${st.c} ${tx('comensales')}`:'')}
+      ${fila(tx('pasoMaquinas'), maq.length ? maq.map(m=>nom(m)).join('<br>') : tx('ninguna'))}
+    </div>
+    <div class="pie-res"><button class="boton plano entero" data-accion="rReset">${tx('empezarDeNuevo')}</button></div>
+  </aside>`;
+}
+function pintarReservas(){
+  const r = E.R;
+  const centro = E.rVista==='mias' ? centroMias() : r.paso===1 ? centroDia() : r.paso===2 ? centroFranja() : r.paso===3 ? centroComensales() : centroMaquinas();
+  return `${navPasos()}<section class="articulos centro">${centro}</section>${panelResumen()}`;
+}
+function verReserva(id){
+  const b = E.reservas.find(x=>x.id===id);
+  V.rVolver = cerrarVentana; V.rCambiar = ()=>{ cerrarVentana(); cargarEnR(id); }; V.rAnular = ()=>confirmarAnular(id);
+  abrirVentana(`<h2>${tx('reserva')}</h2><div class="resumen">${textoReservaLarga(b)}</div>
+    <div class="dos pie"><button class="boton" data-accion="v" data-k="rCambiar">${tx('cambiarReserva')}</button><button class="boton rojo" data-accion="v" data-k="rAnular">${tx('anularReserva')}</button></div>
+    <button class="boton verde entero" style="margin-top:14px" data-accion="v" data-k="rVolver">${tx('cerrar')}</button>`, 'media');
+}
+function confirmarAnular(id){
+  V.noAnular = ()=>verReserva(id);
+  V.siAnular = ()=>{ E.reservas.find(x=>x.id===id).anulada = true; cerrarVentana(); pintar(); };
+  abrirVentana(`<div class="icocentro">${fichaIcono('info')}</div><h2>${tx('seguroAnular')}</h2><p class="sub">${tx('seQuedaRegistro')}</p>
+    <div class="dos"><button class="boton xl" data-accion="v" data-k="noAnular">${tx('no')}</button><button class="boton rojo xl" data-accion="v" data-k="siAnular">${tx('siAnular')}</button></div>`);
+}
+function cargarEnR(id){
+  const b = E.reservas.find(x=>x.id===id), r = nuevoR();
+  r.editando = id; r.dia = b.dia; r.franjaId = b.franjaId; r.comensales = String(b.comensales);
+  r.maquinas = b.maquinas.map(m=>m.id);
+  r.pagDias = Math.max(0, Math.floor(Math.round((diaDe(b.dia)-HOY)/864e5)/8));
+  E.R = r; E.rVista = 'pasos'; E.modo = 'reservas'; pintar();
+}
+// ticket que sale al reservar o cambiar una reserva (no va al sobre: lo guarda el socio)
+function reciboReserva(b){
+  const ANCHO = 32, raya = '-'.repeat(ANCHO), fr = FRANJAS.find(f=>f.id===b.franjaId), ahora = new Date();
+  return [
+    'SOCIEDAD GASTRONÓMICA',
+    ahora.toLocaleDateString('es-ES')+' '+ahora.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}),
+    ...ajustar(`${tx('socio')} ${E.socio.numero} · ${E.socio.nombre}`, ANCHO), raya,
+    `*** RESERVA Nº ${b.id} ***`, raya,
+    ...ajustar(nombreDia(b.dia), ANCHO),
+    `${nom(b.franja)} ${fr.desde}–${fr.hasta}`,
+    `${b.comensales} ${tx('comensales')}`,
+    ...(b.maquinas.length ? b.maquinas.map(m=>nom(m)) : [tx('sinMaquinas2')]), raya,
+    ...ajustar(tx('guardaTicket'), ANCHO)
+  ].join('\n');
+}
+function confirmarReserva(){
+  const r = E.R, st = estadoR(); if(!st.ok) return;
+  const fr = FRANJAS.find(f=>f.id===r.franjaId);
+  const datos = {dia:r.dia, franjaId:r.franjaId, franja:fr.nombre, comensales:st.c, maquinas:maquinasDeR()};
+  let b;
+  if(r.editando){ b = E.reservas.find(x=>x.id===r.editando); Object.assign(b, datos, {unida:false}); }
+  else { b = Object.assign({id:E.siguienteIdReserva++, unida:false, anulada:false}, datos); E.reservas.push(b); }
+  E.R = nuevoR(); E.rVista = 'mias'; pintar();
+  V.ok = cerrarVentana;
+  abrirVentana(`<h2>${icono('ok')} ${tx(r.editando?'reservaCambiada':'reservaHecha')}</h2>
+    <div class="hecho">
+      <div><div class="imprimiendo">${icono('impresora')} ${tx('imprimiendo')}</div><div class="recibo">${reciboReserva(b)}</div></div>
+      <div><div class="resumen">${textoReservaLarga(b)}</div>
+        <p class="importe" style="margin-top:20px">${tx('guardaTicket')}</p>
+        <button class="boton verde entero xl" style="margin-top:12px" data-accion="v" data-k="ok">${tx('entendido')}</button></div>
+    </div>`, 'ancha');
+}
+
+/* ---------- mi cuenta ---------- */
+const etiquetaMov = m => m.tipo==='ingreso' ? tx('lineaIngreso', nombreForma(m.forma)) : `${tx('ticket')} · ${tx('pagadoCon', nombreForma(m.forma))}`;
+const signoMov = m => m.tipo==='ingreso' ? '+' : (m.forma==='banca' ? '−' : '');
+// botones de página (en vez de scroll): los mayores no tienen que arrastrar la lista
+const botonesPagina = (k,pag,total,ta=tx('masRecientes'),tb=tx('masAntiguos'))=> total>1 ? `<div class="paginas" style="height:72px;margin-top:10px">
+    <button data-accion="v" data-k="${k}-" ${pag===0?'disabled':''}>${icono('arriba')} ${ta}</button>
+    <button data-accion="v" data-k="${k}+" ${pag>=total-1?'disabled':''}>${icono('abajo')} ${tb}</button></div>` : '';
+const LINEAS_POR_PAG = 6, MOVS_POR_PAG = 5;
+function verMovimiento(i, pag=0){
+  const m = E.movimientos[i];
+  V.atras = verCuenta;
+  let cuerpo = `<p class="sub">${m.estado==='pendiente' ? tx('ingresoYaCuenta') : tx('ingresoComprobado')}</p>`;
+  if(m.tipo==='ticket'){
+    const total = Math.ceil(m.lineas.length/LINEAS_POR_PAG);
+    pag = Math.max(0, Math.min(pag, total-1));
+    V['lp-'] = ()=>verMovimiento(i, pag-1); V['lp+'] = ()=>verMovimiento(i, pag+1);
+    cuerpo = `<ul class="lista" style="${total>1?'min-height:470px':''}">${m.lineas.slice(pag*LINEAS_POR_PAG, (pag+1)*LINEAS_POR_PAG).map(l=>`<li><span class="t">${nom(ARTICULO[l.id])}<span class="s">${l.cantidad} × ${euros(l.precio)}</span></span><span class="i">${euros(l.cantidad*l.precio)}</span></li>`).join('')}</ul>`
+      + botonesPagina('lp', pag, total);
+  }
+  abrirVentana(`<h2>${etiquetaMov(m)}</h2>
+    <p class="sub">${m.f} · <span class="pastilla p-${m.estado}">${tx(m.estado)}</span></p>
+    ${cuerpo}
+    <div class="total-det"><span>${tx('total')}</span><b>${euros(m.importe)}</b></div>
+    <button class="boton verde entero" data-accion="v" data-k="atras">${tx('volverCuenta')}</button>`, 'media');
+}
+function verCuenta(){
+  V.cerrar = cerrarVentana;
+  V.contrasena = cambiarContrasena;
+  E.movimientos.forEach((m,i)=>{ V['mov'+i] = ()=>verMovimiento(i); });
+  const totalPag = Math.ceil(E.movimientos.length/MOVS_POR_PAG);
+  E.pagMov = Math.max(0, Math.min(E.pagMov||0, totalPag-1));
+  V['mp-'] = ()=>{ E.pagMov--; verCuenta(); }; V['mp+'] = ()=>{ E.pagMov++; verCuenta(); };
+  const movs = E.movimientos.map((m,i)=>[m,i]).slice(E.pagMov*MOVS_POR_PAG, (E.pagMov+1)*MOVS_POR_PAG).map(([m,i])=>`<li><button class="fila" data-accion="v" data-k="mov${i}">
+      <span class="f">${m.f}</span><span class="t">${etiquetaMov(m)}<span class="s">${tx(m.estado)}</span></span>
+      <span class="i">${signoMov(m)}${euros(m.importe)}</span>${icono('derecha')}</button></li>`).join('');
+  const reservas = reservasVigentes().slice(0,4).map(b=>`<li><span>${diaCorto(b.dia)} · ${nom(b.franja)} · ${b.comensales} ${tx('comensales')}<span class="s">${b.maquinas.length ? b.maquinas.map(m=>nom(m)).join(' · ') : tx('sinMaquinas2')}</span></span></li>`).join('') || `<li><span>${tx('sinReservas')}</span></li>`;
+  abrirVentana(`
+    <div class="cuenta-saldo ${claseSaldo(E.saldo)}">${fichaIcono('banca','xl')}<div>
+      <div class="titulo">${tx('banca')}</div><div class="cifra">${euros(E.saldo)}</div><div class="estado">${textoSaldo(E.saldo)}</div></div></div>
+    <div class="cuenta-cols">
+      <section><h3>${tx('ultimosMovimientos')}</h3><ul class="filas" style="${totalPag>1?'min-height:420px':''}">${movs}</ul>${botonesPagina('mp', E.pagMov, totalPag)}</section>
+      <section><h3>${icono('calendario')} ${tx('proximasReservas')}</h3><ul class="lista">${reservas}</ul></section>
+    </div>
+    <div class="dos pie">
+      <button class="boton" data-accion="v" data-k="contrasena">${icono('llave')} ${tx('cambiarContrasena')}</button>
+      <button class="boton verde" data-accion="v" data-k="cerrar">${tx('cerrar')}</button>
+    </div>`, 'ancha');
+}
+
+/* ---------- salir ---------- */
+function salirTpv(){
+  if(!E.lineas.length){ salirSesion(); return; }
+  V.salir = ()=>salirSesion(); V.quedarse = cerrarVentana;
+  abrirVentana(`<div class="icocentro">${fichaIcono('info')}</div><h2>${tx('salirSinCerrar')}</h2><p class="sub">${tx('salirSinCerrarSub')}</p>
+    <div class="dos"><button class="boton xl" data-accion="v" data-k="quedarse">${tx('volver')}</button><button class="boton rojo xl" data-accion="v" data-k="salir">${tx('salir')}</button></div>`);
+}
+
+/* ---------- eventos ---------- */
+const acciones = {
+  entrarNumero: tecladoSocio,
+  grupo: d=>{ E.grupo=d.id; E.pagina=0; pintar(); },
+  pagina: d=>{ E.pagina += +d.paso; pintar(); },
+  pagTicket: d=>{ E.pagTicket = (E.pagTicket ?? 0) + +d.paso; pintar(); },
+  pagGrupos: d=>{ E.pagGrupos = (E.pagGrupos||0) + +d.paso; pintar(); },
+  modo: d=>{ E.modo = d.m; pintar(); },
+  rPaso: d=>{ E.rVista='pasos'; E.R.paso=+d.p; if(+d.p===3) E.R.nuevoNum=true; pintar(); },
+  rMias: ()=>{ E.rVista='mias'; pintar(); },
+  rDiaClave: d=>{ if(E.R.dia!==d.c) E.R.maquinas=[]; E.R.dia=d.c; E.R.paso=2; pintar(); },
+  rDia: d=>{ const clave = fechaClave(sumarDias(HOY,+d.i)); if(E.R.dia!==clave) E.R.maquinas=[]; E.R.dia=clave; E.R.paso=2; pintar(); },
+  rPagDias: d=>{ E.R.pagDias += +d.paso; pintar(); },
+  rFranja: d=>{ if(E.R.franjaId!==d.id) E.R.maquinas=[]; E.R.franjaId=d.id; E.R.paso=3; E.R.nuevoNum=true; pintar(); },
+  rDigito: d=>{ const r=E.R; if(r.nuevoNum){ r.comensales=''; r.nuevoNum=false; } if(r.comensales==='0') r.comensales=''; if(r.comensales.length<2) r.comensales+=d.d; pintar(); },
+  rBorrar: ()=>{ const r=E.R; r.nuevoNum=false; r.comensales=r.comensales.slice(0,-1); pintar(); },
+  rSigComen: ()=>{ E.R.paso=4; pintar(); },
+  rMaquina: d=>{ const r=E.R; r.maquinas = r.maquinas.includes(d.m) ? r.maquinas.filter(x=>x!==d.m) : [...r.maquinas, d.m]; pintar(); },
+  rVer: d=>verReserva(+d.id),
+  rPagMias: d=>{ E.R.pagMias += +d.paso; pintar(); },
+  rReset: ()=>{ E.R=nuevoR(); pintar(); },
+  rConfirmar: confirmarReserva,
+  articulo: d=>{
+    const a = ARTICULO[d.id];
+    teclado({titulo:nom(a), sub:tx('precioUnidad', euros(a.precio)), valor:cantidadDe(d.id)||'', ayuda:tx('ayudaQuitar'),
+      alAceptar:c=>{ ponerCantidad(d.id,c); pintar(); }});
+  },
+  cerrar: cerrarTicket, ingreso: hacerIngreso, cuenta: ()=>{ E.pagMov=0; verCuenta(); }, salir: salirTpv,
+  kd: d=>teclaDigito(d.d), kborrar: teclaBorrar, kok: teclaAceptar, kcancelar: teclaCancelar,
+  v: d=>{ const f=V[d.k]; f && f(); }
+};
+marco.addEventListener('click', e=>{
+  const b = e.target.closest('[data-accion]'); if(!b || b.disabled) return;
+  acciones[b.dataset.accion]?.(b.dataset);
+});
+// el lector de llaves escribe como un teclado: el cursor siempre en el campo de entrada
+marco.addEventListener('pointerup', ()=>{ if(E.pantalla==='entrada') setTimeout(enfocarLlave, 0); });
+window.addEventListener('keydown', e=>{
+  inactivo = 0;
+  if(K){ // el teclado físico también maneja el teclado numérico
+    if(/^[0-9]$/.test(e.key)) teclaDigito(e.key);
+    else if(e.key==='Backspace') teclaBorrar();
+    else if(e.key==='Enter') teclaAceptar();
+    else if(e.key==='Escape') teclaCancelar();
+    else return;
+    e.preventDefault(); e.stopPropagation(); return;
+  }
+  if(e.key==='Enter' && e.target.id==='campoLlave'){ e.preventDefault(); leerLlave(); }
+}, true);
+
+/* ---------- inactividad y reloj ---------- */
+const LIMITE_INACTIVO = 120;
+let inactivo = 0;
+window.addEventListener('pointerdown', ()=>{ inactivo=0; }, true);
+setInterval(()=>{
+  actualizarReloj();
+  if(E.pantalla==='tpv'){
+    inactivo++;
+    if(inactivo>=LIMITE_INACTIVO) salirSesion(tx('cierrePorInactividad'));
+  }
+  $('#dInactivo').textContent = E.pantalla==='tpv' ? `Cierre por inactividad en ${Math.max(0,LIMITE_INACTIVO-inactivo)} s` : '';
+}, 1000);
+
+/* ---------- barra de demo ---------- */
+function pintarDemo(){
+  $('#dMarcas').textContent = `Revisión junta (${E.marcas.length})`;
+  if(!$('#panelMarcas').hidden) pintarMarcas();
+}
+function pintarMarcas(){
+  $('#panelMarcas').innerHTML = `<h4>Lo que vería la junta en Revisión</h4>
+    <p>La TPV no dice nada al socio: solo deja la marca para la junta.</p>
+    ${E.marcas.length ? '<ul>'+E.marcas.map(m=>`<li><span class="${m.nivel==='alerta'?'m-alerta':'m-pendiente'}">${m.nivel==='alerta'?'Alerta':'Pendiente'}</span> ${m.hora} · ${m.texto}</li>`).join('')+'</ul>' : '<p>Sin marcas todavía.</p>'}`;
+}
+// Simula el panel de la junta: franjas (activa, horas, máximo de comensales) y antelación máxima
+function pintarBack(){
+  $('#panelBack').innerHTML = `<h4>Panel de la junta · Reservas</h4>
+    <p>Así lo configurará la junta. Los cambios se ven al momento en la TPV (pestaña Reservas).</p>
+    <table><tr><th>Activa</th><th>Franja</th><th>Desde</th><th>Hasta</th><th>Comensales máx.</th></tr>
+    ${FRANJAS.map(f=>`<tr><td><button class="ico-sn ${f.activa?'si':'no'}" data-ac="toggleFranja" data-f="${f.id}" title="${f.activa?'Activa: toca para desactivar':'Inactiva: toca para activar'}"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity=".15"/>${f.activa?'<path d="M7 12.5l3.2 3.2L17 9"/>':'<path d="M8 8l8 8M16 8l-8 8"/>'}</svg></button></td><td><b>${f.nombre.es}</b></td>
+      <td><input type="time" data-f="${f.id}" data-c="desde" value="${f.desde}"></td><td><input type="time" data-f="${f.id}" data-c="hasta" value="${f.hasta}"></td>
+      <td><input type="number" min="4" max="200" step="4" data-f="${f.id}" data-c="comensalesMax" value="${f.comensalesMax}"></td></tr>`).join('')}</table>
+    <div class="fila-meses"><label>Antelación máxima de las reservas: <input type="number" min="1" max="365" id="bDias" value="${ANTELACION_DIAS}"> días</label></div>
+    <div class="fila-meses"><b>Días cerrados a reservas</b> (por eventos)
+      <div style="margin:6px 0">${DIAS_CERRADOS.length ? DIAS_CERRADOS.map(d=>`<div>${nombreDia(d.dia)} · ${d.motivo||'sin motivo'} <button data-ac="abrirDia" data-d="${d.dia}">Abrir</button></div>`).join('') : 'Ninguno'}</div>
+      <input type="date" id="bDia" min="${fechaClave(HOY)}" max="${fechaClave(sumarDias(HOY,diasAdelante()-1))}"> <input type="text" id="bMotivo" placeholder="Motivo (opcional)" style="width:150px"> <button data-ac="cerrarDia">Cerrar día</button>
+    </div>`;
+}
+$('#panelBack').addEventListener('change', e=>{
+  const t = e.target;
+  if(t.id==='bDias'){ ANTELACION_DIAS = Math.max(1, Math.min(365, parseInt(t.value||'30',10))); pintar(); return; }
+  const f = FRANJAS.find(x=>x.id===t.dataset.f); if(!f) return;
+  const c = t.dataset.c;
+  f[c] = c==='activa' ? t.checked : c==='comensalesMax' ? Math.max(4, parseInt(t.value||'4',10)) : t.value;
+  if(!f.activa && E.R.franjaId===f.id){ E.R.franjaId=null; E.R.maquinas=[]; }
+  pintar();
+});
+$('#panelBack').addEventListener('click', e=>{
+  const b = e.target.closest('[data-ac]'); if(!b) return;
+  if(b.dataset.ac==='toggleFranja'){ const f=FRANJAS.find(x=>x.id===b.dataset.f); f.activa=!f.activa; if(!f.activa && E.R.franjaId===f.id){ E.R.franjaId=null; E.R.maquinas=[]; } pintarBack(); pintar(); return; }
+  if(b.dataset.ac==='abrirDia'){ DIAS_CERRADOS = DIAS_CERRADOS.filter(x=>x.dia!==b.dataset.d); }
+  else {
+    const v = $('#bDia').value; if(!v) return;
+    if(!diaCerrado(v)) DIAS_CERRADOS.push({dia:v, motivo:$('#bMotivo').value.trim()});
+    DIAS_CERRADOS.sort((a,c)=>a.dia<c.dia?-1:1);
+    if(E.R.dia===v){ E.R.dia=null; E.R.franjaId=null; E.R.maquinas=[]; }
+  }
+  pintarBack(); pintar();
+});
+$('#dBack').onclick = ()=>{ const p=$('#panelBack'); p.hidden=!p.hidden; if(!p.hidden) pintarBack(); };
+$('#dMarcas').onclick = ()=>{ const p=$('#panelMarcas'); p.hidden=!p.hidden; if(!p.hidden) pintarMarcas(); };
+$('#dLlave').onclick = ()=>{ if(E.pantalla!=='entrada' || ventanaAbierta()) return; document.getElementById('campoLlave').value='0004A7F3C2'; leerLlave(); };
+window.addEventListener('storage', e=>{ if(e.key==='txokopay.pagos'){ E.ajustes = pagosGuardados(); pintar(); } });
+$('#dReiniciar').onclick = ()=>{
+  K=null; E = estadoInicial(E.idioma); borrarContrasena();
+  FRANJAS.splice(0, FRANJAS.length, ...JSON.parse(JSON.stringify(FRANJAS_BASE))); ANTELACION_DIAS = 30; DIAS_CERRADOS = diasCerradosBase();
+  if(!$('#panelBack').hidden) pintarBack();
+  cerrarVentana(); pintar();
+};
+
+/* ---------- encajar la pantalla de 1280×1024 en la ventana ---------- */
+function encajar(){
+  const alto = window.innerHeight - parseInt(getComputedStyle(document.documentElement).getPropertyValue('--altoDemo'));
+  const escala = Math.min(window.innerWidth/1280, alto/1024);
+  marco.style.transform = `scale(${escala})`;
+}
+window.addEventListener('resize', encajar);
+encajar(); pintar();
+</script>
+</body>
+</html>
