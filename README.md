@@ -24,10 +24,12 @@ Iremos contando más a medida que avance.
 
 ## Pruébalo
 
-Dos maquetas para tocar, con **datos inventados**. Todo ocurre en tu navegador: no se guarda nada y, al recargar la página, vuelve todo a como estaba. Cambia lo que quieras.
+Tres maquetas para tocar, con **datos inventados**. Todo ocurre en tu navegador: no se guarda nada y, al recargar la página, vuelve todo a como estaba. Cambia lo que quieras.
 
 - **[TPV, el mostrador](demo/tpv.html)**: pantalla táctil con los grupos a la izquierda, el ticket a la derecha, reservas y formas de pago. Para entrar pulsa «Entrar con número de socio» y escribe cualquier número de tres o más cifras (por ejemplo `2371`).
 - **[Panel de la junta](demo/panel.html)**: reservas y tickets con su revisión, socios y llaves, ingresos y gastos, almacén e inventario, artículos y menú de la TPV, formas de pago, copias de seguridad y auditoría. Para entrar: usuario `admin`, contraseña `admin`.
+
+- **[Móvil, pedir desde el teléfono](demo/movil.html)**: el socio entra con su número y su móvil, recibe un código y apunta lo que toma sin pasar por la barra. Para probarlo: socio `1` y móvil `600 11 22 33`; el código sale en pantalla porque la demo no manda WhatsApp.
 
 Las formas de pago que activas en el panel son las que ofrece la TPV, y los dos comparten los mismos artículos y menú. Para que se vea, abre las dos en pestañas del mismo navegador.
 

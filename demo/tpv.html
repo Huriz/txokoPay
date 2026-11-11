@@ -273,6 +273,7 @@ button:active{transform:scale(.98)}
 .rl .v{display:block;font-size:26px;font-weight:700;margin-top:2px}
 .rl .v.diag{font-size:36px}
 .rl .v2{display:block;font-size:26px;color:var(--suave)}
+.idtag{display:inline-block;background:#ffe487;color:#000;border-radius:8px;padding:0 10px;font-weight:800;font-size:.8em;letter-spacing:.02em;vertical-align:middle;white-space:nowrap}
 .chipdia{display:flex;flex-direction:column;align-items:center;flex:none;min-width:96px;background:var(--principal-claro);color:var(--principal);border-radius:10px;padding:8px 10px;line-height:1.1}
 .chipdia b{font-size:20px;letter-spacing:.04em}
 .chipdia span{font-size:26px;font-weight:700;color:var(--tinta)}
@@ -331,22 +332,22 @@ button:active{transform:scale(.98)}
 /* ---------- textos por idioma (de momento solo castellano) ---------- */
 const TEXTOS = {
   es: {
-    socio:'Socio', banca:'Banca', miCuenta:'Mi cuenta', ingreso:'Ingreso', salir:'Salir', cerrarTicket:'Cerrar ticket',
+    socio:'Socio', banca:'Banca', miCuenta:'Mi cuenta', ingreso:'Ingreso', salir:'Salir', cerrarTicket:'Cerrar Ticket',
     ticket:'Ticket', total:'Total', ticketVacio:'Toca un producto para añadirlo.',
     pasaLlave:'Pasa tu llave', pistaLlave:'Acerca la llave al lector', o:'o',
     entrarNumero:'Entrar con número de socio', contrasena:'Escribe tu contraseña', numeroSocio:'Número de socio', cifrasDni:'Últimas 2 cifras de tu DNI',
-    cancelar:'Cancelar', aceptar:'Aceptar', datosIncorrectos:'Datos incorrectos', borrar:'Borrar', precioUnidad:'{0} cada uno', ayudaQuitar:'0 = quitar del ticket',
-    avisoTicketVacio:'El ticket está vacío. Toca un producto para añadirlo.', entendido:'Entendido',
-    esDeReserva:'¿Este ticket es de tu reserva?', si:'Sí', no:'No', comensales:'comensales',
+    cancelar:'Cancelar', aceptar:'Aceptar', datosIncorrectos:'Datos incorrectos', borrar:'Borrar', precioUnidad:'{0} cada uno', ayudaQuitar:'0 = quitar del Ticket',
+    avisoTicketVacio:'El Ticket está vacío. Toca un producto para añadirlo.', entendido:'Entendido',
+    esDeReserva:'¿Este Ticket es de tu reserva?', si:'Sí', no:'No', comensales:'comensales',
     cuantosComensales:'¿Cuántos habéis comido?', reservados:'Reservados: {0}',
     horasDe:'¿Cuántas horas habéis usado: {0}?', ayudaHoras:'Pon 0 si no lo habéis usado', reservadoDe:'Reservado de {0} a {1}',
-    comoPagas:'¿Cómo pagas?', pagoBanca:'Con banca', pagoEfectivo:'Efectivo', pagoTarjeta:'Tarjeta', volver:'Volver al ticket',
+    comoPagas:'¿Cómo pagas?', pagoBanca:'Con banca', pagoEfectivo:'Efectivo', pagoTarjeta:'Tarjeta', volver:'Volver al Ticket',
     ticketCerrado:'Ticket cerrado', cobradoBanca:'Cobrado de tu banca:', cargadoBanca:'Cargado en tu banca:', saldoAhora:'Tu saldo ahora:', tuSaldo:'Tu saldo',
-    sobreTitulo:'Mete en un sobre y échalo a la caja fuerte:', sobreTicket:'el ticket impreso', sobreDinero:'el dinero ({0})', sobreRecibo:'el recibo del datáfono',
-    imprimiendo:'Imprimiendo ticket…', terminar:'Terminar',
+    sobreTitulo:'Mete en un sobre y échalo a la caja fuerte:', sobreTicket:'el Ticket impreso', sobreDinero:'el dinero ({0})', sobreRecibo:'el recibo del datáfono',
+    imprimiendo:'Imprimiendo Ticket…', terminar:'Terminar',
     ingresoCuanto:'¿Cuánto quieres ingresar?', ingresoComo:'¿Cómo lo pagas?', ingresoAntesDatafono:'Paga antes en el datáfono',
     ingresoHecho:'Ingreso hecho', ingresoYaDisponible:'Ya puedes gastarlo. El tesorero lo comprobará.',
-    salirSinCerrar:'El ticket no está cerrado', salirSinCerrarSub:'Se guarda y lo verás al volver a entrar.',
+    salirSinCerrar:'El Ticket no está cerrado', salirSinCerrarSub:'Se guarda y lo verás al volver a entrar.',
     alDia:'Al día', enNegativo:'En negativo', muyNegativo:'Muy en negativo',
     ultimosMovimientos:'Últimos movimientos', proximasReservas:'Mis próximas reservas', cambiarContrasena:'Cambiar contraseña', cerrar:'Cerrar',
     pendiente:'pendiente de comprobar', comprobado:'comprobado', hoy:'Hoy', reserva:'Reserva', cierrePorInactividad:'Sesión cerrada por no usarla',
@@ -358,10 +359,10 @@ const TEXTOS = {
     queDia:'¿Qué día?', cerrado:'Cerrado', hastaEl:'Puedes reservar hasta el {0}', queFranja:'¿Para qué comida?', cuantosComen:'¿Cuántos comensales?', quierMaquinas:'¿Quieres horno o freidora?',
     eligePrimeroDia:'Elige primero el día.', eligePrimeroFranja:'Elige primero el día y la comida.',
     quedanPlazas:'Quedan {0} plazas', completo:'Completo', soloQuedan:'Solo quedan {0} plazas',
-    maquinasAyuda:'Una reserva por comida. Se cobra por horas al cerrar el ticket.', ocupado:'Ocupado', libre:'Libre', reservadoM:'Reservado ✓', reservadoM2:'Reservado para vosotros', siguiente:'Siguiente',
+    maquinasAyuda:'Una reserva por comida. Se cobra por horas al cerrar el Ticket.', ocupado:'Ocupado', libre:'Libre', reservadoM:'Reservado ✓', reservadoM2:'Reservado para vosotros', siguiente:'Siguiente',
     sinMaquinas2:'Sin horno ni freidora', ninguna:'Ninguna', tuReserva:'Tu reserva', cambiando:'Cambiando', empezarDeNuevo:'Empezar de nuevo',
     reservar:'Reservar', guardar:'Guardar', diasAntes:'Días anteriores', diasDespues:'Días siguientes', anteriores:'Anteriores', siguientes:'Siguientes',
-    sinReservas:'No tienes reservas.', reservaHecha:'Reserva hecha', reservaCambiada:'Reserva cambiada', guardaTicket:'Guarda este ticket.', cambiarReserva:'Cambiar', anularReserva:'Anular reserva',
+    sinReservas:'No tienes reservas.', reservaHecha:'Reserva hecha', reservaCambiada:'Reserva cambiada', guardaTicket:'Guarda este Ticket.', cambiarReserva:'Cambiar', anularReserva:'Anular reserva',
     seguroAnular:'¿Seguro que quieres anular la reserva?', seQuedaRegistro:'Quedará anotada como anulada.', siAnular:'Sí, anular',
     masRecientes:'Más recientes', masAntiguos:'Más antiguos', volverCuenta:'Volver a mi cuenta', ingresoYaCuenta:'Ya cuenta en tu banca. El tesorero lo comprobará.', ingresoComprobado:'El tesorero ya lo ha comprobado.',
     contrasenaNueva:'Escribe tu nueva contraseña', contrasenaRepite:'Repite la contraseña', contrasenaCambiada:'Contraseña cambiada. Ya vale para siempre.',
@@ -418,9 +419,12 @@ let DIAS_CERRADOS = diasCerradosBase();
 const diaCerrado = clave => DIAS_CERRADOS.find(d=>d.dia===clave);
 
 // movimientos de ejemplo: tickets con sus líneas (precio de ese momento) e ingresos
+let _idt = 1040;   // número de Ticket (IDT): cada Ticket tiene el suyo
+const nuevoIdT = () => ++_idt;
+const tagId = (k,n) => `<span class="idtag">${k}: ${n}</span>`;   // etiqueta amarilla con letras negras: «IDT: 1041»
 const tk = (f,forma,items,estado='comprobado')=>{
   const lineas = items.map(([id,cantidad])=>({id,cantidad,precio:ARTICULO[id].precio}));
-  return {f, tipo:'ticket', forma, estado, lineas, importe:lineas.reduce((s,l)=>s+l.cantidad*l.precio,0)};
+  return {id:nuevoIdT(), f, tipo:'ticket', forma, estado, lineas, importe:lineas.reduce((s,l)=>s+l.cantidad*l.precio,0)};
 };
 const ing = (f,forma,importe,estado='comprobado')=>({f, tipo:'ingreso', forma, importe, estado});
 
@@ -491,6 +495,7 @@ function horas(m){ const h = s => +s.split(':')[0] + (+s.split(':')[1])/60; retu
 function ponerCantidad(id,c){
   const l = E.lineas.find(x=>x.id===id);
   if(c<=0){ E.lineas = E.lineas.filter(x=>x.id!==id); return; }
+  if(!E.idT) E.idT = nuevoIdT();   // el Ticket nace con su número al apuntar lo primero
   if(l) l.cantidad = c; else E.lineas.push({id, cantidad:c});
   E.pagTicket = 1e9;   // al tocar un artículo, el ticket enseña la última página
 }
@@ -543,7 +548,7 @@ function pintarTpv(){
   if(E.pagina>=paginas) E.pagina = 0;
   const visibles = lista.slice(E.pagina*POR_PAGINA, E.pagina*POR_PAGINA+POR_PAGINA);
   const enReservas = E.modo==='reservas';
-  const etiquetaReserva = E.ticketUnido ? `<span class="etiqueta">${tx('reserva')} · ${nom(reservaDeHoy().franja)}</span>` : '';
+  const etiquetaReserva = E.ticketUnido ? `<span class="etiqueta">${tx('reserva')} ${reservaDeHoy().id} · ${nom(reservaDeHoy().franja)}</span>` : '';
   return `
   <header class="arriba">
     <div class="quien">${fichaIcono('persona','m claro')}<div><div class="nombre">${E.socio.nombre}</div><p class="sub">${tx('socio')} ${E.socio.numero}</p></div></div>
@@ -568,7 +573,7 @@ function pintarTpv(){
       </div>`:''}
     </section>
     <aside class="ticket">
-      <h2><span>${tx('ticket')}</span>${etiquetaReserva}</h2>
+      <h2><span>${tx('ticket')}${E.idT?' '+tagId('IDT',E.idT):''}</span>${etiquetaReserva}</h2>
       <div class="lineas">${E.lineas.length ? lineasVisibles().map(l=>{ const a=ARTICULO[l.id]; return `
         <button class="linea" data-accion="articulo" data-id="${a.id}">
           <span class="n">${nom(a)}</span><span class="i">${euros(l.cantidad*a.precio)}</span>
@@ -661,7 +666,7 @@ function salirSesion(texto){ K=null; cerrarVentana(); E.pantalla='entrada'; E.av
 
 /* ---------- cerrar ticket ---------- */
 function textoReserva(r){
-  return `<b>${tx('hoy')} · ${nom(r.franja)}</b><br>${r.comensales} ${tx('comensales')}<br>${r.maquinas.map(m=>nom(m)).join('<br>')}`;
+  return `<b>${tx('hoy')} · ${nom(r.franja)}</b><br>${r.comensales} ${tx('comensales')}<br>${r.maquinas.map(m=>nom(m)).join('<br>')}<br>${tagId('IDR',r.id)}`;
 }
 function cerrarTicket(){
   if(!E.lineas.length){ mensaje(tx('avisoTicketVacio')); return; }
@@ -716,7 +721,7 @@ function ajustar(texto, ancho){
   if(linea) out.push(linea);
   return out;
 }
-function recibo(tipo, forma, importe){
+function recibo(tipo, forma, importe, idt, idr){
   const ANCHO=32, raya='-'.repeat(ANCHO);
   const dos = (izq,der) => izq + ' '.repeat(Math.max(1, ANCHO-izq.length-der.length)) + der;
   const ahora = new Date();
@@ -726,7 +731,7 @@ function recibo(tipo, forma, importe){
   if(tipo==='ingreso'){
     out.push(`*** ${tx('ingreso').toUpperCase()}: ${euros(importe)} ***`, raya, dos(tx('total').toUpperCase(), euros(importe)), nombreForma(forma));
   } else {
-    E.lineas.forEach(l=>{ const a=ARTICULO[l.id]; out.push(nom(a).slice(0,ANCHO), dos(`  ${l.cantidad} x ${euros(a.precio)}`, euros(l.cantidad*a.precio))); });
+    out.push('IDT: '+idt+(idr?' · IDR: '+idr:'')); E.lineas.forEach(l=>{ const a=ARTICULO[l.id]; out.push(nom(a).slice(0,ANCHO), dos(`  ${l.cantidad} x ${euros(a.precio)}`, euros(l.cantidad*a.precio))); });
     out.push(raya, dos(tx('total').toUpperCase(), euros(importe)), nombreForma(forma));
   }
   out.push(raya, ...ajustar('→ '+tx('sobreTitulo').replace(':',''), ANCHO));
@@ -759,23 +764,23 @@ function marcar(nivel, texto){
 }
 
 function terminarTicket(forma){
-  const total = totalTicket();
+  const total = totalTicket(), idT = E.idT || nuevoIdT(), idR = E.ticketUnido ? reservaDeHoy().id : null;   // el Ticket lleva su Reserva si se ha elegido
   calcularMarcas();
   const conSobre = forma==='efectivo' || forma==='tarjeta';
-  const rec = conSobre ? recibo('ticket', forma, total) : '';
+  const rec = conSobre ? recibo('ticket', forma, total, idT, idR) : '';
   if(!conSobre) E.saldo -= total;   // efectivo/tarjeta: el ingreso oculto (+X) y el cargo (−X) se anulan
-  E.movimientos.unshift({f:tx('hoy'), tipo:'ticket', forma, importe:total, estado: conSobre?'pendiente':'comprobado',
+  E.movimientos.unshift({id:idT, f:tx('hoy'), tipo:'ticket', reservaId:idR, forma, importe:total, estado: conSobre?'pendiente':'comprobado',
     lineas:E.lineas.map(l=>({id:l.id, cantidad:l.cantidad, precio:ARTICULO[l.id].precio}))});
   if(E.ticketUnido) reservaDeHoy().unida = true;
-  V.fin = ()=>{ E.lineas=[]; E.ticketUnido=false; E.comensalesReales=null; E.horasMaquina={}; salirSesion(); };
+  V.fin = ()=>{ E.lineas=[]; E.idT=null; E.ticketUnido=false; E.comensalesReales=null; E.horasMaquina={}; salirSesion(); };
   if(conSobre){
-    abrirVentana(`<h2>${icono('ok','icobien')} ${tx('ticketCerrado')} · ${euros(total)}</h2>
+    abrirVentana(`<h2>${icono('ok','icobien')} ${tx('ticketCerrado')} · ${euros(total)}</h2><p class="sub">${tagId('IDT',idT)}${idR?' '+tagId('IDR',idR):''}</p>
       <div class="hecho">
         <div><div class="imprimiendo">${icono('impresora')} ${tx('imprimiendo')} <b>${destinoImp('ticket')}</b></div><div class="recibo">${rec}</div></div>
         <div>${cajaSobre(forma, total)}<button class="boton verde entero xl" style="margin-top:24px" data-accion="v" data-k="fin">${tx('terminar')}</button></div>
       </div>`, 'ancha');
   } else {
-    abrirVentana(`<div class="icocentro">${fichaIcono('ok','xl verde')}</div><h2>${tx('ticketCerrado')}</h2>
+    abrirVentana(`<div class="icocentro">${fichaIcono('ok','xl verde')}</div><h2>${tx('ticketCerrado')}</h2><p class="sub">${tagId('IDT',idT)}${idR?' '+tagId('IDR',idR):''}</p>
       <p class="importe">${E.ajustes.cobro?tx('cobradoBanca'):tx('cargadoBanca')} <b>${euros(total)}</b></p>
       <p class="importe">${tx('saldoAhora')} <span class="pastilla ${claseSaldo(E.saldo)}">${icono('banca')} ${euros(E.saldo)}</span></p>
       <button class="boton verde entero xl" style="margin-top:20px" data-accion="v" data-k="fin">${tx('terminar')}</button>`);
@@ -853,7 +858,7 @@ function maquinasDeR(){
 
 function textoReservaLarga(b){
   const fr = FRANJAS.find(f=>f.id===b.franjaId);
-  return `<div class="rlin"><b>${nombreDia(b.dia)}</b></div><div class="rlin">${nom(b.franja)} · ${fr.desde}–${fr.hasta}</div><div class="rlin">${b.comensales} ${tx('comensales')}</div><div class="rlin">${b.maquinas.length ? b.maquinas.map(m=>nom(m)).join(' · ') : tx('sinMaquinas2')}</div>`;
+  return `<div class="rlin"><b>${nombreDia(b.dia)}</b></div><div class="rlin">${nom(b.franja)} · ${fr.desde}–${fr.hasta}</div><div class="rlin">${b.comensales} ${tx('comensales')}</div><div class="rlin">${b.maquinas.length ? b.maquinas.map(m=>nom(m)).join(' · ') : tx('sinMaquinas2')}</div><div class="rlin">${tagId('IDR',b.id)}</div>`;
 }
 
 function resumenPaso(n){
@@ -930,7 +935,7 @@ function centroMias(){
   const r = E.R, POR = 5, lista = reservasVigentes(), total = Math.max(1, Math.ceil(lista.length/POR));
   r.pagMias = Math.max(0, Math.min(r.pagMias, total-1));
   const filas = lista.slice(r.pagMias*POR, (r.pagMias+1)*POR).map(b=>`<li><button class="fila" data-accion="rVer" data-id="${b.id}">
-      ${chipDia(b.dia)}<span class="t">${nom(b.franja)} · ${b.comensales} ${tx('comensales')}<span class="s">${b.maquinas.length ? b.maquinas.map(m=>nom(m)).join(' · ') : tx('sinMaquinas2')}</span></span>${icono('derecha')}</button></li>`).join('');
+      ${chipDia(b.dia)}<span class="t">${nom(b.franja)} · ${b.comensales} ${tx('comensales')}<span class="s">${tagId('IDR',b.id)} · ${b.maquinas.length ? b.maquinas.map(m=>nom(m)).join(' · ') : tx('sinMaquinas2')}</span></span>${icono('derecha')}</button></li>`).join('');
   return `<h2 class="rtit">${tx('misReservas')}</h2>` + (lista.length ? `<ul class="filas">${filas}</ul>` : `<p class="sub">${tx('sinReservas')}</p>`)
     + (total>1 ? `<div class="paginas" style="margin-top:auto"><button data-accion="rPagMias" data-paso="-1" ${r.pagMias===0?'disabled':''}>${icono('arriba')} ${tx('anteriores')}</button><button data-accion="rPagMias" data-paso="1" ${r.pagMias>=total-1?'disabled':''}>${icono('abajo')} ${tx('siguientes')}</button></div>` : '');
 }
@@ -1012,7 +1017,7 @@ function confirmarReserva(){
 }
 
 /* ---------- mi cuenta ---------- */
-const etiquetaMov = m => m.tipo==='ingreso' ? tx('lineaIngreso', nombreForma(m.forma)) : `${tx('ticket')} · ${tx('pagadoCon', nombreForma(m.forma))}`;
+const etiquetaMov = m => m.tipo==='ingreso' ? tx('lineaIngreso', nombreForma(m.forma)) : `${m.id?tagId('IDT',m.id):tx('ticket')}${m.reservaId?' '+tagId('IDR',m.reservaId):''} · ${tx('pagadoCon', nombreForma(m.forma))}`;
 const signoMov = m => m.tipo==='ingreso' ? '+' : (m.forma==='banca' ? '−' : '');
 // botones de página (en vez de scroll): los mayores no tienen que arrastrar la lista
 const botonesPagina = (k,pag,total,ta=tx('masRecientes'),tb=tx('masAntiguos'))=> total>1 ? `<div class="paginas" style="height:72px;margin-top:10px">
@@ -1046,7 +1051,7 @@ function verCuenta(){
   const movs = E.movimientos.map((m,i)=>[m,i]).slice(E.pagMov*MOVS_POR_PAG, (E.pagMov+1)*MOVS_POR_PAG).map(([m,i])=>`<li><button class="fila" data-accion="v" data-k="mov${i}">
       <span class="f">${m.f}</span><span class="t">${etiquetaMov(m)}<span class="s">${tx(m.estado)}</span></span>
       <span class="i">${signoMov(m)}${euros(m.importe)}</span>${icono('derecha')}</button></li>`).join('');
-  const reservas = reservasVigentes().slice(0,4).map(b=>`<li><span>${diaCorto(b.dia)} · ${nom(b.franja)} · ${b.comensales} ${tx('comensales')}<span class="s">${b.maquinas.length ? b.maquinas.map(m=>nom(m)).join(' · ') : tx('sinMaquinas2')}</span></span></li>`).join('') || `<li><span>${tx('sinReservas')}</span></li>`;
+  const reservas = reservasVigentes().slice(0,4).map(b=>`<li><span>${diaCorto(b.dia)} · ${nom(b.franja)} · ${b.comensales} ${tx('comensales')}<span class="s">${tagId('IDR',b.id)} · ${b.maquinas.length ? b.maquinas.map(m=>nom(m)).join(' · ') : tx('sinMaquinas2')}</span></span></li>`).join('') || `<li><span>${tx('sinReservas')}</span></li>`;
   abrirVentana(`
     <div class="cuenta-saldo ${claseSaldo(E.saldo)}">${fichaIcono('banca','xl')}<div>
       <div class="titulo">${tx('banca')}</div><div class="cifra">${euros(E.saldo)}</div><div class="estado">${textoSaldo(E.saldo)}</div></div></div>

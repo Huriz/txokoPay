@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>txokoPay · Bebidas desde el móvil</title>
+<style>
+:root{
+--fondo:#fbf5ec; --panel:#ffffff; --tinta:#2b2118; --suave:#6b5b4d; --borde:#e8dccb;
+--principal:#c8501a; --principal-claro:#ffe9d9; --verde:#25803f; --verde-claro:#e3f3e8;
+--amarillo:#ffc83d; --rojo:#c23a2b; --rojo-claro:#fbe6e3; --radio:12px;
+--relieve:0 5px 0 rgba(43,33,24,.22),0 8px 14px rgba(43,33,24,.14);   /* mismo relieve de botón que la TPV */
+}
+@media (prefers-color-scheme:dark){
+:root{--fondo:#1d1712; --panel:#2a221b; --tinta:#f4ebdf; --suave:#b9a996; --borde:#443a2f;
+--principal:#e8743a; --principal-claro:#3b2619; --verde:#4cb86a; --verde-claro:#1e3326; --rojo:#e5675a; --rojo-claro:#3b211e;}
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:var(--fondo);color:var(--tinta);font:20px/1.3 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+button,input{font:inherit;color:inherit}
+#app{height:100dvh;display:flex;flex-direction:column;max-width:640px;margin:0 auto;background:var(--fondo)}
+.demo{background:#fff3c4;color:#4a3a00;font-size:14px;padding:6px 12px;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.demo button{background:transparent;border:1px solid #4a3a00;border-radius:8px;padding:2px 10px;font-size:13px;color:#4a3a00}
+.cab{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 16px;background:var(--principal);color:#fff}
+.cab b{font-size:19px}
+.cab small{display:block;color:rgba(255,255,255,.88);font-size:14px}
+.cab button{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.18);color:#fff;border-radius:10px;padding:8px 14px;font-size:16px;font-weight:700}
+.cuenta{font-weight:700;font-variant-numeric:tabular-nums}
+.centro{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:24px 20px}
+.centro h1{font-size:28px;line-height:1.15}
+.centro p{color:var(--suave)}
+label.cp{display:flex;flex-direction:column;gap:6px;font-weight:600}
+input.campo{width:100%;min-height:60px;padding:10px 14px;border:2px solid var(--borde);border-radius:var(--radio);background:var(--panel);font-size:24px}
+input.campo:focus{outline:none;border-color:var(--principal)}
+input.codigo{text-align:center;letter-spacing:.5em;font-size:40px;font-weight:700}
+/* Botones como los de la TPV: color liso con relieve; verde = confirmar/Cerrar Ticket, rojo = quitar, terracota = continuar */
+.btn{min-height:60px;padding:10px 18px;border:1px solid #a8431a;border-radius:var(--radio);background:var(--principal);color:#fff;font-weight:700;font-size:22px;display:inline-flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 6px 0 #8f3a15,0 10px 16px rgba(143,58,21,.35);cursor:pointer;transition:transform .05s,box-shadow .05s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(43,33,24,.25)}
+.btn.sec{background:var(--fondo);color:var(--tinta);border:1px solid var(--borde);box-shadow:var(--relieve)}
+.btn.verde{background:var(--verde);border-color:var(--verde);box-shadow:0 5px 0 #136b36,0 8px 14px rgba(19,107,54,.35)}
+.btn.rojo{background:var(--rojo);border-color:var(--rojo);box-shadow:0 5px 0 #8f241b,0 8px 14px rgba(143,36,27,.3)}
+.btn.peq{min-height:48px;font-size:18px;padding:6px 14px}
+.btn[disabled]{box-shadow:none;transform:none}
+.btn.verde[disabled]{background:#a9bfae;border-color:#a9bfae}
+.btn:not(.verde):not(.rojo):not(.sec)[disabled]{opacity:.45}
+.ficha{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.22);font-size:20px;line-height:1}
+.fila{display:flex;gap:10px}
+.fila>*{flex:1}
+.error{background:var(--rojo-claro);color:var(--rojo);border-radius:var(--radio);padding:12px 14px;font-weight:600}
+.ok{background:var(--verde-claro);color:var(--verde);border-radius:var(--radio);padding:12px 14px;font-weight:600}
+.bandeja{border:2px dashed #b08a00;background:#fff8dc;color:#4a3a00;border-radius:var(--radio);padding:12px 14px;font-size:16px}
+.bandeja b{font-size:28px;letter-spacing:.3em}
+.pista{font-size:15px;color:var(--suave);background:var(--panel);border:1px dashed var(--borde);border-radius:var(--radio);padding:10px 12px}
+.reserva{margin:8px 12px 0;padding:6px 10px;background:var(--verde-claro);border:2px solid var(--verde);border-radius:var(--radio);display:flex;align-items:center;gap:10px}
+.reserva .btn.peq{min-height:38px;font-size:15px;padding:4px 10px}
+.reserva.elige{background:var(--principal-claro);border-color:var(--principal);flex-direction:column;align-items:stretch}
+.reserva.sin{background:var(--panel);border-color:var(--borde)}
+.reserva .tx{flex:1;min-width:0;font-size:15px;font-weight:600;line-height:1.2}
+.reserva .tx small{display:block;font-weight:500;color:var(--suave);font-size:14px}
+.idtag{display:inline-block;flex:none;font-size:12px;font-weight:700;background:#ffe487;color:#000;border:0;border-radius:8px;padding:1px 8px;white-space:nowrap;letter-spacing:.02em}
+.coldia{display:flex;flex-direction:column;align-items:flex-start;gap:3px;flex:none}   /* el IDR va debajo de «HOY 11 nov» */
+.chipdia{display:inline-flex;align-items:baseline;gap:6px;flex:none;white-space:nowrap;background:var(--principal-claro);color:var(--principal);border-radius:10px;padding:4px 8px;line-height:1.1;font-size:13px;font-weight:600}
+.chipdia b{font-size:14px;letter-spacing:.03em}
+.opcion{display:flex;align-items:center;gap:12px;text-align:left;width:100%;min-height:62px;padding:6px 10px;background:var(--panel);border:1px solid var(--borde);border-radius:var(--radio);box-shadow:var(--relieve);font-size:19px;font-weight:700;transition:transform .05s,box-shadow .05s}
+.opcion .t{flex:1}
+.opcion .s{display:block;font-weight:500;color:var(--suave);font-size:14px}
+.opcion:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(43,33,24,.25)}
+.reserva .tit{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--suave)}
+.busca{padding:8px 14px}
+.centroLista{flex:1;display:flex;flex-direction:column;min-height:0}
+.zona{flex:1;min-height:0;display:flex;gap:10px;padding:8px 12px 10px 14px}
+.tarjeta{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--borde);border-radius:var(--radio)}
+.tarjeta h2{margin:0;padding:8px 14px;font-size:21px;border-bottom:1px solid var(--borde);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.etiqueta{font-size:15px;background:var(--principal-claro);color:var(--principal);padding:2px 9px;border-radius:8px;font-weight:700}
+.lineas{flex:1;min-height:0;padding:0;display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:none}
+.lineas::-webkit-scrollbar{display:none}
+.flechas{display:flex;flex-direction:column;justify-content:center;gap:14px}
+.flechas button{width:54px;height:76px;border-radius:var(--radio);border:1px solid var(--borde);background:var(--panel);font-size:26px;font-weight:700;color:var(--suave);box-shadow:var(--relieve);transition:transform .05s,box-shadow .05s}
+.flechas button:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(43,33,24,.25)}
+.linea,.res{flex:0 0 auto;display:flex;align-items:center;gap:8px;background:none;border:0;border-bottom:1px solid var(--borde);padding:8px 14px;cursor:pointer;min-height:56px;width:100%;text-align:left;font-size:17px}
+.linea .nom,.res .nom{flex:1;font-weight:700}
+.linea .nom small{display:block;font-weight:500;color:var(--suave);font-size:14px}
+.linea .imp,.res .imp{font-weight:700;font-variant-numeric:tabular-nums}
+.res .imp{color:var(--principal)}
+.res:active,.linea:active{background:var(--principal-claro)}
+.papelera{position:absolute;top:10px;left:10px;width:44px;height:44px;border-radius:10px;border:1px solid var(--borde);background:var(--panel);color:var(--rojo);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 rgba(43,33,24,.16)}
+.papelera:active{transform:translateY(2px);box-shadow:none}
+.vacio{margin:auto;color:var(--suave);text-align:center;padding:0 16px}
+.pie{background:var(--panel);border-top:2px solid var(--tinta);padding:10px 14px calc(12px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px}
+.cobro{display:flex;align-items:center;gap:12px}
+.cobro .btn{flex:0 0 auto;min-height:56px;font-size:20px;padding:6px 18px 6px 10px}
+.cobro .suma{flex:1;text-align:right;line-height:1.1}
+.cobro .suma span{display:block;color:var(--suave);font-size:14px}
+.cobro .suma b{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums}
+.tot{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.tot span{color:var(--suave);font-size:16px}
+.vela{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:10}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(90vw,380px);max-height:82dvh;overflow:auto;background:var(--panel);z-index:11;display:flex;flex-direction:column;gap:12px;padding:20px 18px;border-radius:22px;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.modal h2{font-size:14px;letter-spacing:.06em;color:var(--suave);text-transform:uppercase;text-align:center}
+.modal .nombre{font-size:28px;font-weight:800;line-height:1.1;text-align:center}
+.modal .precio{color:var(--suave);text-align:center;font-size:18px}
+.cant{display:flex;align-items:center;justify-content:center;gap:16px}
+.cant button{width:68px;height:68px;border-radius:50%;border:2px solid var(--borde);background:var(--panel);font-size:36px;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.1)}
+.cant output{font-size:50px;font-weight:800;min-width:72px;text-align:center}
+input.cantidad{width:112px;height:72px;text-align:center;font-size:46px;font-weight:800;border:2px solid var(--borde);border-radius:var(--radio);background:var(--fondo);font-variant-numeric:tabular-nums}
+input.cantidad:focus{outline:none;border-color:var(--principal)}
+.cant.peq button{width:52px;height:52px;font-size:28px}
+.cant.peq output{font-size:34px;min-width:50px}
+.importe{text-align:center;font-size:24px;font-weight:700}
+/* iconos y fichas de color, como en la TPV */
+.ico{width:60%;height:60%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ficha.m{width:56px;height:56px;border-radius:17px}
+.ficha.claro{background:rgba(255,255,255,.22);color:#fff}
+.ficha.xl{width:112px;height:112px;border-radius:34px}
+.ficha.xl.verde{background:var(--verde);color:#fff}
+.pastilla{display:inline-flex;align-items:center;gap:8px;padding:4px 14px;border-radius:12px;font-weight:800;font-size:24px}
+.pastilla .ico{width:24px;height:24px}
+.s-bien{background:var(--verde-claro);color:var(--verde)}
+.s-amarillo{background:var(--amarillo);color:#2b1d00}
+.s-rojo{background:var(--rojo);color:#fff}
+/* teclado de horas, como el de la TPV */
+.modal .sub{color:var(--suave);text-align:center;font-size:17px}
+.modal .ayuda{color:var(--suave);text-align:center;font-size:15px}
+.modal.teclado h2{text-transform:none;letter-spacing:0;font-size:21px;color:var(--tinta);line-height:1.2}
+.visor{font-size:56px;font-weight:800;border:2px solid var(--tinta);border-radius:var(--radio);padding:2px 18px;text-align:right;min-height:78px;font-variant-numeric:tabular-nums}
+.teclas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tecla{height:64px;border-radius:var(--radio);background:var(--fondo);border:1px solid var(--borde);font-size:30px;font-weight:800;display:grid;place-items:center;box-shadow:var(--relieve);transition:transform .05s,box-shadow .05s}
+.tecla .ico{width:30px;height:30px}
+.tecla:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(43,33,24,.25)}
+.tecla.si{background:#1c8a48;color:#fff;border-color:#136b36;font-size:22px;font-weight:900;box-shadow:0 5px 0 #136b36,0 8px 14px rgba(19,107,54,.35)}
+/* «¿Cómo pagas?»: el botón de banca con el saldo */
+.importe2{text-align:center;font-size:22px}
+.importe2 b{font-size:38px;font-variant-numeric:tabular-nums}
+.pago{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:150px;padding:14px;border-radius:var(--radio);background:#0f8a9d;border:1px solid #0f8a9d;color:#fff;font-size:26px;font-weight:700;box-shadow:0 5px 0 #0a5f6e,0 8px 14px rgba(10,95,110,.3);transition:transform .05s,box-shadow .05s}
+.pago:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(10,95,110,.4)}
+.saldo-caja{background:#fff;color:#2b1d12;border-radius:10px;padding:4px 14px;font-size:19px;font-weight:400}
+.saldo-caja b{font-weight:800}
+.saldo-caja.neg,.saldo-caja.neg b{color:#c0281c}
+/* «Ticket cerrado» */
+.centro.cerrado{text-align:center;align-items:center}
+.centro.cerrado .imp2{font-size:22px;color:var(--tinta)}
+.centro.cerrado .imp2 b{font-size:34px;font-variant-numeric:tabular-nums}
+.centro.cerrado .suave{font-size:16px}
+.btn.xl{min-height:84px;font-size:30px;width:100%;margin-top:6px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="catalogo.js"></script>
+<script>
+'use strict';
+/* ---------- Datos de ejemplo (en la aplicación real salen del servidor) ---------- */
+const SOCIOS = {
+  1:{nombre:'Aitor Etxeberria', moviles:['600112233'], correo:'aitor@ejemplo.com'},
+  2:{nombre:'Miren Agirre', moviles:['611223344','622334455'], correo:''},
+  3:{nombre:'Jon Zubiria', moviles:[], correo:'jon@ejemplo.com'}
+};
+/* Reservas de cada socio, como en la TPV: una reserva es siempre de Comida o de Cena, y los electrodomésticos (horno 1, horno 2, freidora) van dentro de ella. Sin comensales en esta pantalla. dia: 0 = hoy, 1 = mañana */
+const RESERVAS = {
+  1:[{id:'r1', idr:214, dia:0, franja:'Cena', comensales:8, maq:['Horno 1','Freidora']}],
+  2:[{id:'r2', idr:215, dia:0, franja:'Comida', comensales:4, maq:[]}, {id:'r3', idr:216, dia:0, franja:'Cena', comensales:6, maq:['Horno 2']}],
+  3:[]
+};
+/* Saldo de la banca de cada socio, en céntimos (de ejemplo). Desde el móvil solo se paga con banca y nunca se bloquea: puede quedar en negativo */
+const SALDOS = {1:5000, 2:-13000, 3:0};
+const HORAS_SESION = 6, MIN_CODIGO = 10, MAX_INTENTOS = 3;
+const CATS_BEBIDA = ['refresco','cerveza','vino','agua','chupito','combinado','cafe'];
+const COCINA = {comensal:'comensal', horno:'hora_horno', freidora:'freidora'};   /* artículos de cocina, en el catálogo */
+const COMENSALES = 'Comensales';   /* paso de «¿Cuántos habéis comido?» al cerrar el Ticket */
+/* La reserva se ve como en «Mis reservas» de la TPV: cuadrito del día (HOY / MAÑANA / día + número y mes), la comida o cena, y debajo los electrodomésticos separados por puntos */
+const DIAS = ['dom','lun','mar','mié','jue','vie','sáb'], MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const diaDe = r => { const d = new Date(); d.setDate(d.getDate() + (r.dia || 0)); return d; };
+const rotuloDia = r => !r.dia ? 'HOY' : r.dia === 1 ? 'MAÑANA' : DIAS[diaDe(r).getDay()].toUpperCase();
+const chipDia = r => { const d = diaDe(r); return `<span class="chipdia"><b>${rotuloDia(r)}</b><span>${d.getDate()} ${MESES[d.getMonth()]}</span></span>`; };
+const textoReserva = r => [r.franja, ...r.maq].join(' · ');   /* «Cena · Horno 1 · Freidora»; si no hay electrodomésticos, solo «Cena» */
+const mk = id => ({id, nombre:CATALOGO.art[id].nombre, precio:CATALOGO.art[id].precio});
+const BEBIDAS = Object.entries(CATALOGO.art).filter(([id,a]) => CATS_BEBIDA.includes(a.cat)).map(([id]) => mk(id));
+const ARTS = {}; BEBIDAS.forEach(b => ARTS[b.id] = b); Object.values(COCINA).forEach(id => ARTS[id] = mk(id));
+const BUSCABLES = [...BEBIDAS, ...Object.values(COCINA).map(id => ARTS[id])];   /* también se pueden apuntar a mano la hora de horno y la freidora */
+const MAX_RES = 6;
+let _idt = 1200;   /* número de Ticket (IDT): se asigna al apuntar lo primero */
+const nuevoIdT = () => ++_idt;
+
+const eur = c => (c/100).toFixed(2).replace('.',',') + ' €';
+const solo9 = t => String(t||'').replace(/\D/g,'').slice(-9);
+const tapar = m => m.slice(0,1) + '•• ••• ' + m.slice(-2);
+const nomSocio = n => n + ' - ' + SOCIOS[n].nombre;
+const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const reservasDe = n => (RESERVAS[n] || []).filter(r => !r.dia);   /* solo salen las reservas de hoy */
+const reservaAct = () => reservasDe(S.socio).find(r => r.id === S.reserva) || null;
+const artDeMaquina = m => m === COMENSALES ? COCINA.comensal : /horno/i.test(m) ? COCINA.horno : COCINA.freidora;
+const valorInicial = (paso, r) => paso === COMENSALES ? String((r && r.comensales) || 1) : '1';   /* comensales: los de la reserva; horas: 1 */
+/* Iconos de trazo fino, los mismos de la TPV */
+const ICONOS = {
+  banca:'<path d="M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M12 2l8 5H4z"/>',
+  ok:'<path d="M20 6 9 17l-5-5"/>',
+  borrar:'<path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2ZM18 9l-6 6M12 9l6 6"/>'
+};
+const icono = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${ICONOS[n]}</svg>`;
+const fichaIcono = (n, c = '') => `<span class="ficha ${c}">${icono(n)}</span>`;
+const eurS = c => (c < 0 ? '−' : '') + eur(Math.abs(c));   /* con signo, para el saldo */
+const LIMITE_AMARILLO = 10000;                               /* −100 €, como en la TPV */
+const claseSaldo = s => s >= 0 ? 's-bien' : s >= -LIMITE_AMARILLO ? 's-amarillo' : 's-rojo';
+
+/* ---------- Estado ---------- */
+const S = {
+  fase:'acceso', aviso:'', error:'',
+  num:'', movil:'', canal:'', socio:0, codigo:'', codigoHasta:0, intentos:0, hasta:0,
+  busca:'', ticket:[], idt:null, cajon:null, conf:'', cobrado:null,
+  reserva:null, cierre:null, saldos:Object.assign({}, SALDOS)
+};
+function iniciarSocio(){
+  const r = reservasDe(S.socio);
+  S.reserva = r.length ? null : 'ninguna';   /* si hay reservas, SIEMPRE las elige el socio: nada va puesto de antemano */
+  S.ticket = []; S.idt = null; S.cajon = null; S.conf = ''; S.cierre = null; S.busca = '';
+}
+const guardar = () => { try { localStorage.setItem('txoko_sesion_demo', JSON.stringify({socio:S.socio, hasta:S.hasta})); } catch(e){} };
+const olvidar = () => { try { localStorage.removeItem('txoko_sesion_demo'); } catch(e){} };
+(function recuperar(){
+  try {
+    const g = JSON.parse(localStorage.getItem('txoko_sesion_demo')||'null');
+    if (g && SOCIOS[g.socio] && g.hasta > Date.now()) { S.socio = g.socio; S.hasta = g.hasta; S.fase = 'app'; iniciarSocio(); }
+  } catch(e){}
+})();
+
+/* ---------- Pantallas ---------- */
+function vAcceso(){
+  return `<div class="centro">
+    <h1>Bebidas desde el móvil</h1>
+    <p>Escribe tu número de socio y tu móvil. Te enviaremos un código de 4 cifras.</p>
+    ${S.aviso ? `<div class="ok">${esc(S.aviso)}</div>` : ''}
+    ${S.error ? `<div class="error">${esc(S.error)}</div>` : ''}
+    <label class="cp">Número de socio<input id="num" class="campo" inputmode="numeric" autocomplete="off" value="${esc(S.num)}"></label>
+    <label class="cp">Tu móvil<input id="movil" class="campo" inputmode="tel" autocomplete="off" placeholder="600 00 00 00" value="${esc(S.movil)}"></label>
+    <button class="btn" data-ac="verificar">Continuar</button>
+    <div class="pista"><b>Solo para la demo:</b> socio <b>1</b> con móvil <b>600 11 22 33</b> (tiene una reserva hoy); socio <b>2</b> con <b>611 22 33 44</b> (tiene dos reservas, sin correo); el socio <b>3</b> no tiene móvil en la ficha.</div>
+  </div>`;
+}
+function vCanal(){
+  const s = SOCIOS[S.socio];
+  return `<div class="centro">
+    <h1>¿Dónde te lo mandamos?</h1>
+    <p>${esc(nomSocio(S.socio))}</p>
+    <button class="btn verde" data-ac="enviar" data-canal="whatsapp">WhatsApp al ${tapar(S.movil9)}</button>
+    ${s.correo ? `<button class="btn sec" data-ac="enviar" data-canal="correo">Correo a ${esc(s.correo.slice(0,2))}•••@${esc(s.correo.split('@')[1])}</button>` : ''}
+    <button class="btn sec" data-ac="inicio">Volver</button>
+  </div>`;
+}
+function vCodigo(){
+  const donde = S.canal === 'whatsapp' ? 'WhatsApp' : 'correo';
+  return `<div class="centro">
+    <h1>Escribe el código</h1>
+    <p>Te lo hemos enviado por ${donde}. Vale ${MIN_CODIGO} minutos.</p>
+    <div class="bandeja">Demo: en la vida real llega por ${donde}. Tu código es <b>${S.codigo}</b></div>
+    ${S.error ? `<div class="error">${esc(S.error)}</div>` : ''}
+    <input id="cod" class="campo codigo" inputmode="numeric" maxlength="4" autocomplete="one-time-code">
+    <button class="btn sec" data-ac="inicio">Empezar de nuevo</button>
+  </div>`;
+}
+const totales = () => ({
+  uds: S.ticket.reduce((t,l) => t + l.c, 0),
+  total: S.ticket.reduce((t,l) => t + l.c*ARTS[l.id].precio, 0)
+});
+function vReserva(){
+  const rs = reservasDe(S.socio), r = reservaAct();
+  if (S.reserva === null){
+    return `<div class="reserva elige"><div class="tit">¿Este Ticket es de tu reserva?</div>
+      ${rs.map(x => `<button class="opcion" data-ac="elegirReserva" data-id="${x.id}"><span class="coldia">${chipDia(x)}<span class="idtag">IDR: ${x.idr}</span></span><span class="t">${esc(textoReserva(x))}</span></button>`).join('')}
+      <button class="opcion" data-ac="elegirReserva" data-id="ninguna"><span class="t">Sin reserva</span></button></div>`;
+  }
+  if (!r) return rs.length ? `<div class="reserva sin"><div class="tx">Sin reserva</div><button class="btn peq sec" data-ac="cambiarReserva">Cambiar</button></div>` : '';   /* sin reservas hoy, no se enseña nada */
+  return `<div class="reserva"><span class="coldia">${chipDia(r)}<span class="idtag">IDR: ${r.idr}</span></span><div class="tx">${esc(textoReserva(r))}</div>
+    <button class="btn peq sec" data-ac="cambiarReserva">Cambiar</button></div>`;
+}
+function vApp(){
+  const q = S.busca.trim().toLowerCase();
+  let centro = '';
+  if (q){
+    const todas = BUSCABLES.filter(b => b.nombre.toLowerCase().includes(q)), res = todas.slice(0, MAX_RES);
+    centro = `<div class="zona"><div class="tarjeta"><h2>Bebidas</h2><div class="lineas">` + (res.length
+      ? res.map(b => `<button class="res" data-ac="abrir" data-id="${b.id}"><span class="nom">${esc(b.nombre)}</span><span class="imp">${eur(b.precio)}</span></button>`).join('')
+        + (todas.length > MAX_RES ? '<div class="vacio" style="margin:0">Sigue escribiendo para ver menos…</div>' : '')
+      : '<div class="vacio">No hay ninguna bebida con ese nombre.</div>') + `</div></div></div>`;
+  } else {
+    const lineas = S.ticket.map(l => {
+      const a = ARTS[l.id];
+      return `<div class="linea" data-ac="abrir" data-id="${l.id}">
+        <div class="nom">${esc(a.nombre)}<small>${l.c} × ${eur(a.precio)}</small></div>
+        <div class="imp">${eur(a.precio*l.c)}</div></div>`;
+    }).join('') || '<div class="vacio">Todavía no has añadido nada.<br>Escribe arriba el nombre de la bebida.</div>';
+    centro = `<div class="zona"><div class="tarjeta"><h2><span>Ticket${S.idt ? ` <span class="idtag">IDT: ${S.idt}</span>` : ''}</span>${S.ticket.length ? `<span class="etiqueta">${S.ticket.length}</span>` : ''}</h2><div class="lineas">${lineas}</div></div>
+      <div class="flechas"><button data-ac="scrollT" data-d="-1" aria-label="Subir">▲</button><button data-ac="scrollT" data-d="1" aria-label="Bajar">▼</button></div></div>`;
+  }
+  const t = totales();
+  const pie = `<div class="cobro"><button class="btn verde" data-ac="pedirCobro" ${t.uds && S.reserva !== null ? '' : 'disabled'}>${fichaIcono('ok')}Cerrar Ticket</button>
+       <div class="suma"><span>${t.uds} ${t.uds===1?'unidad':'unidades'} · con tu banca</span><b>${eur(t.total)}</b></div></div>`;
+  return `<div class="cab"><div><b>${esc(nomSocio(S.socio))}</b><small>Sesión abierta · caduca en <span id="cuenta" class="cuenta">${textoCuenta()}</span></small></div><button data-ac="salir">Salir</button></div>
+    ${vReserva()}
+    <div class="busca"><input id="busca" class="campo" placeholder="Escribe una bebida…" autocomplete="off" value="${esc(S.busca)}"></div>
+    <div class="centroLista">${centro}</div>
+    <div class="pie">${pie}</div>
+    ${vModal()}`;
+}
+function vCobrado(){
+  /* igual que «Ticket cerrado» en la TPV */
+  return `<div class="centro cerrado">
+    <div class="icocentro">${fichaIcono('ok','xl verde')}</div>
+    <h1>Ticket cerrado</h1>
+    <p style="margin-top:-8px"><span class="idtag">IDT: ${S.cobrado.idt}</span>${S.cobrado.idr ? ' <span class="idtag">IDR: ' + S.cobrado.idr + '</span>' : ''}</p>
+    <p class="imp2">Cobrado de tu banca: <b>${eur(S.cobrado.total)}</b></p>
+    <p class="imp2">Tu saldo ahora: <span class="pastilla ${claseSaldo(S.cobrado.saldo)}">${icono('banca')} ${eurS(S.cobrado.saldo)}</span></p>
+    <p class="suave">Tu sesión se ha cerrado. Si quieres tomar algo más, vuelve a entrar.</p>
+    <button class="btn verde xl" data-ac="salir">Terminar</button>
+  </div>`;
+}
+/* Una sola ventana centrada: añadir o editar un artículo, o los pasos de cerrar el Ticket */
+function vModal(){
+  if (S.cierre) return vCierre();
+  const c = S.cajon; if (!c) return '';
+  const a = ARTS[c.id];
+  const botones = S.conf === 'eliminar'
+    ? `<div class="error">¿Seguro que quieres quitar «${esc(a.nombre)}» del Ticket?</div>
+       <div class="fila"><button class="btn sec" data-ac="noElim">No</button><button class="btn rojo" data-ac="siElim">Sí, quitar</button></div>`
+    : `<div class="fila"><button class="btn sec" data-ac="cancelar">CANCELAR</button>${c.c === 0 && !c.nuevo ? '<button class="btn rojo" data-ac="confirmar">QUITAR</button>' : `<button class="btn verde" data-ac="confirmar" ${c.c === null || c.c === 0 ? 'disabled' : ''}>CONFIRMAR</button>`}</div>`;
+  const papelera = (c.nuevo || S.conf === 'eliminar') ? '' : `<button class="papelera" data-ac="pedirElim" aria-label="Quitar del Ticket"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg></button>`;
+  return `<div class="vela" data-ac="cancelar"></div>
+    <div class="modal" role="dialog">${papelera}<h2>${c.nuevo ? 'Añadir' : 'Editar'}</h2>
+      <div class="nombre">${esc(a.nombre)}</div><div class="precio">Precio: ${eur(a.precio)}</div>
+      <div class="cant"><button data-ac="mas" data-d="-1" aria-label="Menos">−</button><input id="cantidad" class="cantidad" inputmode="numeric" autocomplete="off" aria-label="Cantidad" value="${c.txt !== undefined ? esc(c.txt) : c.c}"><button data-ac="mas" data-d="1" aria-label="Más">+</button></div>
+      <div class="importe">Importe: ${c.c === null ? '—' : eur(a.precio*c.c)}</div>
+      ${botones}</div>`;
+}
+/* Cerrar Ticket, igual que en la TPV: primero las horas de cada electrodoméstico reservado, con teclado; luego «¿Cómo pagas?» con la banca y tu saldo */
+function vCierre(){
+  const k = S.cierre;
+  if (k.paso === 'horas'){
+    const m = k.lista[k.i];
+    return `<div class="vela" data-ac="kcancelar"></div>
+      <div class="modal teclado" role="dialog"><h2>${m === COMENSALES ? '¿Cuántos habéis comido?' : `¿Cuántas horas habéis usado: ${esc(m)}?`}</h2>
+        ${m === COMENSALES ? '' : '<p class="sub">Reservado para vosotros</p>'}
+        <div class="cant"><button data-ac="kmas" data-d="-1" aria-label="Menos">−</button><input id="horas" class="cantidad" inputmode="numeric" autocomplete="off" aria-label="Horas" value="${esc(k.valor)}"><button data-ac="kmas" data-d="1" aria-label="Más">+</button></div>
+        <p class="ayuda">${m === COMENSALES ? 'Pon 0 si no ha comido nadie' : 'Pon 0 si no lo habéis usado'}</p>
+        <div class="fila"><button class="btn sec" data-ac="kcancelar">Cancelar</button><button class="btn verde" data-ac="kok" ${k.valor === '' ? 'disabled' : ''}>Aceptar</button></div></div>`;
+  }
+  const t = totales(), saldo = S.saldos[S.socio];
+  return `<div class="vela" data-ac="kcancelar"></div>
+    <div class="modal teclado" role="dialog"><h2>¿Cómo pagas?</h2>
+      <div class="importe2">Total: <b>${eur(t.total)}</b></div>
+      <button class="pago" data-ac="pagarBanca">${fichaIcono('banca','claro m')}<span>Con banca</span>
+        <span class="saldo-caja ${saldo < 0 ? 'neg' : ''}">Tu saldo: <b>${eurS(saldo)}</b></span></button>
+      <button class="btn sec" data-ac="kcancelar">Volver al Ticket</button></div>`;
+}
+function textoCuenta(){
+  const r = Math.max(0, S.hasta - Date.now()), p = n => String(n).padStart(2,'0');
+  return Math.floor(r/3600000) + ':' + p(Math.floor(r%3600000/60000)) + ':' + p(Math.floor(r%60000/1000));
+}
+
+/* ---------- Pintado (conserva el foco al escribir y ajusta el ticket al espacio libre) ---------- */
+const app = document.getElementById('app');
+function pintar(){
+  const f = document.activeElement, id = f && f.id, ini = f && f.selectionStart;
+  const zl = document.querySelector('.lineas'), scrollAntes = zl ? zl.scrollTop : 0;
+  let cuerpo = '';
+  if (S.fase === 'acceso') cuerpo = vAcceso();
+  else if (S.fase === 'canal') cuerpo = vCanal();
+  else if (S.fase === 'codigo') cuerpo = vCodigo();
+  else if (S.fase === 'cobrado') cuerpo = vCobrado();
+  else cuerpo = vApp();
+  app.innerHTML = `<div class="demo"><span>Demostración</span><button data-ac="caducar">Simular que pasan 6 horas</button></div>${cuerpo}`;
+  if (id){ const n = document.getElementById(id); if (n){ n.focus(); try{ n.setSelectionRange(ini,ini); }catch(e){} } }
+  const zn = document.querySelector('.lineas'); if (zn) zn.scrollTop = scrollAntes;   /* el ticket no salta arriba al repintar */
+  clearTimeout(S.tFin);
+  if (S.fase === 'cobrado') S.tFin = setTimeout(() => { if (S.fase === 'cobrado'){ ACC.salir(); pintar(); } }, 20000);   /* vuelve sola al inicio */
+}
+
+/* ---------- Acciones ---------- */
+function sesionCaducada(){
+  olvidar(); Object.assign(S, {fase:'acceso', socio:0, hasta:0, ticket:[], idt:null, cajon:null, conf:'', cierre:null, error:'', aviso:'Tu sesión ha caducado. Vuelve a entrar.', num:'', movil:''});
+}
+const fallos = {};
+const ACC = {
+  verificar(){
+    const n = parseInt(S.num, 10), m = solo9(S.movil);
+    S.error = ''; S.aviso = '';
+    if ((fallos[n]||0) >= 5){ S.error = 'Demasiados intentos. Espera unos minutos o habla con la junta.'; return; }
+    const s = SOCIOS[n];
+    if (!s || m.length !== 9 || !s.moviles.includes(m)){
+      fallos[n] = (fallos[n]||0) + 1;
+      S.error = 'Los datos no coinciden. Revísalos o habla con la junta.';
+      return;
+    }
+    fallos[n] = 0;
+    S.socio = n; S.movil9 = m; S.fase = 'canal';
+  },
+  enviar(el){
+    S.canal = el.dataset.canal;
+    S.codigo = String(Math.floor(1000 + Math.random()*9000));
+    S.codigoHasta = Date.now() + MIN_CODIGO*60000; S.intentos = 0; S.error = ''; S.fase = 'codigo';
+  },
+  inicio(){ Object.assign(S, {fase:'acceso', error:'', aviso:'', socio:0}); },
+  salir(){ olvidar(); Object.assign(S, {fase:'acceso', socio:0, hasta:0, ticket:[], idt:null, cajon:null, conf:'', cierre:null, num:'', movil:'', error:'', aviso:'Sesión cerrada. Hasta pronto.', cobrado:null}); },
+  caducar(){ sesionCaducada(); },
+  elegirReserva(el){ S.reserva = el.dataset.id; },
+  cambiarReserva(){ S.reserva = null; },
+  abrir(el){
+    const id = el.dataset.id, l = S.ticket.find(x => x.id === id);
+    S.cajon = l ? {id, c:l.c, nuevo:false} : {id, c:1, nuevo:true}; S.conf = '';
+  },
+  mas(el){
+    const c = S.cajon;   /* una línea que ya está puede bajar a 0 para quitarla */
+    c.c = Math.max(c.nuevo ? 1 : 0, Math.min(999, (c.c || 0) + parseInt(el.dataset.d,10)));
+    delete c.txt;
+  },
+  confirmar(){
+    const c = S.cajon, l = S.ticket.find(x => x.id === c.id);
+    if (c.c === null || (c.c === 0 && c.nuevo)) return;
+    if (c.c === 0){ S.conf = 'eliminar'; return; }   /* con 0 se pide confirmación antes de quitar */
+    if (!S.idt) S.idt = nuevoIdT();   /* el Ticket nace con su número al apuntar lo primero */
+    if (l) l.c = c.c; else S.ticket.push({id:c.id, c:c.c});
+    S.cajon = null; S.busca = '';
+  },
+  cancelar(){ S.cajon = null; S.conf = ''; },
+  pedirElim(){ S.conf = 'eliminar'; },
+  noElim(){ S.conf = ''; if (S.cajon && !S.ticket.find(x => x.id === S.cajon.id)) S.cajon = null; },
+  siElim(){ S.ticket = S.ticket.filter(x => x.id !== S.cajon.id); S.cajon = null; S.conf = ''; },
+  scrollT(el){
+    const z = document.querySelector('.lineas');
+    if (z) z.scrollBy({top: parseInt(el.dataset.d,10) * z.clientHeight * 0.8, behavior:'smooth'});
+    return false;                      /* no se repinta: así el desplazamiento no se corta */
+  },
+  /* Cerrar Ticket: si la reserva lleva electrodomésticos, se pregunta por las horas de cada uno (como la TPV); si no, directo a pagar */
+  pedirCobro(){
+    /* Con reserva se pregunta, por este orden, por los comensales y por cada horno o freidora reservados; pero solo si todavía no están en el Ticket (si ya hay «Comensal», «Hora de horno» o «Freidora» anotados, no se pide nada) */
+    const r = reservaAct(), lista = [];
+    if (r){
+      if (!S.ticket.some(l => l.id === COCINA.comensal)) lista.push(COMENSALES);
+      r.maq.filter(m => !S.ticket.some(l => l.id === artDeMaquina(m))).forEach(m => lista.push(m));
+    }
+    S.cierre = lista.length ? {paso:'horas', i:0, lista, horas:{}, valor:valorInicial(lista[0], r)} : {paso:'forma'};
+  },
+  kmas(el){   /* las horas se cambian con − y + como un producto (y también se pueden escribir) */
+    const k = S.cierre;
+    k.valor = String(Math.max(0, Math.min(99, (parseInt(k.valor || '0', 10)) + parseInt(el.dataset.d, 10))));
+  },
+  kok(){
+    const k = S.cierre;
+    if (k.valor === '') return;
+    k.horas[k.lista[k.i]] = parseInt(k.valor || '0', 10); k.i++;
+    if (k.i < k.lista.length){ k.valor = valorInicial(k.lista[k.i], reservaAct()); return; }
+    const por = {};   /* los dos hornos usan el mismo artículo «Hora de horno»: se suman */
+    k.lista.forEach(m => { const id = artDeMaquina(m); por[id] = (por[id] || 0) + k.horas[m]; });
+    Object.entries(por).forEach(([id, h]) => { S.ticket = S.ticket.filter(x => x.id !== id); if (h > 0) S.ticket.push({id, c:h}); });
+    S.cierre = {paso:'forma'};
+  },
+  kcancelar(){ S.cierre = null; },
+  pagarBanca(){
+    const t = totales();
+    S.saldos[S.socio] -= t.total;   /* solo se paga con banca; puede quedar en negativo y no se bloquea */
+    const rv = reservaAct();
+    S.cobrado = {total:t.total, uds:t.uds, saldo:S.saldos[S.socio], idt:S.idt, idr:rv ? rv.idr : null};
+    S.ticket = []; S.idt = null; S.conf = ''; S.cierre = null; S.fase = 'cobrado';
+    olvidar(); S.hasta = 0;            /* al pagar se cierra la sesión: para otra compra hay que volver a entrar */
+  }
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-ac]');
+  if (!el || !ACC[el.dataset.ac]) return;
+  e.stopPropagation();
+  if (ACC[el.dataset.ac](el) !== false) pintar();
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'num') S.num = t.value.replace(/\D/g,'').slice(0,5), t.value = S.num;
+  else if (t.id === 'movil') S.movil = t.value;
+  else if (t.id === 'busca'){ S.busca = t.value; pintar(); }
+  else if (t.id === 'horas'){ S.cierre.valor = t.value.replace(/\D/g,'').slice(0,2); pintar(); }
+  else if (t.id === 'cantidad'){   /* se puede escribir a mano: 25, 30… sin pulsar + muchas veces */
+    const txt = t.value.replace(/\D/g,'').slice(0,3);
+    S.cajon.txt = txt; S.cajon.c = txt === '' ? null : parseInt(txt, 10);
+    pintar();
+  }
+  else if (t.id === 'cod'){
+    t.value = t.value.replace(/\D/g,'').slice(0,4);
+    if (t.value.length === 4){
+      if (Date.now() > S.codigoHasta){ S.error = 'El código ha caducado. Empieza de nuevo.'; }
+      else if (t.value === S.codigo){
+        S.hasta = Date.now() + HORAS_SESION*3600000; S.fase = 'app'; S.error = ''; iniciarSocio(); guardar();
+      } else {
+        S.intentos++;
+        if (S.intentos >= MAX_INTENTOS){ Object.assign(S, {fase:'acceso', aviso:'', error:'Demasiados fallos con el código. Empieza de nuevo.', socio:0}); }
+        else S.error = 'Código incorrecto. Te quedan ' + (MAX_INTENTOS - S.intentos) + ' intentos.';
+      }
+      pintar();
+    }
+  }
+});
+document.addEventListener('focusin', e => { if (e.target.id === 'cantidad' || e.target.id === 'horas') e.target.select(); });   /* al tocar el número se selecciona entero para escribir encima */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && S.fase === 'acceso' && (e.target.id === 'num' || e.target.id === 'movil')){ ACC.verificar(); pintar(); }
+});
+/* Cada segundo solo se cambia el texto de la cuenta atrás (no se repinta nada, así no se pierde lo que se está escribiendo) */
+setInterval(() => {
+  if (S.fase !== 'app') return;
+  if (Date.now() > S.hasta){ sesionCaducada(); pintar(); return; }
+  const c = document.getElementById('cuenta');
+  if (c){
+    c.textContent = textoCuenta();
+    const r = S.hasta - Date.now();
+    c.style.color = r < 600000 ? 'var(--rojo)' : r < 1800000 ? '#b07a00' : '';
+  }
+}, 1000);
+pintar();
+</script>
+</body>
+</html>

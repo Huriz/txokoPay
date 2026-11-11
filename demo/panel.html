@@ -508,7 +508,7 @@ const tagReserva = (t, completo) => {
   // en la lista, un lápiz junto al guion (o al tag) permite asociar el ticket a una reserva
   const lapiz = (!completo && puede) ? ` <button class="ib" data-ac="asociarReserva" data-id="${t.id}" title="${r?'Cambiar de reserva':'Asociar a una reserva'}" aria-label="Asociar a una reserva">${ico('lapiz')}</button>` : '';
   if(!r) return `<span class="muted">—</span>${lapiz}`;
-  return `<a class="tg gris" data-ac="abrir" data-t="reserva" data-id="${r.id}" title="Ver la reserva">reserva #${r.id}</a>${r.socio!==t.socio?`<span class="tg naranja">${completo?'reserva de '+esc(socio(r.socio).nombre):'otro socio'}</span>`:''}${lapiz}`;
+  return `<a class="tg gris" data-ac="abrir" data-t="reserva" data-id="${r.id}" title="Ver la reserva">reserva ${r.id}</a>${r.socio!==t.socio?`<span class="tg naranja">${completo?'reserva de '+esc(socio(r.socio).nombre):'otro socio'}</span>`:''}${lapiz}`;
 };
 
 /* ---------- filtros y atajos ---------- */
@@ -533,7 +533,7 @@ function filtrarReservas(){
     if(f.franja && r.franjaId!==f.franja) return false;
     if(f.socio && r.socio!==+f.socio) return false;
     if(f.marca==='sin' ? r.marca : (f.marca && r.marca!==f.marca)) return false;
-    if(q){ const esp=r.maquinas.map(id=>maq(id).nombre).join(' ').toLowerCase(); if(!(coincideSocio(r.socio,q) || String(r.id)===q || esp.includes(q))) return false; }
+    if(q){ const esp=r.maquinas.map(id=>maq(id).nombre).join(' ').toLowerCase(); if(!(coincideSocio(r.socio,q) || String(r.id)===q.replace(/^(idr|reserva)\s*/i,'') || esp.includes(q))) return false; }
     if(f.estado){ const tg=tagsReserva(r); if(f.estado==='incidencia' ? !tg.some(x=>x.nivel) : !tg.some(x=>x.k===f.estado)) return false; }
     return true;
   }).sort((a,b)=> a.dia<b.dia?1 : a.dia>b.dia?-1 : S.franjas.findIndex(f=>f.id===b.franjaId)-S.franjas.findIndex(f=>f.id===a.franjaId));
@@ -547,7 +547,7 @@ function filtrarTickets(){
     if(f.tipo && tipo!==f.tipo) return false;
     if(f.forma && t.forma!==f.forma) return false;
     if(f.marca==='sin' ? t.marca : (f.marca && t.marca!==f.marca)) return false;
-    if(q && !(coincideSocio(t.socio,q) || String(t.id)===q.replace('#',''))) return false;
+    if(q && !(coincideSocio(t.socio,q) || String(t.id)===q.replace(/^(idt\s*|ticket\s*|#)/i,''))) return false;
     if(f.estado==='incidencia' && !motivosTicket(t).length) return false;
     if(f.estado==='sinreserva' && !(t.tipo==='consumo' && !t.ajusteDe && !t.reservaId && dinersDe(t)>0)) return false;
     if(f.estado==='ok' && (motivosTicket(t).length || t.tipo!=='consumo' || t.ajusteDe)) return false;
@@ -624,13 +624,13 @@ function filaReserva(r){
   return `<tr class="${clase} ${sel}" data-ac="abrir" data-t="reserva" data-id="${r.id}">
     <td class="rev-cel">${selRev(r.id,r.marca,'data-rev')} <button class="ib ${r.nota?'on':''}" data-ac="comentar" data-t="reserva" data-id="${r.id}" title="${esc(r.nota)||'Añadir un comentario'}">${ico('mensaje')}</button></td>
     <td>${r.dia===HOYK?'<b>Hoy</b> · ':''}${fmtDia(r.dia)}<br><small class="m">${esc(franja(r.franjaId).nombre.toUpperCase())}</small></td>
-    <td>${r.id}</td>
+    <td>Reserva ${r.id}</td>
     <td><a class="enlace" data-ac="filtroSocio" data-n="${s.n}">${s.n} - ${esc(s.nombre)}</a></td>
     <td>${r.maquinas.length?r.maquinas.map(id=>maq(id).nombre).join(', '):'<span class="muted">—</span>'}</td>
     <td class="num">${r.comensales}</td>
     <td class="num">${tks.length?dn:'0'}${extra?`<br><small class="m">${extra}</small>`:''}</td>
     <td class="num ${ok?'':dif<0?'neg':dif>0?'pos':''}">${r.anulada||(!tks.length&&r.dia>=HOYK)?'':(dif>0?'+':'')+dif}</td>
-    <td>${tks.map(t=>`<a class="tk" data-ac="abrir" data-t="ticket" data-id="${t.id}" title="Ver el ticket">#${t.id}</a>`).join('')}<br><button class="btn-ed" data-ac="editarTickets" data-id="${r.id}" title="Editar los tickets de la reserva" aria-label="Editar los tickets" ${r.anulada?'disabled':''}>${ico('lapiz')}</button></td>
+    <td>${tks.map(t=>`<a class="tk" data-ac="abrir" data-t="ticket" data-id="${t.id}" title="Ver el ticket">Ticket ${t.id}</a>`).join('')}<br><button class="btn-ed" data-ac="editarTickets" data-id="${r.id}" title="Editar los tickets de la reserva" aria-label="Editar los tickets" ${r.anulada?'disabled':''}>${ico('lapiz')}</button></td>
     <td class="der">${tks.length?euros(imp):''}</td>
     <td>${ok?'':tags(tg)} <button class="ib ${r.avisos?'on':''}" data-ac="avisarSocio" data-e="reserva" data-id="${r.id}" title="Avisar al socio (correo o WhatsApp)">${ico('mail')}</button>
       <br><small class="m">hecha ${r.creada.replace('T',' ')}${r.avisos?` · avisada ${r.avisos}×`:''}</small></td></tr>`;
@@ -644,7 +644,7 @@ function resultadoReservas(){
   return `<div class="pills"><span class="pill">Reservas <b>${lista.length}</b></span><span class="pill">Comensales reservados (no anuladas) <b>${reservados}</b></span><span class="pill">Comensales ticketados <b>${ticketados}</b></span><span class="pill">Sin ticket <b>${sin}</b></span><span class="pill ${faltan?'neg':''}">Faltan comensales <b>${faltan}</b></span>
     ${['Alerta','Pendiente','Notificado','Conforme'].map(m=>`<button class="pill m m-${m} ${f.marca===m?'on':''}" data-ac="filtroMarca" data-m="${m}">${m}<b>${c[m]}</b></button>`).join('')}</div>
     <p class="nota-lista">Los tickets se unen a la reserva cuando el socio lo confirma en la TPV al cerrar. Aquí puedes unir o quitar tickets, también de <b>otros socios</b> (una reserva la puede pagar otra persona). Pasados 2 días de la fecha, «sin ticket» es sospechoso.</p>`
-    + (lista.length ? `<div class="scrollx"><table class="tabla"><thead><tr><th style="width:150px">Revisión</th><th style="width:100px">Fecha</th><th style="width:44px">Nº</th><th style="width:190px">Responsable</th><th style="width:130px">Espacio</th><th class="num">Reservados</th><th class="num">Ticketados</th><th class="num">Dif.</th><th>Tickets</th><th class="der">Importe</th><th>Estado</th></tr></thead><tbody>${lista.map(filaReserva).join('')}</tbody></table></div>` : '<div class="vacio">No hay reservas con esos filtros.</div>');
+    + (lista.length ? `<div class="scrollx"><table class="tabla"><thead><tr><th style="width:150px">Revisión</th><th style="width:100px">Fecha</th><th style="width:70px">ID</th><th style="width:190px">Responsable</th><th style="width:130px">Espacio</th><th class="num">Reservados</th><th class="num">Ticketados</th><th class="num">Dif.</th><th>Tickets</th><th class="der">Importe</th><th>Estado</th></tr></thead><tbody>${lista.map(filaReserva).join('')}</tbody></table></div>` : '<div class="vacio">No hay reservas con esos filtros.</div>');
 }
 const contarMarcas = lista => { const c={Pendiente:0,Alerta:0,Notificado:0,Conforme:0}; lista.forEach(x=>{ if(x.marca) c[x.marca]++; }); return c; };
 
@@ -700,13 +700,13 @@ function resultadoTickets(){
   const sinres=lista.filter(t=>t.tipo==='consumo'&&!t.ajusteDe&&!t.reservaId&&dinersDe(t)>0).length, inc=lista.filter(t=>motivosTicket(t).length).length;
   return `<div class="pills"><span class="pill">Tickets <b>${lista.length}</b></span><span class="pill">Consumo <b>${euros(consumo)}</b></span><span class="pill">Ingresos <b>${euros(ingresos)}</b></span><span class="pill ${sinres?'neg':''}">Comensales sin reserva <b>${sinres}</b></span><span class="pill ${inc?'neg':''}">Con incidencia <b>${inc}</b></span>
     ${['Alerta','Pendiente','Notificado','Conforme'].map(m=>`<button class="pill m m-${m} ${f.marca===m?'on':''}" data-ac="filtroMarca" data-m="${m}">${m}<b>${c[m]}</b></button>`).join('')}</div>`
-  + (lista.length ? `<div class="scrollx"><table class="tabla"><thead><tr><th>Revisión</th><th>Nº</th><th>Fecha</th><th>Socio</th><th>Tipo</th><th>Pago</th><th class="der">Importe</th><th>Reserva</th><th class="der">Comensales</th><th>Caja</th><th>Estado</th></tr></thead><tbody>
+  + (lista.length ? `<div class="scrollx"><table class="tabla"><thead><tr><th>Revisión</th><th>ID</th><th>Fecha</th><th>Socio</th><th>Tipo</th><th>Pago</th><th class="der">Importe</th><th>Reserva</th><th class="der">Comensales</th><th>Caja</th><th>Estado</th></tr></thead><tbody>
   ${lista.map(t=>{
     const s=socio(t.socio), tot=totalDe(t), d=t.tipo==='consumo'?dinersDe(t):0, ms=motivosTicket(t);
     const ok = t.marca==='Conforme', clase = t.marca ? 'f-'+t.marca : '';
     const sel = enPila('ticket', t.id) ? 'sel' : '';
     return `<tr class="${clase} ${sel}" data-ac="abrir" data-t="ticket" data-id="${t.id}">
-      <td class="rev-cel">${selRev(t.id,t.marca,'data-revt')} <button class="ib ${t.nota?'on':''}" data-ac="comentar" data-t="ticket" data-id="${t.id}" title="${esc(t.nota)||'Añadir un comentario'}">${ico('mensaje')}</button></td><td>#${t.id}</td><td>${fmtFechaHora(t.fecha)}${t.fechaConsumo?`<br><small class="m">consumo del ${fmtDia(t.fechaConsumo)}</small>`:''}</td>
+      <td class="rev-cel">${selRev(t.id,t.marca,'data-revt')} <button class="ib ${t.nota?'on':''}" data-ac="comentar" data-t="ticket" data-id="${t.id}" title="${esc(t.nota)||'Añadir un comentario'}">${ico('mensaje')}</button></td><td>Ticket ${t.id}</td><td>${fmtFechaHora(t.fecha)}${t.fechaConsumo?`<br><small class="m">consumo del ${fmtDia(t.fechaConsumo)}</small>`:''}</td>
       <td>${s.n} - ${esc(s.nombre)}</td><td>${nombreTipo(t)}</td><td>${nombrePago(t.forma)}</td><td class="der ${tot<0?'neg':''}">${euros(tot)}</td>
       <td>${tagReserva(t,false)}</td>
       <td class="der">${d?`${d}<small class="m desglose">${artsComensal().map(x=>[cantDe(t,x.id),x.corto]).filter(x=>x[0]>0).map(x=>`${x[0]}× ${x[1]}`).join('<br>')}</small>`:'<span class="muted">—</span>'}</td><td>${ok?'':chipCaja(t)}</td><td>${ok?'':tags(tagsTicket(t))} <button class="ib ${(t.marca==='Notificado')?'on':''}" data-ac="avisarSocio" data-e="ticket" data-id="${t.id}" title="Avisar al socio (correo o WhatsApp)">${ico('mail')}</button></td></tr>`;
@@ -741,7 +741,7 @@ const selectorSocio = (base, texto) => { const q=quienSel(base);
 
 function cajonReserva(r){
   const s=socio(r.socio), fr=franja(r.franjaId), tks=ticketsDe(r), efect=ticketsEfectivos(r), dn=efect.reduce((a,t)=>a+dinersDe(t),0);
-  return `<div class="cajon-cab"><div><h2>Reserva #${r.id}</h2><span class="muted">${fmtDiaLargo(r.dia)} · ${fr.nombre}</span></div>${botonesCab()}</div>
+  return `<div class="cajon-cab"><div><h2>Reserva ${r.id}</h2><span class="muted">${fmtDiaLargo(r.dia)} · ${fr.nombre}</span></div>${botonesCab()}</div>
   <div class="cajon-cuerpo">
     ${r.anulada?'<div class="bloque"><span class="tg gris">anulada</span> Esta reserva está anulada (se conserva en el historial).</div>':''}
     ${bloqueMotivos(motivosReserva(r), r.marca)}
@@ -750,7 +750,7 @@ function cajonReserva(r){
       <dt>Máquinas</dt><dd>${r.maquinas.length?r.maquinas.map(id=>maq(id).nombre).join(', '):'Ninguna'}</dd>
       <dt>Hecha</dt><dd>${r.creada.replace('T',' ')}</dd></dl></div>
     <div class="bloque"><h3>Tickets (${tks.length})</h3>
-      ${tks.length ? tks.map(t=>`<div class="motivo"><a class="tk" data-ac="abrir" data-t="ticket" data-id="${t.id}">#${t.id}</a> ${fmtFechaHora(t.fecha)} · ${esc(socio(t.socio).nombre)} · ${euros(totalDe(t))} ${t.socio!==r.socio?'<span class="tg naranja">pagó otro socio</span>':''}${dinersDe(t)?` <span class="tg verde">${dinersDe(t)} comens.</span>`:''}</div>`).join('') : '<div class="muted">Sin tickets.</div>'}
+      ${tks.length ? tks.map(t=>`<div class="motivo"><a class="tk" data-ac="abrir" data-t="ticket" data-id="${t.id}">Ticket ${t.id}</a> ${fmtFechaHora(t.fecha)} · ${esc(socio(t.socio).nombre)} · ${euros(totalDe(t))} ${t.socio!==r.socio?'<span class="tg naranja">pagó otro socio</span>':''}${dinersDe(t)?` <span class="tg verde">${dinersDe(t)} comens.</span>`:''}</div>`).join('') : '<div class="muted">Sin tickets.</div>'}
       <div class="acciones" style="margin-top:8px"><button class="btn principal" data-ac="editarTickets" data-id="${r.id}" ${r.anulada?'disabled':''}>${ico('lapiz')} Editar tickets</button></div></div>
     <div class="bloque"><h3>Qué quieres hacer</h3><div class="acciones">
       <button class="btn verde" data-ac="marcarOK">Marcar conforme</button>
@@ -763,7 +763,7 @@ function cajonReserva(r){
 function cajonTicket(t){
   const s=socio(t.socio), r=reservaDe(t), tot=totalDe(t), q=quienSel(t.socio);
   const cerca = S.reservas.filter(x=>!x.anulada && deSocio(x,q) && Math.abs(diasEntre(x.dia,t.fecha.slice(0,10)))<=15).sort((a,b)=>Math.abs(diasEntre(a.dia,t.fecha.slice(0,10)))-Math.abs(diasEntre(b.dia,t.fecha.slice(0,10))));
-  return `<div class="cajon-cab"><div><h2>${nombreTipo(t)} #${t.id}</h2><span class="muted">${fmtFechaHora(t.fecha)}${t.fechaConsumo?` · consumo del ${fmtDia(t.fechaConsumo)}`:''}</span></div>${botonesCab()}</div>
+  return `<div class="cajon-cab"><div><h2>${nombreTipo(t)} ${t.id}</h2><span class="muted">${fmtFechaHora(t.fecha)}${t.fechaConsumo?` · consumo del ${fmtDia(t.fechaConsumo)}`:''}</span></div>${botonesCab()}</div>
   <div class="cajon-cuerpo">
     ${bloqueMotivos(motivosTicket(t), t.marca)}
     <div class="bloque"><h3>Datos</h3><dl class="datos">
@@ -781,7 +781,7 @@ function cajonTicket(t){
         ${t.estadoCaja==='pendiente' ? `<button class="btn verde" data-ac="sobreOk" data-id="${t.id}">${ico('sobre')} Sobre correcto</button> <button class="btn rojo" data-ac="sobreInc" data-id="${t.id}">Incidencia…</button>` : ''}
         ${r && t.tipo==='consumo' ? '<button class="btn" data-ac="desvincular">Quitar de la reserva</button>' : ''}</div>
       ${t.tipo==='consumo' && !t.ajusteDe && !r ? `<div style="margin-top:12px">${selectorSocio(t.socio,'Reservas de')}
-        <div class="fila-form"><select id="selReserva">${cerca.length?cerca.map(x=>`<option value="${x.id}">#${x.id} · ${socio(x.socio).n} ${esc(socio(x.socio).nombre)} · ${fmtDia(x.dia)} · ${esc(franja(x.franjaId).nombre)} · ${x.comensales} comensales${x.ticketIds.length?` · ${x.ticketIds.length} ticket(s)`:''}</option>`).join(''):'<option value="">(no hay reservas de ese socio en ±15 días)</option>'}</select>
+        <div class="fila-form"><select id="selReserva">${cerca.length?cerca.map(x=>`<option value="${x.id}">Reserva ${x.id} · ${socio(x.socio).n} ${esc(socio(x.socio).nombre)} · ${fmtDia(x.dia)} · ${esc(franja(x.franjaId).nombre)} · ${x.comensales} comensales${x.ticketIds.length?` · ${x.ticketIds.length} ticket(s)`:''}</option>`).join(''):'<option value="">(no hay reservas de ese socio en ±15 días)</option>'}</select>
         <button class="btn principal" data-ac="unirReserva" ${cerca.length?'':'disabled'}>Unir a esta reserva</button></div>
         <div class="muted" style="font-size:13px;margin-top:4px">Si el ticket es de otra persona que pagó la reserva, elige su nombre o «Todos los socios». Solo se ven reservas de ±15 días.</div></div>` : ''}
     </div>
@@ -811,11 +811,11 @@ function cajonTickets(){
     const tg=[]; if(t.auto && t.reservaId===r.id) tg.push({texto:'automático',clase:'gris'});
     if(t.socio===r.socio) tg.push({texto:'responsable',clase:'gris'});
     artsComensal().forEach(x=>{ const c=cantDe(t,x.id); if(c) tg.push({texto:`${c}× ${x.corto}`,clase:'verde'}); });
-    if(otra) tg.push({texto: m ? `se moverá desde la reserva #${otra.id}` : `ya en reserva #${otra.id} · ${socio(otra.socio).nombre} · ${otra.dia} ${franja(otra.franjaId).nombre.toUpperCase()}`, clase:'naranja'});
-    return `<label class="cardtk ${m?'marcado':''}"><input type="checkbox" data-ck="${t.id}" ${m?'checked':''}><div><div class="cardtk-t"><b>#${t.id}</b> · ${fmtFechaHora(t.fecha)} · <b>${o.n} - ${esc(o.nombre)}</b> · <b>${euros(totalDe(t))}</b> ${tags(tg)}</div>
+    if(otra) tg.push({texto: m ? `se moverá desde la reserva ${otra.id}` : `ya en reserva ${otra.id} · ${socio(otra.socio).nombre} · ${otra.dia} ${franja(otra.franjaId).nombre.toUpperCase()}`, clase:'naranja'});
+    return `<label class="cardtk ${m?'marcado':''}"><input type="checkbox" data-ck="${t.id}" ${m?'checked':''}><div><div class="cardtk-t"><b>Ticket ${t.id}</b> · ${fmtFechaHora(t.fecha)} · <b>${o.n} - ${esc(o.nombre)}</b> · <b>${euros(totalDe(t))}</b> ${tags(tg)}</div>
       <div class="cardtk-l">${t.lineas.map(l=>`<div>${l.cantidad} x ${ART[l.id].nombre.toUpperCase()}</div>`).join('')}</div></div></label>`;
   };
-  return `<div class="cajon-cab"><div><h2>Tickets de la reserva #${r.id}</h2><span class="muted">${fmtDia(r.dia)} · ${fr.nombre.toUpperCase()} · <b>${resp.n} - ${esc(resp.nombre)}</b> · ${r.comensales} reservados</span></div>${botonesCab()}</div>
+  return `<div class="cajon-cab"><div><h2>Tickets de la reserva ${r.id}</h2><span class="muted">${fmtDia(r.dia)} · ${fr.nombre.toUpperCase()} · <b>${resp.n} - ${esc(resp.nombre)}</b> · ${r.comensales} reservados</span></div>${botonesCab()}</div>
   <div class="cajon-cuerpo">
     <div class="controles">
       <label class="grande">Tickets de${inputSocio(`id="selTkSocio"`, s.socio, {todos:true, def:'todos', ph:'Todos los socios', w:300})}</label>
@@ -839,20 +839,20 @@ const tipoCtx = () => ctxActual().tipo==='ticket' ? 'ticket' : 'reserva';
 
 function modalCambiarReserva(){
   const r=entidad();
-  abrirModal(`<h3>Cambiar la reserva #${r.id}</h3><p class="nota">Cambia los comensales o las máquinas. La reserva quedará anotada como modificada («mod.») y en el historial.</p>
+  abrirModal(`<h3>Cambiar la reserva ${r.id}</h3><p class="nota">Cambia los comensales o las máquinas. La reserva quedará anotada como modificada («mod.») y en el historial.</p>
     <div class="campo">Comensales<input type="number" id="cCom" min="1" max="200" value="${r.comensales}"></div>
     <div class="campo">Máquinas<div class="checks">${MAQUINAS.map(m=>`<label><input type="checkbox" name="cMaq" value="${m.id}" ${r.maquinas.includes(m.id)?'checked':''}> ${m.nombre}</label>`).join('')}</div></div>
     <div class="error" id="mErr"></div><div class="pie"><button class="btn" data-ac="cerrarModal">Cancelar</button><button class="btn principal" data-ac="guardarCambioReserva">Guardar cambios</button></div>`);
 }
 function modalAnular(){
   const r=entidad();
-  abrirModal(`<h3>Anular la reserva #${r.id}</h3><p class="nota">La reserva no se borra: queda anotada como anulada, con el motivo.</p>
+  abrirModal(`<h3>Anular la reserva ${r.id}</h3><p class="nota">La reserva no se borra: queda anotada como anulada, con el motivo.</p>
     <div class="campo">Motivo<input type="text" id="aMot" placeholder="Por qué se anula"></div>
     <div class="error" id="mErr"></div><div class="pie"><button class="btn" data-ac="cerrarModal">Volver</button><button class="btn rojo" data-ac="confirmarAnular">Anular reserva</button></div>`);
 }
 function modalAjuste(){
   const t=entidad();
-  abrirModal(`<h3>Ajustar el ticket #${t.id}</h3><p class="nota">Los tickets no se borran: el ajuste crea un ticket nuevo con la <b>fecha real de consumo</b>. Pon cantidades con signo (− para quitar).</p>
+  abrirModal(`<h3>Ajustar el ticket ${t.id}</h3><p class="nota">Los tickets no se borran: el ajuste crea un ticket nuevo con la <b>fecha real de consumo</b>. Pon cantidades con signo (− para quitar).</p>
     <div class="campo">Fecha real de consumo<input type="date" id="aFecha" value="${(t.fechaConsumo||t.fecha).slice(0,10)}"></div>
     <table class="lineas"><tr><th>Artículo</th><th class="der">Ahora</th><th class="der">Cambio (+ / −)</th></tr>
       ${t.lineas.map((l,i)=>`<tr><td>${ART[l.id].nombre}</td><td class="der">${l.cantidad}</td><td class="der"><input type="number" step="1" value="0" data-lin="${i}" style="width:80px"></td></tr>`).join('')}</table>
@@ -871,7 +871,7 @@ function textoAviso(r){
   return `${base}: ${x.toLowerCase()}.`;
 }
 function modalAvisoUna(r){
-  abrirModal(`<h3>Avisar a ${esc(socio(r.socio).nombre)}</h3><p class="nota">Reserva #${r.id} · ${fmtDia(r.dia)} · ${esc(franja(r.franjaId).nombre)}. Puedes cambiar el texto antes de enviarlo.</p>
+  abrirModal(`<h3>Avisar a ${esc(socio(r.socio).nombre)}</h3><p class="nota">Reserva ${r.id} · ${fmtDia(r.dia)} · ${esc(franja(r.franjaId).nombre)}. Puedes cambiar el texto antes de enviarlo.</p>
     <div class="campo">Canal<select id="avCanal"><option>email</option><option>WhatsApp</option></select></div>
     <div class="campo">Mensaje<textarea id="avTexto">${esc(textoAviso(r))}</textarea></div>
     <div class="pie"><button class="btn" data-ac="cerrarModal">Cancelar</button><button class="btn principal" data-ac="enviarAviso" data-id="${r.id}">Enviar aviso</button></div>`);
@@ -923,12 +923,12 @@ const ACC = {
     S.tickets.forEach(t=>{
       if(nuevos.has(t.id) && !antes.has(t.id)){
         const otra=t.reservaId && t.reservaId!==r.id ? S.reservas.find(x=>x.id===t.reservaId) : null;
-        if(otra){ otra.ticketIds=otra.ticketIds.filter(i=>i!==t.id); otra.mods++; anota('reserva', otra.id, `Quitado el ticket #${t.id} (pasa a la reserva #${r.id})`); }
+        if(otra){ otra.ticketIds=otra.ticketIds.filter(i=>i!==t.id); otra.mods++; anota('reserva', otra.id, `Quitado el ticket ${t.id} (pasa a la reserva ${r.id})`); }
         t.reservaId=r.id; t.mods=(t.mods||0)+1;
         const pago = t.socio!==r.socio ? ` (pagado por ${socio(t.socio).nombre}, reserva de ${socio(r.socio).nombre})` : '';
-        anota('ticket', t.id, `Unido a la reserva #${r.id}${pago}`); cambios.push(`unido #${t.id}${pago}`);
+        anota('ticket', t.id, `Unido a la reserva ${r.id}${pago}`); cambios.push(`unido Ticket ${t.id}${pago}`);
       } else if(!nuevos.has(t.id) && antes.has(t.id)){
-        t.reservaId=null; t.mods=(t.mods||0)+1; anota('ticket', t.id, `Quitado de la reserva #${r.id}`); cambios.push(`quitado #${t.id}`);
+        t.reservaId=null; t.mods=(t.mods||0)+1; anota('ticket', t.id, `Quitado de la reserva ${r.id}`); cambios.push(`quitado Ticket ${t.id}`);
       }
     });
     if(!cambios.length){ aviso('No has cambiado ningún ticket'); return; }
@@ -937,9 +937,9 @@ const ACC = {
   unirReserva: el=>{ const t=entidad(), r=S.reservas.find(x=>x.id===+el.closest('.panel').querySelector('#selReserva').value); if(!r) return;
     const otro = t.socio!==r.socio ? ` (pagado por ${socio(t.socio).nombre}, reserva de ${socio(r.socio).nombre})` : '';
     t.reservaId=r.id; r.ticketIds.push(t.id); r.mods++; t.mods=(t.mods||0)+1;
-    anota('reserva', r.id, `Unido el ticket #${t.id}${otro}`); anota('ticket', t.id, `Unido a la reserva #${r.id}${otro}`); S.cajonSocio=null; refrescar(); aviso('Ticket unido a la reserva'); },
+    anota('reserva', r.id, `Unido el ticket ${t.id}${otro}`); anota('ticket', t.id, `Unido a la reserva ${r.id}${otro}`); S.cajonSocio=null; refrescar(); aviso('Ticket unido a la reserva'); },
   desvincular: ()=>{ const t=entidad(), r=reservaDe(t); if(!r) return; t.reservaId=null; t.auto=false; r.ticketIds=r.ticketIds.filter(i=>i!==t.id); r.mods++; t.mods=(t.mods||0)+1;
-    anota('reserva', r.id, `Quitado el ticket #${t.id}`); anota('ticket', t.id, `Quitado de la reserva #${r.id}`); refrescar(); aviso('Ticket separado de la reserva'); },
+    anota('reserva', r.id, `Quitado el ticket ${t.id}`); anota('ticket', t.id, `Quitado de la reserva ${r.id}`); refrescar(); aviso('Ticket separado de la reserva'); },
   /* reserva */
   cambiarReserva: ()=>modalCambiarReserva(),
   guardarCambioReserva: ()=>{ const r=entidad(), com=parseInt($('#cCom').value,10), ms=[...document.querySelectorAll('[name=cMaq]:checked')].map(x=>x.value), fr=S.franjas.find(f=>f.id===r.franjaId);
@@ -962,8 +962,8 @@ const ACC = {
     if(!lineas.length && fecha===fechaOriginal){ $('#mErr').textContent='No hay ningún cambio que ajustar.'; return; }
     if(!mot){ $('#mErr').textContent='Escribe el motivo del ajuste.'; return; }
     const n=nuevoTicket({fecha:ahoraTxt(), socio:t.socio, forma:t.forma, lineas, ajusteDe:t.id, fechaConsumo:fecha, motivoAjuste:mot});
-    t.mods=(t.mods||0)+1; anota('ticket', t.id, `Ajustado con el ticket #${n.id}: ${mot}`); anota('ticket', n.id, `Ajuste del ticket #${t.id}: ${mot}`);
-    const r=reservaDe(t); if(r){ r.mods++; anota('reserva', r.id, `Ajustado el ticket #${t.id} (ajuste #${n.id})`); }
+    t.mods=(t.mods||0)+1; anota('ticket', t.id, `Ajustado con el ticket ${n.id}: ${mot}`); anota('ticket', n.id, `Ajuste del ticket ${t.id}: ${mot}`);
+    const r=reservaDe(t); if(r){ r.mods++; anota('reserva', r.id, `Ajustado el ticket ${t.id} (ajuste #${n.id})`); }
     cerrarModal(); S.pila=[{tipo:'ticket', id:t.id},{tipo:'ticket', id:n.id}]; S.ctx=null; refrescar(); aviso(`Ajuste creado (#${n.id})`); },   // el ajuste se abre al lado del ticket
   /* avisos */
   avisarSocio: el=>{ const ent=el.dataset.e, id=+el.dataset.id, x=entDe(ent,id); if(!x) return; abrirAviso({ent, id, canal:(movilDe(x.socio)&&!correoDe(x.socio))?'whatsapp':'email', texto:textoAvisoEnt(ent,x)}); },
@@ -973,11 +973,11 @@ const ACC = {
     else if(!correoDe(n)) return aviso('Este socio no tiene correo');
     registrarAviso(a.ent, a.id, a.canal, n); S.av=null; S.pila=[]; pintarCajon(); refrescar(true); aviso(a.canal==='email'?'Correo enviado':'WhatsApp abierto con el mensaje'); },
   avisarTodas: ()=>{ const l=reservasParaAvisar(); if(!l.length) return aviso('No hay reservas con incidencia sin avisar'); abrirAviso({ent:'lote', canal:'email', ids:l.map(r=>r.id)}); },
-  enviarLote: ()=>{ const a=S.av; if(!a) return; let n=0; a.ids.forEach(id=>{ const r=entDe('reserva',id); if(r && correoDe(r.socio)){ r.avisos++; r.marca='Notificado'; anota('reserva', id, `Aviso enviado por correo a ${socio(r.socio).nombre} (${correoDe(r.socio)}): ${textoAviso(r)}`); auditar('Aviso enviado', `correo a ${etSocioTxt(r.socio)} · reserva #${id}`); n++; } });
+  enviarLote: ()=>{ const a=S.av; if(!a) return; let n=0; a.ids.forEach(id=>{ const r=entDe('reserva',id); if(r && correoDe(r.socio)){ r.avisos++; r.marca='Notificado'; anota('reserva', id, `Aviso enviado por correo a ${socio(r.socio).nombre} (${correoDe(r.socio)}): ${textoAviso(r)}`); auditar('Aviso enviado', `correo a ${etSocioTxt(r.socio)} · reserva ${id}`); n++; } });
     S.av=null; S.pila=[]; pintarCajon(); refrescar(true); aviso(`${n} correos enviados`); },
   abrirWaLote: el=>{ const r=entDe('reserva',+el.dataset.id), mv=movilDe(r.socio); if(!mv) return aviso('Este socio no tiene móvil');
     try{ window.open('https://wa.me/'+numeroWa(mv.numero)+'?text='+encodeURIComponent(textoAviso(r)),'_blank'); }catch(e){}
-    r.avisos++; r.marca='Notificado'; anota('reserva', r.id, `Aviso enviado por WhatsApp a ${socio(r.socio).nombre} (${mv.numero}): ${textoAviso(r)}`); auditar('Aviso enviado', `WhatsApp a ${etSocioTxt(r.socio)} · reserva #${r.id}`);
+    r.avisos++; r.marca='Notificado'; anota('reserva', r.id, `Aviso enviado por WhatsApp a ${socio(r.socio).nombre} (${mv.numero}): ${textoAviso(r)}`); auditar('Aviso enviado', `WhatsApp a ${etSocioTxt(r.socio)} · reserva ${r.id}`);
     S.av.ids=S.av.ids.filter(i=>i!==r.id); pintarCajon(true); refrescar(true); },  /* ajustes de reservas: añadir y borrar franjas y máquinas */
   anadirFranja: ()=>{ const nombre=$('#nfNombre').value.trim(), desde=$('#nfDesde').value, hasta=$('#nfHasta').value, max=parseInt($('#nfMax').value||'0',10);
     if(!nombre) return aviso('Ponle un nombre a la franja'); if(!desde||!hasta) return aviso('Pon la hora de inicio y la de fin'); if(!(max>=4)) return aviso('El máximo de comensales debe ser 4 o más');
@@ -1160,7 +1160,7 @@ function cajonAviso(){
   const x=entDe(a.ent,a.id), n=x.socio, co=correoDe(n), mv=movilDe(n), sinMovil=!mv, fijo=(S.fichas[n].telefonos||[]).find(t=>t.tipo==='Fijo');
   const dest = a.canal==='email' ? (co ? `<span class="tg verde">${ico('mail')} ${esc(co)}</span>` : '<span class="tg rojo">Este socio no tiene correo</span>') : (mv ? `<span class="tg verde">${ico('movil')} ${esc(mv.numero)} (móvil)</span>` : `<span class="tg rojo">Este socio no tiene móvil${fijo?` (solo fijo: ${esc(fijo.numero)}, no vale para WhatsApp)`:''}</span>`);
   const puede = a.canal==='email' ? !!co : !!mv;
-  const titulo = a.ent==='reserva' ? `Reserva #${x.id} · ${fmtDia(x.dia)} · ${esc(franja(x.franjaId).nombre)}` : `${x.tipo==='ingreso'?'Ingreso':'Ticket'} #${x.id} · ${fmtFechaHora(x.fecha)} · ${euros(totalDe(x))}`;
+  const titulo = a.ent==='reserva' ? `Reserva ${x.id} · ${fmtDia(x.dia)} · ${esc(franja(x.franjaId).nombre)}` : `${x.tipo==='ingreso'?'Ingreso':'Ticket'} #${x.id} · ${fmtFechaHora(x.fecha)} · ${euros(totalDe(x))}`;
   return `<div class="cajon-cab"><div><h2>Avisar a ${etSocio(n)}</h2><span class="muted">${titulo}</span></div>${botonesCab()}</div>
   <div class="cajon-cuerpo">${selectorCanal(a, n)}
     <div class="bloque"><h3>Se envía a</h3>${dest}</div>
@@ -1315,7 +1315,7 @@ function cajonSocio(n){
       <dt>Teléfonos</dt><dd>${f.telefonos.map((t,i)=>`<div class="padre" style="margin-bottom:5px"><select data-sf="${n}.teltipo${i}">${['Móvil','Fijo'].map(v=>`<option ${t.tipo===v?'selected':''}>${v}</option>`).join('')}</select><input type="text" data-sf="${n}.tel${i}" value="${esc(t.numero)}" style="width:150px"><button class="ib" data-ac="telQuitar" data-n="${n}" data-i="${i}" title="Quitar">×</button></div>`).join('')}<button class="ib" style="width:auto;padding:0 10px" data-ac="telAnadir" data-n="${n}">+ teléfono</button></dd></dl></div>
     <div class="bloque"><h3>Cuenta bancaria</h3><div class="muted" style="margin-bottom:6px">${esc(f.banco)}</div>${iban}</div>
     <div class="bloque"><h3>Saldo de banca virtual</h3><div class="padre" style="margin-bottom:8px"><b style="font-size:18px">${chipSaldo(saldoSocio(n))}</b><button class="btn" data-ac="verSaldos" title="Ver u ocultar los saldos">${ico(S.verSaldos?'ojoOff':'ojo')} ${S.verSaldos?'Ocultar saldos':'Ver saldos'}</button></div>
-      ${S.verSaldos ? (movBanca(n).length ? `<table class="lineas"><tr><th>Fecha</th><th>Movimiento</th><th class="der">Importe</th></tr>${movBanca(n).slice(0,8).map(m=>`<tr><td>${fmtFechaHora(m.fecha)}</td><td>${m.texto} <a class="tk" data-ac="abrir" data-t="ticket" data-id="${m.id}">#${m.id}</a></td><td class="der ${m.imp<0?'neg':'pos'}">${euros(m.imp)}</td></tr>`).join('')}</table>` : '<div class="muted">Sin movimientos.</div>') : '<p class="nota" style="margin:0">Dinero virtual del socio en la sociedad (no es una cuenta de banco). Los movimientos se ven al pulsar «Ver saldos».</p>'}</div>    <div class="bloque"><h3>Alta y baja</h3><table class="lineas"><tr><th>Desde</th><th>Hasta</th></tr>${f.periodos.map((p,i)=>`<tr><td><input type="date" data-sf="${n}.pdesde${i}" value="${p.desde}"></td><td>${p.hasta?`<input type="date" data-sf="${n}.phasta${i}" value="${p.hasta}">`:'<span class="tg verde">sigue de alta</span>'}</td></tr>`).join('')}</table>
+      ${S.verSaldos ? (movBanca(n).length ? `<table class="lineas"><tr><th>Fecha</th><th>Movimiento</th><th class="der">Importe</th></tr>${movBanca(n).slice(0,8).map(m=>`<tr><td>${fmtFechaHora(m.fecha)}</td><td>${m.texto} <a class="tk" data-ac="abrir" data-t="ticket" data-id="${m.id}">Ticket ${m.id}</a></td><td class="der ${m.imp<0?'neg':'pos'}">${euros(m.imp)}</td></tr>`).join('')}</table>` : '<div class="muted">Sin movimientos.</div>') : '<p class="nota" style="margin:0">Dinero virtual del socio en la sociedad (no es una cuenta de banco). Los movimientos se ven al pulsar «Ver saldos».</p>'}</div>    <div class="bloque"><h3>Alta y baja</h3><table class="lineas"><tr><th>Desde</th><th>Hasta</th></tr>${f.periodos.map((p,i)=>`<tr><td><input type="date" data-sf="${n}.pdesde${i}" value="${p.desde}"></td><td>${p.hasta?`<input type="date" data-sf="${n}.phasta${i}" value="${p.hasta}">`:'<span class="tg verde">sigue de alta</span>'}</td></tr>`).join('')}</table>
       <div class="acciones" style="margin-top:8px"><button class="btn" data-ac="altaBajaSocio" data-n="${n}">${al?'Dar de baja hoy':'Volver a dar de alta'}</button></div><p class="nota" style="margin:6px 0 0">Si vuelve, se abre otro periodo y los anteriores se conservan.</p></div>
     <div class="bloque"><h3>Llaves</h3><div class="padre"><b>${f.llaves.length}</b> llave${f.llaves.length===1?'':'s'} (${act} activa${act===1?'':'s'}) <button class="btn principal" data-ac="abrir" data-t="llaves" data-id="${n}">${ico('llave')} Ver y gestionar llaves</button></div></div>
     <div class="bloque"><h3>Comentario</h3><textarea data-sf="${n}.comentario" rows="3" style="width:100%" placeholder="Anota aquí lo que haga falta sobre este socio…">${esc(f.comentario)}</textarea></div>  </div>`;
@@ -1421,7 +1421,7 @@ function filtrarSobres(){
   return sobresTodos().filter(t=>{ const o=t.tipo==='ingreso'?'banca':'ticket';
     if(f.origen && o!==f.origen) return false; if(f.modo && t.forma!==f.modo) return false;
     if(f.marca==='sin' ? t.marca : (f.marca && t.marca!==f.marca)) return false;
-    if(!enRango(t.fecha.slice(0,10),f)) return false; if(q && !(coincideSocio(t.socio,q)||String(t.id)===q.replace('#',''))) return false; return true; }).sort((a,b)=>a.fecha<b.fecha?1:-1);
+    if(!enRango(t.fecha.slice(0,10),f)) return false; if(q && !(coincideSocio(t.socio,q)||String(t.id)===q.replace(/^(idt\s*|ticket\s*|#)/i,''))) return false; return true; }).sort((a,b)=>a.fecha<b.fecha?1:-1);
 }
 function resultadoCaja(){
   const lista=filtrarSobres(), c=contarMarcas(sobresTodos()), f=S.fC;
@@ -1433,7 +1433,7 @@ function resultadoCaja(){
     return `<tr class="${clase}" data-ac="abrir" data-t="ticket" data-id="${t.id}">
       <td class="rev-cel">${selRev(t.id,t.marca,'data-revt')} <button class="ib ${t.nota?'on':''}" data-ac="comentar" data-t="ticket" data-id="${t.id}" title="${esc(t.nota)||'Añadir un comentario'}">${ico('mensaje')}</button></td>
       <td>${fmtFechaHora(t.fecha)}</td><td>${s.n} - ${esc(s.nombre)}</td>
-      <td>${t.tipo==='ingreso'?'<span class="tg azul">Ingreso</span>':'<span class="tg violeta">Ticket</span>'} <a class="tk" data-ac="abrir" data-t="ticket" data-id="${t.id}">#${t.id}</a></td>
+      <td>${t.tipo==='ingreso'?'<span class="tg azul">Ingreso</span>':'<span class="tg violeta">Ticket</span>'} <a class="tk" data-ac="abrir" data-t="ticket" data-id="${t.id}">Ticket ${t.id}</a></td>
       <td>${nombrePago(t.forma)}</td><td class="der">${euros(totalDe(t))}</td><td>${queDebeHaber(t)}</td><td>${anot} <button class="ib ${(t.marca==='Notificado')?'on':''}" data-ac="avisarSocio" data-e="ticket" data-id="${t.id}" title="Avisar al socio (correo o WhatsApp)">${ico('mail')}</button></td><td>${chipSaldo(saldoSocio(t.socio))}</td></tr>`; };
   return `<div class="pills"><span class="pill">Ingresos <b>${lista.length}</b></span><span class="pill">Por comprobar <b>${pend.length}</b> · efectivo <b>${euros(sumar2(pend.filter(t=>t.forma==='efectivo')))}</b> · datáfono <b>${euros(sumar2(pend.filter(t=>t.forma==='tarjeta')))}</b></span>
     <span class="pill">Esperado (comprobados) <b>${euros(esp)}</b></span><span class="pill">Encontrado <b>${euros(enc)}</b></span><span class="pill ${dif<0?'neg':dif>0?'pos':''}">Diferencia <b>${dif>0?'+':''}${euros(dif)}</b></span>
@@ -1459,7 +1459,7 @@ function cambiarMarcaSobre(x, nueva){
 }
 function modalIncidencia(id){
   const t=S.tickets.find(x=>x.id===id), s=socio(t.socio), antes=saldoSocio(t.socio), despues=antes-totalDe(t);
-  abrirModal(`<h3>${ico('sobre')} Alerta en el sobre del ticket #${t.id}</h3><p class="nota">${esc(s.nombre)} · ${t.tipo==='ingreso'?'ingreso':'consumo'} de ${euros(totalDe(t))} (debe haber ${queDebeHaber(t)}).</p>
+  abrirModal(`<h3>${ico('sobre')} Alerta en el sobre del ticket ${t.id}</h3><p class="nota">${esc(s.nombre)} · ${t.tipo==='ingreso'?'ingreso':'consumo'} de ${euros(totalDe(t))} (debe haber ${queDebeHaber(t)}).</p>
     <div class="campo">Qué pasa<select id="icMotivo">${['Falta el dinero','Falta el ticket','Falta el recibo del datáfono','El importe no coincide','Otro'].map(m=>`<option>${m}</option>`).join('')}</select></div>
     <div class="campo">Importe encontrado (€)<input type="number" id="icImp" min="0" step="0.01" value="0"></div>
     <div class="campo">Nota<input type="text" id="icNota" placeholder="Detalle"></div>
@@ -1598,7 +1598,7 @@ function resultadoVidrio(){
     return `<div class="bloque"><h3>Recuento #${r.id} · del ${fmtFechaHora(r.desde)} hasta el ${fmtFechaHora(r.hasta)} · ${pend?`<span class="tg naranja">${pend} diferencia(s) sin cerrar</span>`:'<span class="tg verde">cerrado</span>'}</h3>
       <table class="lineas"><tr><th>Artículo</th><th class="der">Vendido</th><th class="der">Contado</th><th class="der">Faltan</th><th>Cierre</th></tr>
       ${r.lineas.map(l=>`<tr><td>${gen(l.id).nombre}</td><td class="der">${fmt1(l.vendido)}</td><td class="der">${fmt1(l.contado)}</td><td class="der ${l.dif>=0.5?'neg':''}">${l.dif>0.05?fmt1(l.dif):l.dif<-0.05?'sobran '+fmt1(-l.dif):'0'}</td>
-        <td>${l.dif<0.5 ? '<span class="muted">—</span>' : r.cierres[l.id] ? `<span class="tg verde">${r.cierres[l.id].tipo==='sociedad'?'lo asume la sociedad':r.cierres[l.id].tipo==='ticket'?`cobrado en el ticket #${r.cierres[l.id].ticketId}`:`pago de ${euros(r.cierres[l.id].importe)}`}</span>` :
+        <td>${l.dif<0.5 ? '<span class="muted">—</span>' : r.cierres[l.id] ? `<span class="tg verde">${r.cierres[l.id].tipo==='sociedad'?'lo asume la sociedad':r.cierres[l.id].tipo==='ticket'?`cobrado en el ticket ${r.cierres[l.id].ticketId}`:`pago de ${euros(r.cierres[l.id].importe)}`}</span>` :
           `<button class="btn" data-ac="difSociedad" data-r="${r.id}" data-id="${l.id}">La asume la sociedad</button> <button class="btn" data-ac="difTicket" data-r="${r.id}" data-id="${l.id}">Cobrar a un socio…</button> <button class="btn" data-ac="difPago" data-r="${r.id}" data-id="${l.id}">Registrar un pago…</button>`}</td></tr>`).join('')}</table></div>`; };
   return `<p class="nota-lista">Se cuentan las botellas vacías de los contenedores y se comparan con las que se han vendido en el periodo, desde la hora inicial hasta la final (cada recuento empieza donde acabó el anterior) (los vasos suman partes de botella). Cada diferencia se cierra con un ticket a un socio, un pago o «la asume la sociedad».</p>
   <div class="scrollx"><table class="tabla" style="min-width:560px"><thead><tr><th>Artículo</th><th class="der">Vendido en el periodo</th><th class="der">Contado en los contenedores</th></tr></thead><tbody>
@@ -1754,7 +1754,7 @@ Object.assign(ACC, {
   confirmarDifTicket: el=>{ const r=S.recuentos.find(x=>x.id===+el.dataset.r), l=r.lineas.find(x=>x.id===el.dataset.id), v=ventaDe(l.id); if(!v){ cerrarModal(); return aviso('Este artículo no tiene precio de venta'); }
     const sn=numSocioVal($('#dtSocio')); if(sn==null) return aviso('Escribe el socio al que se lo cobras');
     const n=nuevoTicket({fecha:ahoraTxt(), socio:sn, forma:'banca', lineas:LIN([[v[0], Math.max(1,Math.round(l.dif/v[1]))]]), nota:`Recuento de vidrio #${r.id}`});
-    r.cierres[l.id]={tipo:'ticket', ticketId:n.id}; cerrarModal(); pintarPagina(); aviso(`Ticket #${n.id} creado a ${socio(n.socio).nombre}`); },
+    r.cierres[l.id]={tipo:'ticket', ticketId:n.id}; cerrarModal(); pintarPagina(); aviso(`Ticket ${n.id} creado a ${socio(n.socio).nombre}`); },
   difPago: el=>{ const r=S.recuentos.find(x=>x.id===+el.dataset.r), l=r.lineas.find(x=>x.id===el.dataset.id);
     abrirModal(`<h3>Registrar un pago</h3><p class="nota">Faltan ${fmt1(l.dif)} de ${gen(l.id).nombre}. Anota el pago recibido por esa diferencia.</p>
       <div class="campo">Importe (€)<input type="number" id="dpImp" min="0" step="0.01" value="${(l.dif*gen(l.id).coste/100).toFixed(2)}"></div><div class="campo">Nota<input type="text" id="dpNota" placeholder="Quién paga, cómo…"></div>
@@ -2027,8 +2027,8 @@ function pintarAsociar(){
     if(actual && actual.id===r.id) tg.push({texto:'reserva actual',clase:'verde'});
     if(r.socio===t.socio) tg.push({texto:'mismo socio',clase:'gris'}); else tg.push({texto:'otro socio',clase:'naranja'});
     if(r.ticketIds.length) tg.push({texto:`${r.ticketIds.length} ticket(s) ya`,clase:'gris'});
-    return `<label class="cardtk ${sel?'marcado':''}"><input type="radio" name="asRes" data-as="${r.id}" ${sel?'checked':''}><div><div class="cardtk-t"><b>#${r.id}</b> · ${fmtDia(r.dia)} · ${esc(franja(r.franjaId).nombre)} · <b>${o.n} - ${esc(o.nombre)}</b> · ${r.comensales} reservados ${tags(tg)}</div></div></label>`; };
-  abrirModal(`<h3>Asociar el ticket #${t.id} a una reserva</h3>
+    return `<label class="cardtk ${sel?'marcado':''}"><input type="radio" name="asRes" data-as="${r.id}" ${sel?'checked':''}><div><div class="cardtk-t"><b>Reserva ${r.id}</b> · ${fmtDia(r.dia)} · ${esc(franja(r.franjaId).nombre)} · <b>${o.n} - ${esc(o.nombre)}</b> · ${r.comensales} reservados ${tags(tg)}</div></div></label>`; };
+  abrirModal(`<h3>Asociar el ticket ${t.id} a una reserva</h3>
     <div class="bloque" style="margin-bottom:10px"><b>${fmtFechaHora(t.fecha)}</b> · ${me.n} - ${esc(me.nombre)} · ${euros(totalDe(t))}${dinersDe(t)?` · <span class="tg verde">${dinersDe(t)} comens.</span>`:''}
       <div style="margin-top:6px;font-size:14px">${t.lineas.map(l=>`${l.cantidad} x ${ART[l.id].nombre.toUpperCase()}`).join(' · ')}</div></div>
     <div class="controles" style="margin-bottom:10px"><label class="grande">Reservas de${inputSocio(`id="asSocio"`, a.socio, {todos:true, def:'todos', ph:'Todos los socios', w:300})}</label>
@@ -2036,21 +2036,21 @@ function pintarAsociar(){
     <p class="nota" style="margin:0 0 8px">Si la reserva la pagó otra persona, elige su nombre o «Todos los socios».</p>
     <div style="max-height:46vh;overflow:auto">${cand.length ? cand.map(card).join('') : '<div class="vacio">No hay reservas en ese rango.</div>'}</div>
     <div class="error" id="mErr"></div>
-    <div class="pie">${actual?`<button class="btn rojo" data-ac="quitarAsociar" data-id="${t.id}">Quitar de la reserva #${actual.id}</button>`:''}<button class="btn" data-ac="cerrarModal">Cancelar</button><button class="btn principal" data-ac="confirmarAsociar" data-id="${t.id}">Asociar</button></div>`);
+    <div class="pie">${actual?`<button class="btn rojo" data-ac="quitarAsociar" data-id="${t.id}">Quitar de la reserva ${actual.id}</button>`:''}<button class="btn" data-ac="cerrarModal">Cancelar</button><button class="btn principal" data-ac="confirmarAsociar" data-id="${t.id}">Asociar</button></div>`);
 }
 Object.assign(ACC, {
   asociarReserva: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id), r=reservaDe(t); S.asoc={tid:t.id, socio:'todos', dias:15, sel:r?r.id:null}; pintarAsociar(); },
   confirmarAsociar: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id), a=S.asoc, r=S.reservas.find(x=>x.id===a.sel);
     if(!r){ $('#mErr').textContent='Elige una reserva.'; return; }
     const actual=reservaDe(t); if(actual && actual.id===r.id){ cerrarModal(); return; }
-    if(actual){ actual.ticketIds=actual.ticketIds.filter(i=>i!==t.id); actual.mods++; anota('reserva', actual.id, `Quitado el ticket #${t.id} (pasa a la reserva #${r.id})`); }
+    if(actual){ actual.ticketIds=actual.ticketIds.filter(i=>i!==t.id); actual.mods++; anota('reserva', actual.id, `Quitado el ticket ${t.id} (pasa a la reserva ${r.id})`); }
     const pago = t.socio!==r.socio ? ` (pagado por ${socio(t.socio).nombre}, reserva de ${socio(r.socio).nombre})` : '';
     t.reservaId=r.id; t.auto=false; t.mods=(t.mods||0)+1; r.ticketIds.push(t.id); r.mods++;
-    anota('ticket', t.id, `Asociado a la reserva #${r.id}${pago}`); anota('reserva', r.id, `Unido el ticket #${t.id}${pago}`);
-    cerrarModal(); refrescar(true); aviso(`Ticket #${t.id} asociado a la reserva #${r.id}`); },
+    anota('ticket', t.id, `Asociado a la reserva ${r.id}${pago}`); anota('reserva', r.id, `Unido el ticket ${t.id}${pago}`);
+    cerrarModal(); refrescar(true); aviso(`Ticket ${t.id} asociado a la reserva ${r.id}`); },
   quitarAsociar: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id), r=reservaDe(t); if(!r) return;
     t.reservaId=null; t.auto=false; t.mods=(t.mods||0)+1; r.ticketIds=r.ticketIds.filter(i=>i!==t.id); r.mods++;
-    anota('ticket', t.id, `Quitado de la reserva #${r.id}`); anota('reserva', r.id, `Quitado el ticket #${t.id}`); cerrarModal(); refrescar(true); aviso('Ticket separado de la reserva'); }
+    anota('ticket', t.id, `Quitado de la reserva ${r.id}`); anota('reserva', r.id, `Quitado el ticket ${t.id}`); cerrarModal(); refrescar(true); aviso('Ticket separado de la reserva'); }
 });
 document.addEventListener('change', e=>{
   const t=e.target;
