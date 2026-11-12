@@ -28,6 +28,9 @@ button,input{font:inherit;color:inherit}
 .cab button{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.18);color:#fff;border-radius:10px;padding:8px 14px;font-size:16px;font-weight:700}
 .cuenta{font-weight:700;font-variant-numeric:tabular-nums}
 /* Al escribir en el buscador: el campo sube arriba del todo y se esconde lo que sobra, para que con el teclado del móvil abierto se vean los productos */
+.botcab{display:flex;gap:8px}
+#app.completa{max-width:none}
+#app.completa .demo{display:none}
 #app.escribiendo .demo,#app.escribiendo .cab,#app.escribiendo .reserva,#app.escribiendo .pie{display:none}
 .centro{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:24px 20px}
 .centro h1{font-size:28px;line-height:1.15}
@@ -217,12 +220,18 @@ function iniciarSocio(){
   S.reserva = r.length ? null : 'ninguna';   /* si hay reservas, SIEMPRE las elige el socio: nada va puesto de antemano */
   S.ticket = []; S.idt = null; S.cajon = null; S.conf = ''; S.cierre = null; S.busca = '';
 }
-const guardar = () => { try { localStorage.setItem('txoko_sesion_demo', JSON.stringify({socio:S.socio, hasta:S.hasta})); } catch(e){} };
+/* La sesión y el Ticket a medias se guardan en el móvil: si se refresca la página o se cierra el navegador, todo sigue ahí hasta que caduque la sesión o se pague */
+const guardar = () => { try { localStorage.setItem('txoko_sesion_demo', JSON.stringify({socio:S.socio, hasta:S.hasta, ticket:S.ticket, reserva:S.reserva, saldo:S.saldos[S.socio]})); } catch(e){} };
 const olvidar = () => { try { localStorage.removeItem('txoko_sesion_demo'); } catch(e){} };
 (function recuperar(){
   try {
     const g = JSON.parse(localStorage.getItem('txoko_sesion_demo')||'null');
-    if (g && SOCIOS[g.socio] && g.hasta > Date.now()) { S.socio = g.socio; S.hasta = g.hasta; S.fase = 'app'; iniciarSocio(); }
+    if (g && SOCIOS[g.socio] && g.hasta > Date.now()) {
+      S.socio = g.socio; S.hasta = g.hasta; S.fase = 'app'; iniciarSocio();
+      if (Array.isArray(g.ticket)) S.ticket = g.ticket.filter(l => l && ARTS[l.id] && l.c > 0);
+      if (g.reserva && (g.reserva === 'ninguna' || reservasDe(S.socio).some(x => x.id === g.reserva))) S.reserva = g.reserva;
+      if (typeof g.saldo === 'number') S.saldos[S.socio] = g.saldo;
+    }
   } catch(e){}
 })();
 
@@ -291,13 +300,13 @@ function vApp(){
         <div class="nom">${esc(a.nombre)}<small>${l.c} × ${eur(a.precio)}</small></div>
         <div class="imp">${eur(a.precio*l.c)}</div></div>`;
     }).join('') || '<div class="vacio">Todavía no has añadido nada.<br>Escribe arriba el nombre de la bebida.</div>';
-    centro = `<div class="zona"><div class="tarjeta"><h2><span>Ticket${S.idt ? ` <span class="idtag">IDT: ${S.idt}</span>` : ''}</span>${S.ticket.length ? `<span class="etiqueta">${S.ticket.length}</span>` : ''}</h2><div class="lineas">${lineas}</div></div>
+    centro = `<div class="zona"><div class="tarjeta"><h2><span>Ticket</span>${S.ticket.length ? `<span class="etiqueta">${S.ticket.length}</span>` : ''}</h2><div class="lineas">${lineas}</div></div>
       <div class="flechas"><button data-ac="scrollT" data-d="-1" aria-label="Subir">▲</button><button data-ac="scrollT" data-d="1" aria-label="Bajar">▼</button></div></div>`;
   }
   const t = totales();
   const pie = `<div class="cobro"><button class="btn verde" data-ac="pedirCobro" ${t.uds && S.reserva !== null ? '' : 'disabled'}>${fichaIcono('ok')}Cerrar Ticket</button>
        <div class="suma"><span>${t.uds} ${t.uds===1?'unidad':'unidades'} · con tu banca</span><b>${eur(t.total)}</b></div></div>`;
-  return `<div class="cab"><div><b>${esc(nomSocio(S.socio))}</b><small>Sesión abierta · caduca en <span id="cuenta" class="cuenta">${textoCuenta()}</span></small></div><button data-ac="salir">Salir</button></div>
+  return `<div class="cab"><button data-ac="expandir" aria-label="${S.completa ? 'Reducir' : 'Ocupar toda la pantalla'}">${S.completa ? '⤡' : '⤢'}</button><div style="flex:1;min-width:0"><b>${esc(nomSocio(S.socio))}</b><small>Sesión abierta · caduca en <span id="cuenta" class="cuenta">${textoCuenta()}</span></small></div><button data-ac="salir">Salir</button></div>
     ${vReserva()}
     <div class="busca"><input id="busca" class="campo" placeholder="Escribe una bebida…" autocomplete="off" value="${esc(S.busca)}"></div>
     <div class="centroLista">${centro}</div>
@@ -389,6 +398,8 @@ function pintar(){
   if (id){ const n = document.getElementById(id); if (n){ n.focus(); try{ n.setSelectionRange(ini,ini); }catch(e){} } }
   const zn = document.querySelector('.lineas'); if (zn) zn.scrollTop = scrollAntes;   /* el ticket no salta arriba al repintar */
   actualizarEscribiendo();
+  app.classList.toggle('completa', !!S.completa);
+  if (S.fase === 'app' && S.hasta > Date.now()) guardar();   /* el Ticket a medias queda guardado en el móvil */
   clearTimeout(S.tFin);
   if (S.fase === 'cobrado') S.tFin = setTimeout(() => { if (S.fase === 'cobrado'){ ACC.salir(); pintar(); } }, 20000);   /* vuelve sola al inicio */
 }
@@ -435,9 +446,15 @@ const ACC = {
     const c = S.cajon, l = S.ticket.find(x => x.id === c.id);
     if (c.c === null || (c.c === 0 && c.nuevo)) return;
     if (c.c === 0){ S.conf = 'eliminar'; return; }   /* con 0 se pide confirmación antes de quitar */
-    if (!S.idt) S.idt = nuevoIdT();   /* el Ticket nace con su número al apuntar lo primero */
     if (l) l.c = c.c; else S.ticket.push({id:c.id, c:c.c});
     S.cajon = null; S.busca = '';
+  },
+  expandir(){   /* ocupa toda la ventana; donde el navegador lo permite, también esconde su barra (en iPhone solo hace lo primero) */
+    S.completa = !S.completa;
+    try {
+      if (S.completa && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+      else if (!S.completa && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    } catch(e){}
   },
   cancelar(){ S.cajon = null; S.conf = ''; },
   pedirElim(){ S.conf = 'eliminar'; },
@@ -477,6 +494,7 @@ const ACC = {
     const t = totales();
     S.saldos[S.socio] -= t.total;   /* solo se paga con banca; puede quedar en negativo y no se bloquea */
     const rv = reservaAct();
+    S.idt = nuevoIdT();   /* el número de Ticket nace al guardarlo en la base de datos (aquí, al pagar), no antes */
     S.cobrado = {total:t.total, uds:t.uds, saldo:S.saldos[S.socio], idt:S.idt, idr:rv ? rv.idr : null};
     S.ticket = []; S.idt = null; S.conf = ''; S.cierre = null; S.fase = 'cobrado';
     olvidar(); S.hasta = 0;            /* al pagar se cierra la sesión: para otra compra hay que volver a entrar */
@@ -514,6 +532,7 @@ document.addEventListener('input', e => {
     }
   }
 });
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && S.completa){ S.completa = false; pintar(); } });   /* si se sale con el gesto del móvil, el botón se actualiza */
 document.addEventListener('focusin', e => { if (e.target.id === 'cantidad' || e.target.id === 'horas') e.target.select(); });   /* al tocar el número se selecciona entero para escribir encima */
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && S.fase === 'acceso' && (e.target.id === 'num' || e.target.id === 'movil')){ ACC.verificar(); pintar(); }
