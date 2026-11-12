@@ -209,6 +209,9 @@ const eurS = c => (c < 0 ? '−' : '') + eur(Math.abs(c));   /* con signo, para 
 const LIMITE_AMARILLO = 10000;                               /* −100 €, como en la TPV */
 const claseSaldo = s => s >= 0 ? 's-bien' : s >= -LIMITE_AMARILLO ? 's-amarillo' : 's-rojo';
 
+/* Icono de pantalla completa: cuatro esquinas hacia fuera (ampliar) o hacia dentro (reducir) */
+const iconoExp = () => '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (S.completa ? '<path d="M9 4v5H4M15 4v5h5M20 15h-5v5M4 15h5v5"/>' : '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>') + '</svg>';
+
 /* ---------- Estado ---------- */
 const S = {
   fase:'acceso', aviso:'', error:'',
@@ -307,7 +310,7 @@ function vApp(){
   const t = totales();
   const pie = `<div class="cobro"><button class="btn verde" data-ac="pedirCobro" ${t.uds && S.reserva !== null ? '' : 'disabled'}>${fichaIcono('ok')}Cerrar Ticket</button>
        <div class="suma"><span>${t.uds} ${t.uds===1?'unidad':'unidades'} · con tu banca</span><b>${eur(t.total)}</b></div></div>`;
-  return `<div class="cab"><button data-ac="expandir" aria-label="${S.completa ? 'Reducir' : 'Ocupar toda la pantalla'}">${S.completa ? '⤡' : '⤢'}</button><div style="flex:1;min-width:0"><b>${esc(nomSocio(S.socio))}</b><small>Sesión abierta · caduca en <span id="cuenta" class="cuenta">${textoCuenta()}</span></small></div><button data-ac="salir">Salir</button></div>
+  return `<div class="cab"><button data-ac="expandir" aria-label="${S.completa ? 'Reducir' : 'Ocupar toda la pantalla'}">${iconoExp()}</button><div style="flex:1;min-width:0"><b>${esc(nomSocio(S.socio))}</b><small>Sesión abierta · caduca en <span id="cuenta" class="cuenta">${textoCuenta()}</span></small></div><button data-ac="salir">Salir</button></div>
     ${vReserva()}
     <div class="busca"><input id="busca" class="campo" placeholder="Escribe una bebida…" autocomplete="off" value="${esc(S.busca)}"></div>
     <div class="centroLista">${centro}</div>
@@ -395,7 +398,7 @@ function pintar(){
   else if (S.fase === 'codigo') cuerpo = vCodigo();
   else if (S.fase === 'cobrado') cuerpo = vCobrado();
   else cuerpo = vApp();
-  const barraExp = S.fase === 'app' ? '' : `<div class="barraexp"><button data-ac="expandir" aria-label="${S.completa ? 'Reducir' : 'Ocupar toda la pantalla'}">${S.completa ? '⤡' : '⤢'}</button></div>`;   /* en la app va dentro de la cabecera; en las demás pantallas, en esta franja */
+  const barraExp = S.fase === 'app' ? '' : `<div class="barraexp"><button data-ac="expandir" aria-label="${S.completa ? 'Reducir' : 'Ocupar toda la pantalla'}">${iconoExp()}</button></div>`;   /* en la app va dentro de la cabecera; en las demás pantallas, en esta franja */
   app.innerHTML = `<div class="demo"><span>Demostración</span><button data-ac="caducar">Simular que pasan 6 horas</button></div>${barraExp}${cuerpo}`;
   if (id){ const n = document.getElementById(id); if (n){ n.focus(); try{ n.setSelectionRange(ini,ini); }catch(e){} } }
   const zn = document.querySelector('.lineas'); if (zn) zn.scrollTop = scrollAntes;   /* el ticket no salta arriba al repintar */
