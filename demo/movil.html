@@ -28,7 +28,8 @@ button,input{font:inherit;color:inherit}
 .cab button{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.18);color:#fff;border-radius:10px;padding:8px 14px;font-size:16px;font-weight:700}
 .cuenta{font-weight:700;font-variant-numeric:tabular-nums}
 /* Al escribir en el buscador: el campo sube arriba del todo y se esconde lo que sobra, para que con el teclado del móvil abierto se vean los productos */
-.botcab{display:flex;gap:8px}
+.barraexp{padding:8px 16px 0}
+.barraexp button{border:1px solid var(--borde);background:var(--panel);color:var(--suave);border-radius:10px;padding:8px 14px;font-size:20px;font-weight:700;line-height:1}
 #app.completa{max-width:none}
 #app.completa .demo{display:none}
 #app.escribiendo .demo,#app.escribiendo .cab,#app.escribiendo .reserva,#app.escribiendo .pie{display:none}
@@ -394,7 +395,8 @@ function pintar(){
   else if (S.fase === 'codigo') cuerpo = vCodigo();
   else if (S.fase === 'cobrado') cuerpo = vCobrado();
   else cuerpo = vApp();
-  app.innerHTML = `<div class="demo"><span>Demostración</span><button data-ac="caducar">Simular que pasan 6 horas</button></div>${cuerpo}`;
+  const barraExp = S.fase === 'app' ? '' : `<div class="barraexp"><button data-ac="expandir" aria-label="${S.completa ? 'Reducir' : 'Ocupar toda la pantalla'}">${S.completa ? '⤡' : '⤢'}</button></div>`;   /* en la app va dentro de la cabecera; en las demás pantallas, en esta franja */
+  app.innerHTML = `<div class="demo"><span>Demostración</span><button data-ac="caducar">Simular que pasan 6 horas</button></div>${barraExp}${cuerpo}`;
   if (id){ const n = document.getElementById(id); if (n){ n.focus(); try{ n.setSelectionRange(ini,ini); }catch(e){} } }
   const zn = document.querySelector('.lineas'); if (zn) zn.scrollTop = scrollAntes;   /* el ticket no salta arriba al repintar */
   actualizarEscribiendo();
