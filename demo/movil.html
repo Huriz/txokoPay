@@ -27,6 +27,8 @@ button,input{font:inherit;color:inherit}
 .cab small{display:block;color:rgba(255,255,255,.88);font-size:14px}
 .cab button{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.18);color:#fff;border-radius:10px;padding:8px 14px;font-size:16px;font-weight:700}
 .cuenta{font-weight:700;font-variant-numeric:tabular-nums}
+/* Al escribir en el buscador: el campo sube arriba del todo y se esconde lo que sobra, para que con el teclado del móvil abierto se vean los productos */
+#app.escribiendo .demo,#app.escribiendo .cab,#app.escribiendo .reserva,#app.escribiendo .pie{display:none}
 .centro{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:24px 20px}
 .centro h1{font-size:28px;line-height:1.15}
 .centro p{color:var(--suave)}
@@ -358,6 +360,22 @@ function textoCuenta(){
 
 /* ---------- Pintado (conserva el foco al escribir y ajusta el ticket al espacio libre) ---------- */
 const app = document.getElementById('app');
+/* «Escribiendo» = el buscador tiene el foco O ya tiene texto. Con texto se mantiene aunque pierda el foco: si al tocar un resultado la pantalla se recolocara, el toque caería en otro sitio */
+function actualizarEscribiendo(){
+  const foco = !!document.activeElement && document.activeElement.id === 'busca';
+  const on = S.fase === 'app' && (foco || S.busca.trim() !== '');
+  app.classList.toggle('escribiendo', on);
+  if (on) window.scrollTo(0, 0);
+}
+document.addEventListener('focusin', e => { if (e.target.id === 'busca') actualizarEscribiendo(); });
+document.addEventListener('focusout', e => { if (e.target.id === 'busca') setTimeout(actualizarEscribiendo, 150); });
+/* La pantalla mide lo que queda visible con el teclado abierto (en el móvil, el teclado achica la zona visible) */
+function ajustarAlto(){ const vv = window.visualViewport; app.style.height = vv ? Math.round(vv.height) + 'px' : ''; }
+if (window.visualViewport){
+  window.visualViewport.addEventListener('resize', ajustarAlto);
+  window.visualViewport.addEventListener('scroll', () => { if (app.classList.contains('escribiendo')) window.scrollTo(0, 0); });
+  ajustarAlto();
+}
 function pintar(){
   const f = document.activeElement, id = f && f.id, ini = f && f.selectionStart;
   const zl = document.querySelector('.lineas'), scrollAntes = zl ? zl.scrollTop : 0;
@@ -370,6 +388,7 @@ function pintar(){
   app.innerHTML = `<div class="demo"><span>Demostración</span><button data-ac="caducar">Simular que pasan 6 horas</button></div>${cuerpo}`;
   if (id){ const n = document.getElementById(id); if (n){ n.focus(); try{ n.setSelectionRange(ini,ini); }catch(e){} } }
   const zn = document.querySelector('.lineas'); if (zn) zn.scrollTop = scrollAntes;   /* el ticket no salta arriba al repintar */
+  actualizarEscribiendo();
   clearTimeout(S.tFin);
   if (S.fase === 'cobrado') S.tFin = setTimeout(() => { if (S.fase === 'cobrado'){ ACC.salir(); pintar(); } }, 20000);   /* vuelve sola al inicio */
 }
