@@ -30,6 +30,7 @@ Tres maquetas para tocar, con **datos inventados**. Todo ocurre en tu navegador:
 - **[Panel de la junta](demo/panel.html)**: reservas y tickets con su revisión, socios y llaves, ingresos y gastos, almacén e inventario, artículos y menú de la TPV, formas de pago, copias de seguridad y auditoría. Para entrar: usuario `admin`, contraseña `admin`.
 
 - **[Móvil, pedir desde el teléfono](demo/movil.html)**: el socio entra con su número y su móvil, recibe un código y apunta lo que toma sin pasar por la barra. Para probarlo: socio `1` y móvil `600 11 22 33`; el código sale en pantalla porque la demo no manda WhatsApp.
+- **[Reservas online](demo/reservas.html)**: la web desde la que un socio reserva (entra con su número de socio y su DNI, elige día, turno, comensales y horno o freidora). Si la sociedad no está conectada, la solicitud queda pendiente y se confirma después; en la barra de arriba puedes simular que el servidor se cae. Socio `23` con DNI `12345678Z` (datos inventados).
 - **[Botones con logo de la bebida](demo/botones.html)**: cómo se verían los botones de la TPV cuando cada artículo lleva su imagen: con un logo, con dos a medias para los combinados y sin imagen. Los colores y rótulos son de ejemplo, no hay marcas reales.
 
 Las formas de pago que activas en el panel son las que ofrece la TPV, y los dos comparten los mismos artículos y menú. Para que se vea, abre las dos en pestañas del mismo navegador.

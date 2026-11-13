@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>txokoPay · Reservas online</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%20role%3D%22img%22%20aria-label%3D%22txokoPay%22%3E%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22112%22%20fill%3D%22%2334424d%22%2F%3E%3Crect%20x%3D%2284%22%20y%3D%22118%22%20width%3D%22344%22%20height%3D%22276%22%20rx%3D%2226%22%20fill%3D%22none%22%20stroke%3D%22%23f8f5ec%22%20stroke-width%3D%2212%22%2F%3E%3Crect%20x%3D%22108%22%20y%3D%22142%22%20width%3D%22296%22%20height%3D%22228%22%20rx%3D%2216%22%20fill%3D%22none%22%20stroke%3D%22%23f8f5ec%22%20stroke-width%3D%229%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23f8f5ec%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%22190%22%20cy%3D%22212%22%20r%3D%2225%22%2F%3E%3Cpath%20d%3D%22M146%20340V300Q146%20268%20180%20260Q190%20270%20200%20260Q236%20268%20236%20300V340%22%2F%3E%3Ccircle%20cx%3D%22322%22%20cy%3D%22212%22%20r%3D%2225%22%2F%3E%3Cpath%20d%3D%22M276%20340V300Q276%20268%20312%20260Q322%20270%20332%20260Q366%20268%20366%20300V340%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%23f8f5ec%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22262%22%20r%3D%227%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M204%20296Q204%20274%20256%20274Q308%20274%20308%20296%22%20fill%3D%22none%22%2F%3E%3Crect%20x%3D%22198%22%20y%3D%22296%22%20width%3D%22116%22%20height%3D%2262%22%20rx%3D%2220%22%20fill%3D%22%2334424d%22%2F%3E%3Cpath%20d%3D%22M178%20306H198M314%20306H334%22%20fill%3D%22none%22%2F%3E%3C%2Fg%3E%3Crect%20x%3D%22207%22%20y%3D%22322%22%20width%3D%2298%22%20height%3D%2215%22%20fill%3D%22%23d9693a%22%2F%3E%3C%2Fsvg%3E">
+<style>
+:root{--acento:#f2a36b;--fondo:#f3f5f7;--panel:#ffffff;--tinta:#1f2933;--suave:#5b6773;--borde:#dce1e6;
+--principal:#3c5568;--principal-claro:#e3eaf0;--verde:#3f8a63;--verde-claro:#e1f0e7;--rojo:#b8554d;--rojo-claro:#f6e3e0;--amarillo-claro:#fbe9a6;--radio:12px}
+@media (prefers-color-scheme:dark){:root{--fondo:#161a1f;--panel:#212830;--tinta:#e8ecf0;--suave:#9aa6b2;--borde:#333c46;--principal:#4a6b85;--principal-claro:#22303b;--verde:#5ab184;--verde-claro:#1c2e26;--rojo:#d9776e;--rojo-claro:#35221f;--amarillo-claro:#4a3f1a}}
+*{box-sizing:border-box;margin:0}
+body{background:var(--fondo);color:var(--tinta);font:19px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+#app{min-height:100dvh;max-width:680px;margin:0 auto;display:flex;flex-direction:column;background:var(--fondo)}
+#app.completa{max-width:none}
+.demo{background:var(--principal-claro);color:var(--principal);font-size:14px;padding:6px 12px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.demo button{background:transparent;border:1px solid var(--principal);border-radius:8px;padding:2px 10px;font-size:13px;color:var(--principal)}
+#app.completa .demo{display:none}
+.barra{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px}
+.barra .marca{font-size:24px;font-weight:800;color:var(--principal)}.nombre b{color:#d9693a;font-weight:800}
+.barra .soc{font-size:13px;color:var(--suave);display:block;font-weight:500}
+.bexp{border:1px solid var(--borde);background:var(--panel);color:var(--suave);border-radius:10px;padding:8px 12px;line-height:1}
+.cab{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--principal);color:#fff;border-bottom:4px solid var(--acento)}
+.cab>div{flex:1;min-width:0}.cab b{font-size:19px}.cab small{display:block;font-size:14px;color:rgba(255,255,255,.88)}
+.cab button{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.18);color:#fff;border-radius:10px;padding:8px 14px;font-weight:700}
+.centro{padding:18px 16px 28px;display:flex;flex-direction:column;gap:14px}
+h1{font-size:26px}p.s{color:var(--suave);font-size:17px}
+label.cp{display:flex;flex-direction:column;gap:6px;font-weight:700}
+input.campo{width:100%;min-height:58px;padding:10px 14px;border:2px solid var(--borde);border-radius:var(--radio);background:var(--panel);font-size:22px}
+input.campo:focus{outline:3px solid var(--acento);outline-offset:1px;border-color:var(--principal)}
+.btn{min-height:58px;padding:10px 18px;border:1px solid #2f4658;border-radius:var(--radio);background:var(--principal);color:#fff;font-weight:700;font-size:21px;display:inline-flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 5px 0 #2f4658}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #2f4658}
+.btn.sec{background:var(--panel);color:var(--tinta);border-color:var(--borde);box-shadow:0 5px 0 rgba(31,41,51,.2)}
+.btn:disabled{opacity:.45;box-shadow:none}
+.error{background:var(--rojo-claro);color:var(--rojo);border-radius:var(--radio);padding:10px 14px;font-weight:700}
+.ok{background:var(--verde-claro);color:var(--verde);border-radius:var(--radio);padding:10px 14px;font-weight:700}
+.pista{border:1px dashed var(--borde);border-radius:var(--radio);padding:10px 14px;color:var(--suave);font-size:15px;background:var(--panel)}
+.pista code{font-weight:800;color:var(--tinta);user-select:all}
+.tabs{display:flex;gap:8px;padding:12px 16px 0}
+.tab{flex:1;min-height:52px;border:1px solid var(--borde);border-radius:var(--radio);background:var(--panel);font-weight:700;color:var(--suave)}
+.tab.on{background:var(--principal-claro);color:var(--principal);border-color:var(--principal)}
+.tab b{background:var(--principal);color:#fff;border-radius:99px;padding:0 8px;font-size:14px;margin-left:6px}
+.paso{background:var(--panel);border:1px solid var(--borde);border-radius:var(--radio);padding:14px}
+.paso h2{font-size:18px;margin-bottom:10px;color:var(--suave);text-transform:uppercase;letter-spacing:.05em;font-weight:700;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--borde);background:var(--panel);border-radius:14px;padding:8px 14px;text-align:center;min-width:76px;font-weight:700;line-height:1.2}
+.chip small{display:block;font-weight:500;color:var(--suave);font-size:13px}
+.chip.on{border-color:var(--principal);background:var(--principal-claro);color:var(--principal)}
+.chip:disabled{opacity:.45;cursor:not-allowed;text-decoration:line-through}
+.chip.fr{flex:1 1 140px;text-align:left}
+.stepper{display:flex;align-items:center;gap:14px}
+.stepper button{width:62px;height:62px;border-radius:50%;border:2px solid var(--borde);background:var(--panel);font-size:34px;font-weight:700;line-height:1}
+.stepper output{font-size:44px;font-weight:800;min-width:70px;text-align:center}
+input[type=date].campo{font-size:20px}
+.nota{color:var(--suave);font-size:15px;margin-top:8px}
+.res{background:var(--panel);border:1px solid var(--borde);border-radius:var(--radio);padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.res .t{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.res .t b{font-size:19px}
+.est{display:inline-block;border-radius:99px;padding:2px 12px;font-size:14px;font-weight:700;white-space:nowrap}
+.est.solicitada{background:var(--amarillo-claro);color:#4a3a00}.est.confirmada{background:var(--verde-claro);color:var(--verde)}.est.rechazada{background:var(--rojo-claro);color:var(--rojo)}.est.anulada{background:var(--principal-claro);color:var(--suave)}
+@media (prefers-color-scheme:dark){.est.solicitada{color:#f3dc9a}}
+.res .m{color:var(--suave);font-size:16px}
+.res .acc{display:flex;gap:8px;margin-top:4px}.res .acc button{border:1px solid var(--borde);background:var(--panel);border-radius:10px;padding:6px 12px;font-weight:700;color:var(--suave)}
+.res .acc .peligro{color:var(--rojo);border-color:var(--rojo)}
+.vacio{padding:26px 10px;text-align:center;color:var(--suave)}
+.idtag{display:inline-block;font-size:12px;font-weight:700;background:#f4dfa0;color:#000;border-radius:8px;padding:1px 8px;margin-right:4px}
+.resumen{background:var(--principal-claro);border-radius:var(--radio);padding:12px 14px;font-weight:600}
+.pie{padding:14px 16px 24px;color:var(--suave);font-size:14px;text-align:center}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const NOMBRE = 'txoko<b>Pay</b>';
+const SOCIEDAD = {nombre:'Sociedad gastronómica de ejemplo', sub:'sglosllanos.txokopay.com'};
+/* Demo: en la aplicación real la nube NO guarda el DNI, solo una huella lenta; aquí se comprueba en el propio navegador con datos inventados */
+const SOCIOS = {23:{nombre:'Josu Etxeberria', dni:'12345678Z'}, 7:{nombre:'Mikel Aranburu', dni:'87654321X'}, 12:{nombre:'Iñaki Goikoetxea', dni:'11223344B'}};
+const FRANJAS = [
+  {id:'almuerzo', nombre:'Almuerzo', desde:'09:00', hasta:'12:00', max:20},
+  {id:'comida',   nombre:'Comida',   desde:'12:00', hasta:'17:00', max:40},
+  {id:'merienda', nombre:'Merienda', desde:'17:00', hasta:'19:00', max:15},
+  {id:'cena',     nombre:'Cena',     desde:'19:00', hasta:'02:00', max:40}
+];
+const MAQ = [{id:'horno1',nombre:'Horno 1'},{id:'horno2',nombre:'Horno 2'},{id:'freidora',nombre:'Freidora'}];
+const HORAS_SESION = 2, MAX_INTENTOS = 5, ANTELACION_DIAS = 30;
+const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'], MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const clave = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const deClave = k => { const [y,m,d] = k.split('-').map(Number); return new Date(y, m-1, d); };
+const hoy = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+const sumar = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const fmtDia = k => { const d = deClave(k); return DIAS[d.getDay()]+' '+d.getDate()+' '+MESES[d.getMonth()]; };
+const HOYK = clave(hoy());
+const DIA_CERRADO = clave(sumar(hoy(), 4));   /* ejemplo: un día cerrado por un evento de la sociedad */
+const hash = s => { let h = 7; for (const c of s) h = (h*31 + c.charCodeAt(0)) >>> 0; return h; };
+
+/* ---------- Lo que ya hay reservado en la sociedad (lo publica el servidor) ---------- */
+const OTRAS = [];   /* reservas hechas en esta demo por otros socios que ocupan plazas o máquinas */
+function ocupadosBase(dia, fr){ return Math.round((hash(dia+fr.id) % 100) / 100 * fr.max * 0.75); }
+function maqBase(dia, fr, m){ return (hash(dia+fr.id+m.id) % 5) === 0; }
+function usadas(dia, fr){ return S.reservas.filter(r => r.dia===dia && r.franja===fr.id && (r.estado==='confirmada'||r.estado==='solicitada')); }
+const plazasLibres = (dia, fr) => Math.max(0, fr.max - ocupadosBase(dia, fr) - usadas(dia, fr).reduce((s,r)=>s+r.comensales,0));
+const maqOcupada = (dia, fr, m) => maqBase(dia, fr, m) || usadas(dia, fr).some(r => r.maq.includes(m.id));
+
+/* ---------- Estado ---------- */
+let _idr = 214;
+const S = {fase:'login', num:'', dni:'', error:'', aviso:'', socio:0, hasta:0, tab:'nueva', completa:false,
+  dia:'', franja:'', com:2, maq:[], conectado:true, intentos:{}, bloqueo:{}, reservas:[], anularId:null, enviada:null};
+const cargar = () => { try { const g = JSON.parse(localStorage.getItem('txoko_reservas_demo')||'null'); if (g){ S.reservas = g.reservas||[]; _idr = g.idr||_idr; if (g.socio && SOCIOS[g.socio] && g.hasta > Date.now()){ S.socio=g.socio; S.hasta=g.hasta; S.fase='app'; } } } catch(e){} };
+const guardar = () => { try { localStorage.setItem('txoko_reservas_demo', JSON.stringify({reservas:S.reservas, idr:_idr, socio:S.fase==='app'?S.socio:0, hasta:S.hasta})); } catch(e){} };
+cargar();
+const misReservas = () => S.reservas.filter(r => r.socio === S.socio).sort((a,b) => a.dia < b.dia ? 1 : a.dia > b.dia ? -1 : b.creada - a.creada);
+
+/* ---------- El «servidor» de la sociedad: confirma o rechaza las solicitudes, una a una y en orden ---------- */
+function procesar(r){
+  if (r.estado !== 'solicitada') return;
+  const fr = FRANJAS.find(f => f.id === r.franja);
+  const otras = S.reservas.filter(x => x !== r && x.dia===r.dia && x.franja===r.franja && x.estado==='confirmada');
+  const ocup = ocupadosBase(r.dia, fr) + otras.reduce((s,x)=>s+x.comensales,0);
+  const choque = r.maq.find(id => maqBase(r.dia, fr, MAQ.find(m=>m.id===id)) || otras.some(x => x.maq.includes(id)));
+  if (r.dia === DIA_CERRADO) { r.estado='rechazada'; r.motivo='Ese día la sociedad está cerrada por un evento.'; }
+  else if (ocup + r.comensales > fr.max) { r.estado='rechazada'; r.motivo='Ya no quedan plazas suficientes en esa franja.'; }
+  else if (choque) { r.estado='rechazada'; r.motivo=MAQ.find(m=>m.id===choque).nombre+' ya está cogido en esa franja.'; }
+  else { r.estado='confirmada'; r.idr = ++_idr; }   /* el número de Reserva nace al confirmarla el servidor */
+  guardar(); pintar();
+}
+function procesarPendientes(){ S.reservas.filter(r => r.estado==='solicitada').forEach((r,i) => setTimeout(() => procesar(r), 600*(i+1))); }
+
+/* ---------- Pantallas ---------- */
+const iconoExp = () => '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (S.completa ? '<path d="M9 4v5H4M15 4v5h5M20 15h-5v5M4 15h5v5"/>' : '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>') + '</svg>';
+function vLogin(){
+  return `<div class="barra"><button class="bexp" data-ac="expandir" aria-label="Ocupar toda la pantalla">${iconoExp()}</button><div class="marca nombre">${NOMBRE}<span class="soc">${esc(SOCIEDAD.sub)}</span></div></div>
+  <div class="centro">
+    <h1>Reservas online</h1>
+    <p class="s">${esc(SOCIEDAD.nombre)}. Escribe tu número de socio y tu DNI para reservar.</p>
+    ${S.aviso ? `<div class="ok">${esc(S.aviso)}</div>` : ''}${S.error ? `<div class="error">${esc(S.error)}</div>` : ''}
+    <label class="cp">Número de socio<input id="num" class="campo" inputmode="numeric" autocomplete="off" value="${esc(S.num)}"></label>
+    <label class="cp">DNI<input id="dni" class="campo" autocomplete="off" autocapitalize="characters" placeholder="12345678A" value="${esc(S.dni)}"></label>
+    <button class="btn" data-ac="entrar">Entrar</button>
+    <p class="nota">Con esto solo puedes <b>reservar y ver tus reservas</b>. Tu saldo y tus tickets no se ven desde aquí.</p>
+    <div class="pista"><b>Solo para la demo</b> (datos inventados): socio <code>23</code> con DNI <code>12345678Z</code> · socio <code>7</code> con <code>87654321X</code> · socio <code>12</code> con <code>11223344B</code>.</div>
+  </div>`;
+}
+function textoCuenta(){ const s = Math.max(0, Math.floor((S.hasta - Date.now())/1000)); return Math.floor(s/3600)+' h '+String(Math.floor(s%3600/60)).padStart(2,'0')+' min'; }
+function chipsDias(){
+  const out = [];
+  for (let i = 0; i < 7; i++){
+    const k = clave(sumar(hoy(), i)), d = deClave(k), cerr = k === DIA_CERRADO;
+    out.push(`<button class="chip ${S.dia===k?'on':''}" data-ac="dia" data-k="${k}" ${cerr?'disabled':''}>${i===0?'Hoy':i===1?'Mañana':DIAS[d.getDay()].slice(0,3)}<small>${d.getDate()} ${MESES[d.getMonth()]}${cerr?' · cerrado':''}</small></button>`);
+  }
+  return out.join('');
+}
+function vNueva(){
+  const fr = FRANJAS.find(f => f.id === S.franja), libres = fr && S.dia ? plazasLibres(S.dia, fr) : 0;
+  const max = Math.max(1, Math.min(99, libres));
+  if (S.com > max) S.com = max;
+  const listo = S.dia && fr && libres > 0;
+  const quedan = (f) => plazasLibres(S.dia, f);
+  return `<div class="centro" style="padding-top:12px">
+    ${S.enviada ? `<div class="ok">Solicitud enviada. ${S.conectado ? 'En unos segundos te decimos si está confirmada.' : 'La sociedad no está conectada ahora: queda <b>pendiente de confirmar</b> y se procesa cuando vuelva.'} Míralo en «Mis reservas».</div>` : ''}
+    <div class="paso"><h2>1 · Día</h2><div class="chips">${chipsDias()}</div>
+      <label class="cp" style="margin-top:10px;font-weight:600;font-size:15px">Otro día (hasta dentro de 1 mes)<input type="date" class="campo" id="fecha" min="${HOYK}" max="${clave(sumar(hoy(), ANTELACION_DIAS))}" value="${S.dia}"></label>
+      ${S.dia === DIA_CERRADO ? '<div class="error" style="margin-top:8px">Ese día la sociedad está cerrada por un evento.</div>' : ''}</div>
+    <div class="paso"><h2>2 · Turno</h2><div class="chips">${FRANJAS.map(f => { const q = S.dia ? quedan(f) : null; return `<button class="chip fr ${S.franja===f.id?'on':''}" data-ac="franja" data-id="${f.id}" ${S.dia&&(q<=0||S.dia===DIA_CERRADO)?'disabled':''}>${f.nombre}<small>${f.desde}–${f.hasta}${q===null?'':q>0?` · quedan ${q} plazas`:' · completo'}</small></button>`; }).join('')}</div></div>
+    <div class="paso"><h2>3 · Comensales</h2><div class="stepper"><button data-ac="com" data-d="-1" aria-label="Menos">−</button><output>${S.com}</output><button data-ac="com" data-d="1" aria-label="Más">+</button></div>${listo ? `<div class="nota">Máximo ${max} (plazas libres de ese turno).</div>` : ''}</div>
+    <div class="paso"><h2>4 · Horno o freidora (si lo necesitas)</h2><div class="chips">${MAQ.map(m => { const oc = S.dia && fr ? maqOcupada(S.dia, fr, m) : false; return `<button class="chip ${S.maq.includes(m.id)?'on':''}" data-ac="maq" data-id="${m.id}" ${oc?'disabled':''}>${m.nombre}<small>${oc?'ocupado':'libre'}</small></button>`; }).join('')}</div>
+      <div class="nota">Una reserva por aparato y turno.</div></div>
+    ${listo ? `<div class="resumen">${fmtDia(S.dia)} · ${fr.nombre} · ${S.com} comensal${S.com>1?'es':''}${S.maq.length ? ' · '+S.maq.map(id=>MAQ.find(m=>m.id===id).nombre).join(', ') : ''}</div>` : ''}
+    <button class="btn" data-ac="solicitar" ${listo?'':'disabled'}>Solicitar reserva</button>
+    <p class="nota">La reserva se confirma cuando la sociedad la acepta. Si algo ya no está libre, te lo diremos con el motivo.</p>
+  </div>`;
+}
+function vMis(){
+  const l = misReservas();
+  return `<div class="centro" style="padding-top:12px">${l.length ? l.map(r => {
+    const fr = FRANJAS.find(f => f.id === r.franja);
+    const num = r.estado==='confirmada' ? `<span class="idtag">Reserva ${r.idr}</span>` : r.estado==='solicitada' ? '<span class="idtag">Solicitud</span>' : '';
+    const txt = {solicitada:'Pendiente de confirmar', confirmada:'Confirmada', rechazada:'Rechazada', anulada:'Anulada'}[r.estado];
+    return `<div class="res"><div class="t"><b>${num}${fmtDia(r.dia)} · ${fr.nombre.toLowerCase()}</b><span class="est ${r.estado}">${txt}</span></div>
+      <div class="m">${r.comensales} comensal${r.comensales>1?'es':''}${r.maq.length ? ' · '+r.maq.map(id=>MAQ.find(m=>m.id===id).nombre).join(', ') : ''}</div>
+      ${r.motivo ? `<div class="m" style="color:var(--rojo)">${esc(r.motivo)}</div>` : ''}
+      ${(r.estado==='confirmada'||r.estado==='solicitada') ? (S.anularId===r.creada ? `<div class="acc"><span class="m" style="flex:1;align-self:center">¿Anular esta reserva?</span><button data-ac="noAnular">No</button><button class="peligro" data-ac="siAnular" data-id="${r.creada}">Sí, anular</button></div>` : `<div class="acc"><button class="peligro" data-ac="anular" data-id="${r.creada}">Anular</button></div>`) : ''}</div>`; }).join('') : '<div class="vacio">Todavía no tienes reservas.<br>Pide la primera en «Nueva reserva».</div>'}
+    <p class="nota">Las reservas no se borran: si anulas una, queda anotada como anulada.</p></div>`;
+}
+function vApp(){
+  const pend = misReservas().filter(r => r.estado==='solicitada').length;
+  return `<div class="cab"><button class="bexp" style="background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.45)" data-ac="expandir" aria-label="Ocupar toda la pantalla">${iconoExp()}</button><div><b>${esc(S.socio+' - '+SOCIOS[S.socio].nombre)}</b><small>Sesión abierta · caduca en <span id="cuenta">${textoCuenta()}</span></small></div><button data-ac="salir">Salir</button></div>
+  <div class="tabs"><button class="tab ${S.tab==='nueva'?'on':''}" data-ac="tab" data-t="nueva">Nueva reserva</button><button class="tab ${S.tab==='mis'?'on':''}" data-ac="tab" data-t="mis">Mis reservas${pend?`<b>${pend}</b>`:''}</button></div>
+  ${S.tab==='nueva' ? vNueva() : vMis()}`;
+}
+function pintar(){
+  const f = document.activeElement, id = f && f.id, ini = f && f.selectionStart;
+  const y = window.scrollY;
+  const cuerpo = S.fase === 'app' ? vApp() : vLogin();
+  const app = document.getElementById('app');
+  app.classList.toggle('completa', S.completa);
+  app.innerHTML = `<div class="demo"><span>Demostración · datos inventados</span><span><button data-ac="conexion">Servidor de la sociedad: ${S.conectado ? 'conectado' : 'SIN conexión'}</button> <button data-ac="caducar">Simular que pasan 2 h</button></span></div>${cuerpo}<div class="pie">${esc(SOCIEDAD.nombre)} · ${esc(SOCIEDAD.sub)}</div>`;
+  if (id){ const n = document.getElementById(id); if (n){ n.focus(); try{ n.setSelectionRange(ini, ini); }catch(e){} } }
+  window.scrollTo(0, y);
+  if (S.fase === 'app') guardar();
+}
+
+/* ---------- Acciones ---------- */
+const normDni = s => s.toUpperCase().replace(/[\s.\-]/g, '');
+const ACC = {
+  entrar(){
+    const n = parseInt(S.num, 10), dni = normDni(S.dni); S.error = ''; S.aviso = '';
+    if (S.bloqueo[n] && Date.now() < S.bloqueo[n]){ S.error = 'Demasiados intentos. Espera unos minutos o habla con la junta.'; return; }
+    const s = SOCIOS[n];
+    if (!s || s.dni !== dni){
+      S.intentos[n] = (S.intentos[n]||0) + 1;
+      if (S.intentos[n] >= MAX_INTENTOS){ S.bloqueo[n] = Date.now() + 15*60000; S.intentos[n] = 0; S.error = 'Demasiados intentos. Espera unos minutos o habla con la junta.'; }
+      else S.error = 'Número de socio o DNI incorrectos.';   /* siempre el mismo mensaje: no se dice cuál falla */
+      return;
+    }
+    S.intentos[n] = 0; S.socio = n; S.hasta = Date.now() + HORAS_SESION*3600000; S.fase = 'app'; S.tab = 'nueva'; S.dia = ''; S.franja = ''; S.com = 2; S.maq = []; S.enviada = null; S.dni = ''; S.num = '';
+  },
+  salir(){ Object.assign(S, {fase:'login', socio:0, hasta:0, aviso:'Sesión cerrada. Hasta pronto.', error:'', enviada:null}); guardar(); },
+  caducar(){ if (S.fase !== 'app') return; Object.assign(S, {fase:'login', socio:0, hasta:0, aviso:'Tu sesión ha caducado. Vuelve a entrar.', error:''}); guardar(); },
+  expandir(){
+    S.completa = !S.completa;
+    try { if (S.completa && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {}); else if (!S.completa && document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch(e){}
+  },
+  conexion(){ S.conectado = !S.conectado; if (S.conectado) procesarPendientes(); },
+  tab(el){ S.tab = el.dataset.t; S.enviada = null; S.anularId = null; },
+  dia(el){ S.dia = el.dataset.k; S.enviada = null; revisa(); },
+  franja(el){ S.franja = el.dataset.id; S.enviada = null; revisa(); },
+  com(el){ S.com = Math.max(1, S.com + parseInt(el.dataset.d, 10)); S.enviada = null; },
+  maq(el){ const id = el.dataset.id; S.maq = S.maq.includes(id) ? S.maq.filter(x => x !== id) : S.maq.concat(id); S.enviada = null; },
+  solicitar(){
+    const r = {creada:Date.now(), socio:S.socio, dia:S.dia, franja:S.franja, comensales:S.com, maq:S.maq.slice(), estado:'solicitada', idr:null, motivo:''};
+    S.reservas.push(r); S.enviada = true; S.dia = ''; S.franja = ''; S.com = 2; S.maq = [];
+    if (S.conectado) setTimeout(() => procesar(r), 1500);
+  },
+  anular(el){ S.anularId = +el.dataset.id; },
+  noAnular(){ S.anularId = null; },
+  siAnular(el){ const r = S.reservas.find(x => x.creada === +el.dataset.id); if (r){ r.estado = 'anulada'; r.motivo = 'Anulada por ti.'; } S.anularId = null; }
+};
+function revisa(){   /* si lo elegido ya no está libre, se quita */
+  const fr = FRANJAS.find(f => f.id === S.franja);
+  if (S.dia === DIA_CERRADO){ S.franja = ''; S.maq = []; return; }
+  if (fr && S.dia){ if (plazasLibres(S.dia, fr) <= 0) S.franja = ''; S.maq = S.maq.filter(id => !maqOcupada(S.dia, fr, MAQ.find(m => m.id === id))); }
+}
+document.addEventListener('click', e => { const el = e.target.closest('[data-ac]'); if (!el || el.disabled || !ACC[el.dataset.ac]) return; ACC[el.dataset.ac](el); pintar(); });
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'num'){ S.num = t.value.replace(/\D/g, '').slice(0, 5); t.value = S.num; }
+  else if (t.id === 'dni') S.dni = t.value;
+  else if (t.id === 'fecha'){ const v = t.value; if (v && v >= HOYK && v <= clave(sumar(hoy(), ANTELACION_DIAS))){ S.dia = v; S.enviada = null; revisa(); pintar(); } }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && S.fase === 'login' && (e.target.id === 'num' || e.target.id === 'dni')){ ACC.entrar(); pintar(); } });
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && S.completa){ S.completa = false; pintar(); } });
+setInterval(() => { if (S.fase !== 'app') return; if (Date.now() > S.hasta){ ACC.caducar(); pintar(); return; } const c = document.getElementById('cuenta'); if (c) c.textContent = textoCuenta(); }, 1000);
+pintar();
+if (S.fase === 'app') procesarPendientes();
+</script>
+</body>
+</html>
