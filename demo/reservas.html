@@ -224,6 +224,7 @@ html{overflow-y:scroll}
 .n-nueva .mas{background:#fff;color:var(--verde)}.n-nueva small{color:var(--suave)}
 .n-nueva.on{box-shadow:0 0 0 2px rgba(63,138,99,.25)}.pasos3{min-height:612px}.p-det .paso.resu{flex:1}
 @media (max-width:700px){.pasos3{min-height:0}.p-det .paso.resu{flex:none}}
+.res .t{align-items:center}.res .t .idtag{margin-right:0}.res .ft{font-size:19px;font-weight:700;line-height:1.25}
 </style>
 </head>
 <body>
@@ -445,7 +446,7 @@ function vTodas(){
     const fr = FRANJAS.find(f => f.id === r.franja);
     const num = r.estado==='confirmada' ? `<span class="idtag">Reserva ${r.idr}</span>` : r.estado==='solicitada' ? '<span class="idtag">Solicitud</span>' : '';
     const txt = {solicitada:'Pendiente de confirmar', confirmada:'Confirmada', rechazada:'Rechazada', anulada:'Anulada'}[r.estado];
-    return `<div class="res"><div class="t"><b>${num}${fmtDia(r.dia)} · ${fr.nombre.toLowerCase()}</b><span class="est ${r.estado}">${txt}</span></div>
+    return `<div class="res"><div class="t"><span>${num}</span><span class="est ${r.estado}">${txt}</span></div><div class="ft">${fmtDia(r.dia)} · ${fr.nombre.toLowerCase()}</div>
       <div class="m">${r.comensales} comensal${r.comensales>1?'es':''}${r.maq.length ? ' · '+r.maq.map(id=>MAQ.find(m=>m.id===id).nombre).join(', ') : ''}</div>
       ${r.motivo ? `<div class="m" style="color:var(--rojo)">${esc(r.motivo)}</div>` : ''}
       ${r.cambio ? `<div class="pend">Cambio pendiente de confirmar: ${r.cambio.comensales} comensal${r.cambio.comensales>1?'es':''}${r.cambio.maq.length ? ' · '+r.cambio.maq.map(id=>MAQ.find(m=>m.id===id).nombre).join(', ') : ' · sin aparatos'}</div>` : ''}
