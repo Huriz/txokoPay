@@ -124,6 +124,7 @@ a.tg:hover{filter:brightness(.93);text-decoration:underline}
 .btn-ed{display:inline-flex;align-items:center;justify-content:center;border:1px solid #9ec0ee;background:#eaf2fd;color:#1f4f93;border-radius:8px;width:28px;height:24px;padding:0}
 .btn-ed .ico{width:15px;height:15px}
 .btn-ed[disabled]{opacity:.4;cursor:default}
+.chipx{display:inline-flex;align-items:center;gap:4px;white-space:normal}.chipx .x{border:0;background:rgba(31,41,51,.14);color:inherit;border-radius:50%;width:16px;height:16px;line-height:14px;font-size:13px;padding:0;cursor:pointer}.chipx .x:hover{background:rgba(31,41,51,.3)}.tg.nota{background:#eef2f6;color:#1f2933;font-weight:600}
 .rte-barra{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}.rte-barra .ib{width:auto;padding:0 9px}.rte{min-height:130px;max-height:260px;overflow:auto;border:1px solid #d5dbe1;border-radius:10px;padding:8px 10px;background:#fff;font-size:14px;line-height:1.4;outline:none}.rte:focus{border-color:var(--principal);box-shadow:0 0 0 3px rgba(60,85,104,.14)}.rte.lectura{min-height:0;background:#f7f9fb}.rte table{border-collapse:collapse;margin:4px 0}.rte td,.rte th{border:1px solid #c3ccd5;padding:2px 6px}.rte ul,.rte ol{margin:4px 0;padding-left:22px}
 .ib{border:1px solid #d5dbe1;background:#fff;border-radius:10px;width:28px;height:25px;color:var(--suave)}
 .ib.on{background:#d8e6fa;border-color:#9ec0ee;color:#1f4f93}
@@ -1454,7 +1455,10 @@ function resultadoCaja(){
   const pend=lista.filter(t=>t.estadoCaja==='pendiente'), rev=lista.filter(t=>t.estadoCaja!=='pendiente');
   const esp=sumar2(rev), enc=rev.reduce((s,t)=>s+(t.cajaEncontrado||0),0), dif=enc-esp;
   const fila = t => { const s=socio(t.socio), ok=t.marca==='Conforme', clase=t.marca?'f-'+t.marca:'';
-    const anot = ok ? '' : [t.cajaMotivo?`<span class="tg ${alerta('incaja').clase}">${esc(t.cajaMotivo)}</span>`:'', t.estadoCaja==='incidencia'?`<span class="tg gris">encontrado ${euros(t.cajaEncontrado||0)}</span> <button class="ib" data-ac="quitarAlerta" data-id="${t.id}" title="Quitar la alerta (vuelve a por comprobar; queda anotado)" aria-label="Quitar la alerta">${ico('quitar')}</button>`:'', t.cajaNota?`<span class="muted">${esc(t.cajaNota)}</span>`:''].join(' ');
+    const chip=(clase,txt,x)=>`<span class="tg ${clase} chipx">${txt}${x}</span>`, xb=(ac,extra,tit)=>`<button type="button" class="x" data-ac="${ac}" data-id="${t.id}" ${extra||''} title="${tit}" aria-label="${tit}">&times;</button>`;
+    const anot = [ ...(ok ? [] : [t.cajaMotivo?chip(alerta('incaja').clase,esc(t.cajaMotivo),xb('quitarAlerta','','Quitar la alerta (vuelve a por comprobar; queda anotado)')):'', t.estadoCaja==='incidencia'?chip('gris',`encontrado ${euros(t.cajaEncontrado||0)}`,xb('quitarAlerta','','Quitar la alerta (vuelve a por comprobar; queda anotado)')):'', t.cajaNota?chip('nota',esc(t.cajaNota),xb('quitarNotaCaja','data-i="-1"','Quitar esta anotación')):'']),
+      ...(t.notasCaja||[]).map((n,k)=>chip('nota',esc(n),xb('quitarNotaCaja',`data-i="${k}"`,'Quitar esta anotación'))),
+      `<button type="button" class="ib" data-ac="anotarCaja" data-id="${t.id}" title="Añadir una anotación" aria-label="Añadir una anotación">${ico('lapiz')}</button>` ].join(' ');
     return `<tr class="${clase}" data-ac="abrir" data-t="ticket" data-id="${t.id}">
       <td class="rev-cel">${selRev(t.id,t.marca,'data-revt')} <button class="ib ${t.nota?'on':''}" data-ac="comentar" data-t="ticket" data-id="${t.id}" title="${esc(t.nota)||'Añadir un comentario'}">${ico('mensaje')}</button></td>
       <td>${fmtFechaHora(t.fecha)}</td><td>${s.n} - ${esc(s.nombre)}</td>
@@ -1486,7 +1490,7 @@ function modalIncidencia(id){
   const t=S.tickets.find(x=>x.id===id), s=socio(t.socio), antes=saldoSocio(t.socio), despues=antes-totalDe(t);
   abrirModal(`<h3>${ico('sobre')} Alerta en el sobre del ticket ${t.id}</h3><p class="nota">${esc(s.nombre)} · ${t.tipo==='ingreso'?'ingreso':'consumo'} de ${euros(totalDe(t))} (debe haber ${queDebeHaber(t)}).</p>
     <div class="campo">Qué pasa<select id="icMotivo">${['Falta el dinero','Falta el ticket','Falta el recibo del datáfono','El importe no coincide','Otro'].map(m=>`<option>${m}</option>`).join('')}</select></div>
-    <div class="campo">Importe encontrado (€)<input type="number" id="icImp" min="0" step="0.01" value="0"></div>
+    <div class="campo">Importe encontrado (€)<input type="number" id="icImp" min="0" step="0.01" value="0" data-esp="${totalDe(t)}"></div><div class="nota" id="icDif" style="margin:-4px 0 8px">Esperado ${euros(totalDe(t))} · encontrado ${euros(0)} · <b>faltan ${euros(totalDe(t))}</b></div>
     <div class="campo">Nota<input type="text" id="icNota" placeholder="Detalle"></div>
     <div class="bloque" style="background:#fff7e8;border-color:#f0c78a">Ese importe deja de contar: el saldo de <b>${esc(s.nombre)}</b> pasa de ${chipSaldo(antes)} a ${chipSaldo(despues)}.</div>
     <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="icAviso" checked> Dejar anotado el aviso al socio</label>
@@ -1726,6 +1730,9 @@ Object.assign(ACC, {
   /* ingresos / sobres */
   sobreOk: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id); marcarSobre(t,'comprobado',totalDe(t),'',''); t.marca='Conforme'; refrescar(true); aviso('✉ Sobre comprobado: conforme'); },
   sobreInc: el=>{ S.pendMarca={id:+el.dataset.id, nueva:'Alerta'}; modalIncidencia(+el.dataset.id); },
+  anotarCaja: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id); abrirModal(`<h3>Anotación en el Ticket ${t.id}</h3><p class="nota">Escribe lo que quieras dejar apuntado (por ejemplo: «Hablado con el socio, trae el dinero mañana»). Puedes poner todas las anotaciones que haga falta; cada una se quita con su ✕.</p><div class="campo"><input type="text" id="acTexto" placeholder="Anotación" style="width:100%" autofocus></div><div class="error" id="mErr"></div><div class="pie"><button class="btn" data-ac="cerrarModal">Cancelar</button><button class="btn principal" data-ac="guardarAnotCaja" data-id="${t.id}">Guardar anotación</button></div>`); setTimeout(()=>{ const i=$('#acTexto'); if(i) i.focus(); },30); },
+  guardarAnotCaja: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id), txt=$('#acTexto').value.trim(); if(!txt) return $('#mErr').textContent='Escribe la anotación.'; (t.notasCaja=t.notasCaja||[]).push(txt); anota('ticket', t.id, `Anotación en caja: ${txt}`); cerrarModal(); refrescar(true); aviso('Anotación guardada'); },
+  quitarNotaCaja: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id), k=+el.dataset.i; let txt; if(k<0){ txt=t.cajaNota; t.cajaNota=''; } else { txt=(t.notasCaja||[])[k]; (t.notasCaja||[]).splice(k,1); } anota('ticket', t.id, `Anotación quitada: ${txt}`); refrescar(true); aviso('Anotación quitada'); },
   quitarAlerta: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id); abrirModal(`<h3>Quitar la alerta del Ticket ${t.id}</h3><p class="nota">El sobre vuelve a <b>por comprobar</b> y el importe vuelve a contar en la banca de ${esc(socio(t.socio).nombre)}. <b>No se borra nada:</b> queda anotado en el historial del Ticket.</p><div class="pie"><button class="btn" data-ac="cancelarIncidencia">Cancelar</button><button class="btn rojo" data-ac="confirmarQuitarAlerta" data-id="${t.id}">Quitar la alerta</button></div>`); },
   confirmarQuitarAlerta: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id); const antes=t.cajaMotivo||'incidencia'; t.estadoCaja='pendiente'; t.cajaEncontrado=null; t.cajaMotivo=''; t.cajaNota=''; t.marca=null; anota('ticket', t.id, `Alerta del sobre quitada (era: ${antes}). Vuelve a por comprobar.`); auditar('Alerta del sobre quitada', `Ticket ${t.id}`); cerrarModal(); refrescar(true); aviso('Alerta quitada: el sobre vuelve a por comprobar'); },
   cancelarIncidencia: ()=>{ S.pendMarca=null; cerrarModal(); pintarResultado(); pintarCajon(true); },
@@ -2044,7 +2051,10 @@ document.addEventListener('change', e=>{
     pintarResultado(); aviso('Guardado'); return; }
   if(t.dataset.gn){ const g=S.menu.find(x=>x.id===t.dataset.gn), v=t.value.trim(); if(v){ g.nombre=v; aviso('Grupo renombrado'); } else t.value=g.nombre; }
 });
-document.addEventListener('input', e=>{ if(e.target.id==='mq'){ S.mq=e.target.value; const l=$('#mlista'); if(l) l.innerHTML=htmlListaMenu(); } });
+document.addEventListener('input', e=>{ if(e.target.id==='icImp'){ const esp=+e.target.dataset.esp, enc=Math.round(parseFloat(e.target.value||'0')*100), dif=enc-esp, m=$('#icMotivo'), d=$('#icDif');   /* el sobre se cuenta a mano: al escribir lo encontrado, el motivo se propone solo (se puede cambiar) */
+    if(m) m.value = enc===0 ? 'Falta el dinero' : dif!==0 ? 'El importe no coincide' : m.value;
+    if(d) d.innerHTML = `Esperado ${euros(esp)} · encontrado ${euros(enc)} · `+(dif<0?`<b>faltan ${euros(-dif)}</b>`:dif>0?`<b>sobran ${euros(dif)}</b>`:'<b>coincide</b>'); }
+  if(e.target.id==='mq'){ S.mq=e.target.value; const l=$('#mlista'); if(l) l.innerHTML=htmlListaMenu(); } });
 
 /* --- asociar un ticket a una reserva desde la lista de tickets (lápiz junto al guion) --- */
 function pintarAsociar(){
