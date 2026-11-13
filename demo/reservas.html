@@ -225,6 +225,12 @@ html{overflow-y:scroll}
 .n-nueva.on{box-shadow:0 0 0 2px rgba(63,138,99,.25)}.pasos3{min-height:612px}.p-det .paso.resu{flex:1}
 @media (max-width:700px){.pasos3{min-height:0}.p-det .paso.resu{flex:none}}
 .res .t{align-items:center}.res .t .idtag{margin-right:0}.res .ft{font-size:19px;font-weight:700;line-height:1.25}
+/* lista del día más compacta: una línea por reserva (turno · socio · comensales · lo que usan) */
+.tcab{padding:7px 14px}.tcab b{font-size:17px}
+.rf{display:flex;flex-wrap:wrap;align-items:baseline;gap:1px 12px;padding:6px 14px;font-size:16.5px;line-height:1.3}
+.rf .tp{min-width:76px}.rf b{min-width:74px}
+.rf .us{margin-left:auto;font-size:15px}
+@media (max-width:700px){.rf .us{margin-left:0;flex-basis:100%;font-size:14.5px}.rf{gap:0 10px}}
 </style>
 </head>
 <body>
@@ -435,7 +441,7 @@ function vTodas(){
   const inicio = (año === hoy().getFullYear() && mes === hoy().getMonth()) ? Math.floor((offset + hoy().getDate() - 1) / 7) * 7 : 0;
   const rs = S.diaVer ? (S.todas || []).filter(r => r.dia === S.diaVer).sort((a, b) => FRANJAS.findIndex(f => f.id === a.franja) - FRANJAS.findIndex(f => f.id === b.franja) || a.socio - b.socio) : [];
   const detalle = !S.diaVer ? '<div class="espera" style="min-height:0">Toca un día con punto naranja para ver las reservas de ese día.</div>'
-    : `<div class="tdia"><div class="tcab"><b>${fmtDia(S.diaVer)}</b><span>${rs.length} reservas · ${rs.reduce((s, r) => s + r.comensales, 0)} comensales</span></div>${rs.length ? rs.map(r => `<div class="rf ${r.mia?'mia':''}"><span class="tp">${FRANJAS.find(f => f.id === r.franja).nombre.toLowerCase()}</span><b>Socio ${r.socio}${r.mia ? ' <i class="tu">tú</i>' : ''}</b><span>${r.comensales} comensal${r.comensales>1?'es':''}</span><span class="us">${r.maq.length ? r.maq.map(id => MAQ.find(m => m.id === id).nombre).join(' · ') : '—'}</span></div>`).join('') : '<div class="espera" style="min-height:0">Ese día no hay reservas.</div>'}</div>`;
+    : `<div class="tdia"><div class="tcab"><b>${fmtDia(S.diaVer)}</b><span>${rs.length} reservas · ${rs.reduce((s, r) => s + r.comensales, 0)} comensales</span></div>${rs.length ? rs.map(r => `<div class="rf ${r.mia?'mia':''}"><span class="tp">${FRANJAS.find(f => f.id === r.franja).nombre.toLowerCase()}</span><b>Socio ${r.socio}${r.mia ? ' <i class="tu">tú</i>' : ''}</b><span>${r.comensales} comensal${r.comensales>1?'es':''}</span>${r.maq.length ? `<span class="us">${r.maq.map(id => MAQ.find(m => m.id === id).nombre).join(' · ')}</span>` : ''}</div>`).join('') : '<div class="espera" style="min-height:0">Ese día no hay reservas.</div>'}</div>`;
   return `<div class="todas"><div class="paso"><h2>Días con reservas</h2><div class="cal" style="max-width:560px;margin:0 auto"><div class="calcab"><button data-ac="mesT" data-d="-1" ${cur<=minM?'disabled':''} aria-label="Mes anterior">‹</button><b>${MESESL[mes]} ${año}</b><button data-ac="mesT" data-d="1" ${cur>=maxM?'disabled':''} aria-label="Mes siguiente">›</button></div>
     <div class="calsem">${['L','M','X','J','V','S','D'].map(x => `<span>${x}</span>`).join('')}</div><div class="calgrid">${celdas.slice(inicio).join('')}</div>
     <div class="calpie"><span style="margin:0"><span class="pto pto-l">n</span> Comensales ya reservados ese día</span></div></div></div>
