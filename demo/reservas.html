@@ -7,66 +7,126 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%20role%3D%22img%22%20aria-label%3D%22txokoPay%22%3E%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22112%22%20fill%3D%22%2334424d%22%2F%3E%3Crect%20x%3D%2284%22%20y%3D%22118%22%20width%3D%22344%22%20height%3D%22276%22%20rx%3D%2226%22%20fill%3D%22none%22%20stroke%3D%22%23f8f5ec%22%20stroke-width%3D%2212%22%2F%3E%3Crect%20x%3D%22108%22%20y%3D%22142%22%20width%3D%22296%22%20height%3D%22228%22%20rx%3D%2216%22%20fill%3D%22none%22%20stroke%3D%22%23f8f5ec%22%20stroke-width%3D%229%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23f8f5ec%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%22190%22%20cy%3D%22212%22%20r%3D%2225%22%2F%3E%3Cpath%20d%3D%22M146%20340V300Q146%20268%20180%20260Q190%20270%20200%20260Q236%20268%20236%20300V340%22%2F%3E%3Ccircle%20cx%3D%22322%22%20cy%3D%22212%22%20r%3D%2225%22%2F%3E%3Cpath%20d%3D%22M276%20340V300Q276%20268%20312%20260Q322%20270%20332%20260Q366%20268%20366%20300V340%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%23f8f5ec%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22262%22%20r%3D%227%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M204%20296Q204%20274%20256%20274Q308%20274%20308%20296%22%20fill%3D%22none%22%2F%3E%3Crect%20x%3D%22198%22%20y%3D%22296%22%20width%3D%22116%22%20height%3D%2262%22%20rx%3D%2220%22%20fill%3D%22%2334424d%22%2F%3E%3Cpath%20d%3D%22M178%20306H198M314%20306H334%22%20fill%3D%22none%22%2F%3E%3C%2Fg%3E%3Crect%20x%3D%22207%22%20y%3D%22322%22%20width%3D%2298%22%20height%3D%2215%22%20fill%3D%22%23d9693a%22%2F%3E%3C%2Fsvg%3E">
 <style>
 :root{--acento:#f2a36b;--fondo:#f3f5f7;--panel:#ffffff;--tinta:#1f2933;--suave:#5b6773;--borde:#dce1e6;
---principal:#3c5568;--principal-claro:#e3eaf0;--verde:#3f8a63;--verde-claro:#e1f0e7;--rojo:#b8554d;--rojo-claro:#f6e3e0;--amarillo-claro:#fbe9a6;--radio:12px}
-@media (prefers-color-scheme:dark){:root{--fondo:#161a1f;--panel:#212830;--tinta:#e8ecf0;--suave:#9aa6b2;--borde:#333c46;--principal:#4a6b85;--principal-claro:#22303b;--verde:#5ab184;--verde-claro:#1c2e26;--rojo:#d9776e;--rojo-claro:#35221f;--amarillo-claro:#4a3f1a}}
+--principal:#3c5568;--principal-osc:#2f4658;--principal-claro:#e3eaf0;--verde:#3f8a63;--verde-claro:#e1f0e7;--rojo:#b8554d;--rojo-claro:#f6e3e0;--amarillo-claro:#fbe9a6;--amarillo-tinta:#4a3a00;--radio:14px;--sombra:0 1px 2px rgba(31,41,51,.06),0 6px 16px rgba(31,41,51,.06)}
+@media (prefers-color-scheme:dark){:root{--fondo:#161a1f;--panel:#212830;--tinta:#e8ecf0;--suave:#9aa6b2;--borde:#333c46;--principal:#4a6b85;--principal-osc:#3a566d;--principal-claro:#22303b;--verde:#5ab184;--verde-claro:#1c2e26;--rojo:#d9776e;--rojo-claro:#35221f;--amarillo-claro:#4a3f1a;--amarillo-tinta:#f3dc9a;--sombra:none}}
 *{box-sizing:border-box;margin:0}
-body{background:var(--fondo);color:var(--tinta);font:19px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
-button,input,select{font:inherit;color:inherit}
-button{cursor:pointer}
-#app{min-height:100dvh;max-width:680px;margin:0 auto;display:flex;flex-direction:column;background:var(--fondo)}
-#app.completa{max-width:none}
-.demo{background:var(--principal-claro);color:var(--principal);font-size:14px;padding:6px 12px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--fondo);color:var(--tinta);font:18px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+#app{min-height:100dvh;display:flex;flex-direction:column}
+.demo{background:var(--principal-claro);color:var(--principal);font-size:13.5px;padding:6px 16px;display:flex;gap:8px 14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.demo .bs{display:flex;gap:6px;flex-wrap:wrap}
 .demo button{background:transparent;border:1px solid var(--principal);border-radius:8px;padding:2px 10px;font-size:13px;color:var(--principal)}
 #app.completa .demo{display:none}
-.barra{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px}
-.barra .marca{font-size:24px;font-weight:800;color:var(--principal)}.nombre b{color:#d9693a;font-weight:800}
-.barra .soc{font-size:13px;color:var(--suave);display:block;font-weight:500}
+.nombre{font-weight:800}.nombre b{color:#d9693a;font-weight:800}
 .bexp{border:1px solid var(--borde);background:var(--panel);color:var(--suave);border-radius:10px;padding:8px 12px;line-height:1}
-.cab{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--principal);color:#fff;border-bottom:4px solid var(--acento)}
-.cab>div{flex:1;min-width:0}.cab b{font-size:19px}.cab small{display:block;font-size:14px;color:rgba(255,255,255,.88)}
-.cab button{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.18);color:#fff;border-radius:10px;padding:8px 14px;font-weight:700}
-.centro{padding:18px 16px 28px;display:flex;flex-direction:column;gap:14px}
-h1{font-size:26px}p.s{color:var(--suave);font-size:17px}
+/* ---- login ---- */
+.login{flex:1;display:grid;grid-template-columns:1fr 1fr;min-height:0}
+.hero{background:linear-gradient(160deg,var(--principal) 0%,var(--principal-osc) 100%);color:#fff;padding:44px 48px;display:flex;flex-direction:column;justify-content:center;gap:22px;border-right:6px solid var(--acento)}
+.hero .marca{font-size:44px;color:#fff;line-height:1}.hero .marca b{color:var(--acento)}
+.hero .soc{font-size:17px;color:rgba(255,255,255,.85)}
+.hero ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:12px;font-size:19px}
+.hero li{display:flex;gap:12px;align-items:flex-start}.hero li i{flex:none;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.18);display:grid;place-items:center;font-style:normal;font-size:15px}
+.formcol{display:flex;align-items:center;justify-content:center;padding:32px 20px;position:relative}
+.formcol .bexp{position:absolute;top:14px;right:14px}
+.tarjeta{width:100%;max-width:440px;background:var(--panel);border:1px solid var(--borde);border-radius:20px;padding:30px 28px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--sombra)}
+h1{font-size:28px;line-height:1.15}p.s{color:var(--suave);font-size:17px}
 label.cp{display:flex;flex-direction:column;gap:6px;font-weight:700}
-input.campo{width:100%;min-height:58px;padding:10px 14px;border:2px solid var(--borde);border-radius:var(--radio);background:var(--panel);font-size:22px}
-input.campo:focus{outline:3px solid var(--acento);outline-offset:1px;border-color:var(--principal)}
-.btn{min-height:58px;padding:10px 18px;border:1px solid #2f4658;border-radius:var(--radio);background:var(--principal);color:#fff;font-weight:700;font-size:21px;display:inline-flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 5px 0 #2f4658}
-.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #2f4658}
-.btn.sec{background:var(--panel);color:var(--tinta);border-color:var(--borde);box-shadow:0 5px 0 rgba(31,41,51,.2)}
-.btn:disabled{opacity:.45;box-shadow:none}
-.error{background:var(--rojo-claro);color:var(--rojo);border-radius:var(--radio);padding:10px 14px;font-weight:700}
-.ok{background:var(--verde-claro);color:var(--verde);border-radius:var(--radio);padding:10px 14px;font-weight:700}
-.pista{border:1px dashed var(--borde);border-radius:var(--radio);padding:10px 14px;color:var(--suave);font-size:15px;background:var(--panel)}
+input.campo{width:100%;min-height:56px;padding:10px 14px;border:2px solid var(--borde);border-radius:12px;background:var(--fondo);font-size:21px}
+input.campo:focus{outline:3px solid var(--acento);outline-offset:1px;border-color:var(--principal);background:var(--panel)}
+.btn{min-height:56px;padding:10px 20px;border:1px solid var(--principal-osc);border-radius:12px;background:var(--principal);color:#fff;font-weight:700;font-size:20px;display:inline-flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 0 var(--principal-osc);width:100%}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--principal-osc)}
+.btn:disabled{opacity:.45;box-shadow:none;cursor:not-allowed}
+.error{background:var(--rojo-claro);color:var(--rojo);border-radius:12px;padding:10px 14px;font-weight:700;font-size:16px}
+.ok{background:var(--verde-claro);color:var(--verde);border-radius:12px;padding:10px 14px;font-weight:700;font-size:16px}
+.aviso{background:var(--amarillo-claro);color:var(--amarillo-tinta);border-radius:12px;padding:10px 14px;font-weight:700;font-size:16px}
+.pista{border:1px dashed var(--borde);border-radius:12px;padding:10px 14px;color:var(--suave);font-size:14.5px}
 .pista code{font-weight:800;color:var(--tinta);user-select:all}
-.tabs{display:flex;gap:8px;padding:12px 16px 0}
-.tab{flex:1;min-height:52px;border:1px solid var(--borde);border-radius:var(--radio);background:var(--panel);font-weight:700;color:var(--suave)}
-.tab.on{background:var(--principal-claro);color:var(--principal);border-color:var(--principal)}
-.tab b{background:var(--principal);color:#fff;border-radius:99px;padding:0 8px;font-size:14px;margin-left:6px}
-.paso{background:var(--panel);border:1px solid var(--borde);border-radius:var(--radio);padding:14px}
-.paso h2{font-size:18px;margin-bottom:10px;color:var(--suave);text-transform:uppercase;letter-spacing:.05em;font-weight:700;font-size:13px}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{border:2px solid var(--borde);background:var(--panel);border-radius:14px;padding:8px 14px;text-align:center;min-width:76px;font-weight:700;line-height:1.2}
-.chip small{display:block;font-weight:500;color:var(--suave);font-size:13px}
-.chip.on{border-color:var(--principal);background:var(--principal-claro);color:var(--principal)}
-.chip:disabled{opacity:.45;cursor:not-allowed;text-decoration:line-through}
-.chip.fr{flex:1 1 140px;text-align:left}
-.stepper{display:flex;align-items:center;gap:14px}
-.stepper button{width:62px;height:62px;border-radius:50%;border:2px solid var(--borde);background:var(--panel);font-size:34px;font-weight:700;line-height:1}
-.stepper output{font-size:44px;font-weight:800;min-width:70px;text-align:center}
-input[type=date].campo{font-size:20px}
-.nota{color:var(--suave);font-size:15px;margin-top:8px}
-.res{background:var(--panel);border:1px solid var(--borde);border-radius:var(--radio);padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.nota{color:var(--suave);font-size:14.5px}
+/* ---- app ---- */
+.cab{background:var(--principal);color:#fff;border-bottom:4px solid var(--acento)}
+.cab .in{max-width:1140px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:14px}
+.cab .marca{font-size:26px;color:#fff;white-space:nowrap}.cab .marca b{color:var(--acento)}
+.cab .quien{flex:1;min-width:0;text-align:right;line-height:1.2}.cab .quien b{font-size:17px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cab .quien small{font-size:13.5px;color:rgba(255,255,255,.85)}
+.cab button{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.16);color:#fff;border-radius:10px;padding:8px 14px;font-weight:700;white-space:nowrap}
+.cab .bexp{background:rgba(255,255,255,.16);color:#fff;border-color:rgba(255,255,255,.45)}
+.wrap{width:100%;max-width:1140px;margin:0 auto;padding:18px 20px 40px;flex:1}
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{min-height:50px;padding:0 22px;border:1px solid var(--borde);border-radius:12px;background:var(--panel);font-weight:700;color:var(--suave)}
+.tab.on{background:var(--principal);color:#fff;border-color:var(--principal)}
+.tab b{background:var(--acento);color:#3a2000;border-radius:99px;padding:0 8px;font-size:13.5px;margin-left:8px}
+.sync{margin-left:auto;align-self:center;color:var(--suave);font-size:14px;display:flex;gap:8px;align-items:center}
+.sync button{border:1px solid var(--borde);background:var(--panel);border-radius:8px;padding:2px 10px;font-size:13.5px;color:var(--suave)}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+.pasos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.paso{background:var(--panel);border:1px solid var(--borde);border-radius:var(--radio);padding:16px;box-shadow:var(--sombra)}
+.paso.ancho{grid-column:1/-1}
+.paso h2{font-size:13px;margin-bottom:12px;color:var(--suave);text-transform:uppercase;letter-spacing:.06em;font-weight:700;display:flex;align-items:center;gap:8px}
+.paso h2 i{font-style:normal;background:var(--principal);color:#fff;border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font-size:12px}
+.dias{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:8px}
+.dia{border:2px solid var(--borde);background:var(--panel);border-radius:12px;padding:8px 4px;text-align:center;line-height:1.15}
+.dia span{display:block;font-size:12.5px;color:var(--suave);text-transform:uppercase;letter-spacing:.04em}.dia b{display:block;font-size:26px}.dia small{display:block;font-size:12.5px;color:var(--suave)}
+.dia.on{border-color:var(--principal);background:var(--principal);color:#fff}.dia.on span,.dia.on small{color:rgba(255,255,255,.85)}
+.dia:disabled{opacity:.5;cursor:not-allowed}.dia:disabled b{text-decoration:line-through}
+.turnos{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.turno{border:2px solid var(--borde);background:var(--panel);border-radius:12px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:6px}
+.turno b{font-size:19px}.turno small{color:var(--suave);font-size:14px}
+.turno.on{border-color:var(--principal);background:var(--principal-claro)}
+.turno:disabled{opacity:.5;cursor:not-allowed}
+.barra{height:8px;border-radius:99px;background:var(--borde);overflow:hidden}.barra i{display:block;height:100%;border-radius:99px;background:var(--verde)}
+.barra.m i{background:#e0b23a}.barra.p i{background:var(--rojo)}
+.stepper{display:flex;align-items:center;gap:16px}
+.stepper button{width:60px;height:60px;border-radius:50%;border:2px solid var(--borde);background:var(--panel);font-size:32px;font-weight:700;line-height:1}
+.stepper output{font-size:46px;font-weight:800;min-width:72px;text-align:center}
+.aparatos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.aparato{border:2px solid var(--borde);background:var(--panel);border-radius:12px;padding:10px 6px;text-align:center;font-weight:700;line-height:1.2}
+.aparato small{display:block;font-weight:500;color:var(--suave);font-size:13px}
+.aparato.on{border-color:var(--principal);background:var(--principal-claro);color:var(--principal)}
+.aparato:disabled{opacity:.5;cursor:not-allowed;text-decoration:line-through}
+input[type=date].campo{font-size:19px;min-height:50px;max-width:260px}
+.lado{position:sticky;top:14px;display:flex;flex-direction:column;gap:12px}
+.resumen{background:var(--panel);border:1px solid var(--borde);border-radius:var(--radio);padding:18px;box-shadow:var(--sombra);display:flex;flex-direction:column;gap:12px}
+.resumen h2{font-size:13px;color:var(--suave);text-transform:uppercase;letter-spacing:.06em}
+.resumen dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px}.resumen dt{color:var(--suave);font-size:15px}.resumen dd{font-weight:700;text-align:right}
+.resumen .vacio{color:var(--suave);font-size:15.5px}
+.lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.res{background:var(--panel);border:1px solid var(--borde);border-radius:var(--radio);padding:14px 16px;display:flex;flex-direction:column;gap:6px;box-shadow:var(--sombra)}
 .res .t{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.res .t b{font-size:19px}
 .est{display:inline-block;border-radius:99px;padding:2px 12px;font-size:14px;font-weight:700;white-space:nowrap}
-.est.solicitada{background:var(--amarillo-claro);color:#4a3a00}.est.confirmada{background:var(--verde-claro);color:var(--verde)}.est.rechazada{background:var(--rojo-claro);color:var(--rojo)}.est.anulada{background:var(--principal-claro);color:var(--suave)}
-@media (prefers-color-scheme:dark){.est.solicitada{color:#f3dc9a}}
+.est.solicitada{background:var(--amarillo-claro);color:var(--amarillo-tinta)}.est.confirmada{background:var(--verde-claro);color:var(--verde)}.est.rechazada{background:var(--rojo-claro);color:var(--rojo)}.est.anulada{background:var(--principal-claro);color:var(--suave)}
 .res .m{color:var(--suave);font-size:16px}
-.res .acc{display:flex;gap:8px;margin-top:4px}.res .acc button{border:1px solid var(--borde);background:var(--panel);border-radius:10px;padding:6px 12px;font-weight:700;color:var(--suave)}
+.res .acc{display:flex;gap:8px;margin-top:4px;align-items:center}.res .acc button{border:1px solid var(--borde);background:var(--panel);border-radius:10px;padding:6px 14px;font-weight:700;color:var(--suave)}
 .res .acc .peligro{color:var(--rojo);border-color:var(--rojo)}
-.vacio{padding:26px 10px;text-align:center;color:var(--suave)}
-.idtag{display:inline-block;font-size:12px;font-weight:700;background:#f4dfa0;color:#000;border-radius:8px;padding:1px 8px;margin-right:4px}
-.resumen{background:var(--principal-claro);border-radius:var(--radio);padding:12px 14px;font-weight:600}
-.pie{padding:14px 16px 24px;color:var(--suave);font-size:14px;text-align:center}
+.vacio{padding:34px 10px;text-align:center;color:var(--suave);grid-column:1/-1}
+.idtag{display:inline-block;font-size:12px;font-weight:700;background:#f4dfa0;color:#000;border-radius:8px;padding:1px 8px;margin-right:6px;vertical-align:2px}
+details.reg{margin-top:18px;background:var(--panel);border:1px solid var(--borde);border-radius:var(--radio);padding:10px 14px;font-size:14px;color:var(--suave)}
+details.reg summary{cursor:pointer;font-weight:700}
+details.reg ol{list-style:none;padding:8px 0 0;display:flex;flex-direction:column;gap:3px;font-family:ui-monospace,Consolas,monospace;font-size:13px;max-height:210px;overflow:auto}
+.reg .su{color:#3f8a63}.reg .ba{color:#b36a1d}.reg .er{color:var(--rojo)}.reg .ot{color:var(--suave)}
+.pie{padding:14px 16px 22px;color:var(--suave);font-size:14px;text-align:center}
+.movilbar{display:none}
+@media (max-width:900px){
+  .login{grid-template-columns:1fr}
+  .hero{padding:22px 20px;gap:10px;border-right:0;border-bottom:6px solid var(--acento)}
+  .hero .marca{font-size:34px}.hero ul{display:none}
+  .formcol{padding:20px 14px 30px;align-items:flex-start}
+  .tarjeta{padding:22px 18px}
+  .cols{grid-template-columns:1fr}
+  .lado{position:static}.lado .resumen{display:none}
+  .wrap{padding:14px 14px 130px}
+  .cab .in{padding:8px 14px}.cab .marca{font-size:22px}
+  .movilbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--panel);border-top:1px solid var(--borde);padding:10px 14px calc(10px + env(safe-area-inset-bottom));gap:12px;align-items:center;box-shadow:0 -6px 16px rgba(31,41,51,.08)}
+  .movilbar .tx{flex:1;min-width:0;font-weight:700;font-size:15.5px;line-height:1.25}.movilbar .tx small{display:block;color:var(--suave);font-weight:500}
+  .movilbar .btn{width:auto;min-width:150px}
+}
+@media (max-width:620px){
+  .pasos{grid-template-columns:1fr}
+  .tabs{flex-wrap:wrap}.tab{flex:1;padding:0 10px}.sync{flex-basis:100%;margin:0}
+  .lista{grid-template-columns:1fr}
+  .cab .quien small{display:none}
+  .dias{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .turnos{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
@@ -102,7 +162,14 @@ function maqBase(dia, fr, m){ return (hash(dia+fr.id+m.id) % 5) === 0; }
 function usadas(dia, fr){ return S.reservas.filter(r => r.dia===dia && r.franja===fr.id && (r.estado==='confirmada'||r.estado==='solicitada')); }
 const plazasLibres = (dia, fr) => Math.max(0, fr.max - ocupadosBase(dia, fr) - usadas(dia, fr).reduce((s,r)=>s+r.comensales,0));
 const maqOcupada = (dia, fr, m) => maqBase(dia, fr, m) || usadas(dia, fr).some(r => r.maq.includes(m.id));
-
+/* ---------- «Redis» de la demo: la copia compartida entre la sociedad (txokoPay) y la web ---------- */
+/* Cada día+turno lleva un número de versión que sube con CUALQUIER cambio (reserva nueva, confirmación, anulación, la TPV, el panel…).
+   La web descarga lo existente antes de reservar y, al escribir, comprueba que la versión no haya subido mientras tanto: si ha subido, error y vuelta a descargar. */
+const NUBE = {vers:{}};
+const vk = (d, f) => d + '|' + f;
+const ver = (d, f) => NUBE.vers[vk(d, f)] || 0;
+const sube = (d, f) => { NUBE.vers[vk(d, f)] = ver(d, f) + 1; };
+const log = (tipo, txt) => { S.log.unshift({tipo, txt, h:new Date().toLocaleTimeString('es-ES')}); S.log = S.log.slice(0, 40); };
 /* ---------- Estado ---------- */
 let _idr = 214;
 const S = {fase:'login', num:'', dni:'', error:'', aviso:'', socio:0, hasta:0, tab:'nueva', completa:false,
@@ -111,8 +178,21 @@ const cargar = () => { try { const g = JSON.parse(localStorage.getItem('txoko_re
 const guardar = () => { try { localStorage.setItem('txoko_reservas_demo', JSON.stringify({reservas:S.reservas, idr:_idr, socio:S.fase==='app'?S.socio:0, hasta:S.hasta})); } catch(e){} };
 cargar();
 const misReservas = () => S.reservas.filter(r => r.socio === S.socio).sort((a,b) => a.dia < b.dia ? 1 : a.dia > b.dia ? -1 : b.creada - a.creada);
+S.vistas = {}; S.snap = {}; S.sync = 0; S.log = []; S.errNueva = '';
+/* Descarga lo que hay en la sociedad para un día: plazas libres y aparatos cogidos de cada turno + las versiones */
+function descargar(dia, motivo){
+  if (!dia) return;
+  S.snap[dia] = {};
+  FRANJAS.forEach(f => {
+    S.vistas[vk(dia, f.id)] = ver(dia, f.id);
+    S.snap[dia][f.id] = {libres:plazasLibres(dia, f), max:f.max, maq:Object.fromEntries(MAQ.map(m => [m.id, maqOcupada(dia, f, m)])), v:ver(dia, f.id)};
+  });
+  S.sync = Date.now();
+  log('down', '↓ Descargado «' + fmtDia(dia) + '» (' + (motivo || 'al elegir el día') + ') · versiones ' + FRANJAS.map(f => f.id.slice(0,3) + ' v' + ver(dia, f.id)).join(' '));
+}
+const snapDe = (dia, fid) => (S.snap[dia] || {})[fid];
 
-/* ---------- El «servidor» de la sociedad: confirma o rechaza las solicitudes, una a una y en orden ---------- */
+/* ---------- El «servidor» de la sociedad: único que escribe; confirma o rechaza en orden ---------- */
 function procesar(r){
   if (r.estado !== 'solicitada') return;
   const fr = FRANJAS.find(f => f.id === r.franja);
@@ -120,9 +200,12 @@ function procesar(r){
   const ocup = ocupadosBase(r.dia, fr) + otras.reduce((s,x)=>s+x.comensales,0);
   const choque = r.maq.find(id => maqBase(r.dia, fr, MAQ.find(m=>m.id===id)) || otras.some(x => x.maq.includes(id)));
   if (r.dia === DIA_CERRADO) { r.estado='rechazada'; r.motivo='Ese día la sociedad está cerrada por un evento.'; }
-  else if (ocup + r.comensales > fr.max) { r.estado='rechazada'; r.motivo='Ya no quedan plazas suficientes en esa franja.'; }
-  else if (choque) { r.estado='rechazada'; r.motivo=MAQ.find(m=>m.id===choque).nombre+' ya está cogido en esa franja.'; }
+  else if (ocup + r.comensales > fr.max) { r.estado='rechazada'; r.motivo='Ya no quedan plazas suficientes en ese turno.'; }
+  else if (choque) { r.estado='rechazada'; r.motivo=MAQ.find(m=>m.id===choque).nombre+' ya está cogido en ese turno.'; }
   else { r.estado='confirmada'; r.idr = ++_idr; }   /* el número de Reserva nace al confirmarla el servidor */
+  sube(r.dia, r.franja);
+  log('down', '↓ La sociedad ha ' + (r.estado==='confirmada' ? 'confirmado la Reserva ' + r.idr : 'rechazado la solicitud (' + r.motivo + ')') + ' · ' + fmtDia(r.dia) + ' ' + r.franja);
+  if (S.dia === r.dia) descargar(r.dia, 'tras la respuesta');
   guardar(); pintar();
 }
 function procesarPendientes(){ S.reservas.filter(r => r.estado==='solicitada').forEach((r,i) => setTimeout(() => procesar(r), 600*(i+1))); }
@@ -130,64 +213,71 @@ function procesarPendientes(){ S.reservas.filter(r => r.estado==='solicitada').f
 /* ---------- Pantallas ---------- */
 const iconoExp = () => '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (S.completa ? '<path d="M9 4v5H4M15 4v5h5M20 15h-5v5M4 15h5v5"/>' : '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>') + '</svg>';
 function vLogin(){
-  return `<div class="barra"><button class="bexp" data-ac="expandir" aria-label="Ocupar toda la pantalla">${iconoExp()}</button><div class="marca nombre">${NOMBRE}<span class="soc">${esc(SOCIEDAD.sub)}</span></div></div>
-  <div class="centro">
-    <h1>Reservas online</h1>
-    <p class="s">${esc(SOCIEDAD.nombre)}. Escribe tu número de socio y tu DNI para reservar.</p>
-    ${S.aviso ? `<div class="ok">${esc(S.aviso)}</div>` : ''}${S.error ? `<div class="error">${esc(S.error)}</div>` : ''}
-    <label class="cp">Número de socio<input id="num" class="campo" inputmode="numeric" autocomplete="off" value="${esc(S.num)}"></label>
-    <label class="cp">DNI<input id="dni" class="campo" autocomplete="off" autocapitalize="characters" placeholder="12345678A" value="${esc(S.dni)}"></label>
-    <button class="btn" data-ac="entrar">Entrar</button>
-    <p class="nota">Con esto solo puedes <b>reservar y ver tus reservas</b>. Tu saldo y tus tickets no se ven desde aquí.</p>
-    <div class="pista"><b>Solo para la demo</b> (datos inventados): socio <code>23</code> con DNI <code>12345678Z</code> · socio <code>7</code> con <code>87654321X</code> · socio <code>12</code> con <code>11223344B</code>.</div>
-  </div>`;
+  return `<div class="login">
+    <div class="hero"><div class="marca nombre">${NOMBRE}</div><div class="soc">${esc(SOCIEDAD.nombre)}<br>${esc(SOCIEDAD.sub)}</div>
+      <ul><li><i>1</i><span>Entra con tu número de socio y tu DNI.</span></li><li><i>2</i><span>Elige día, turno, comensales y, si lo necesitas, horno o freidora.</span></li><li><i>3</i><span>La sociedad te confirma la reserva y la ves en «Mis reservas».</span></li></ul></div>
+    <div class="formcol"><button class="bexp" data-ac="expandir" aria-label="Ocupar toda la pantalla">${iconoExp()}</button>
+      <div class="tarjeta"><h1>Reservas online</h1><p class="s">Escribe tu número de socio y tu DNI para reservar.</p>
+        ${S.aviso ? `<div class="ok">${esc(S.aviso)}</div>` : ''}${S.error ? `<div class="error">${esc(S.error)}</div>` : ''}
+        <label class="cp">Número de socio<input id="num" class="campo" inputmode="numeric" autocomplete="off" value="${esc(S.num)}"></label>
+        <label class="cp">DNI<input id="dni" class="campo" autocomplete="off" autocapitalize="characters" placeholder="12345678A" value="${esc(S.dni)}"></label>
+        <button class="btn" data-ac="entrar">Entrar</button>
+        <p class="nota">Con esto solo puedes <b>reservar y ver tus reservas</b>. Tu saldo y tus tickets no se ven desde aquí.</p>
+        <div class="pista"><b>Solo para la demo</b> (datos inventados): socio <code>23</code> con DNI <code>12345678Z</code> · socio <code>7</code> con <code>87654321X</code> · socio <code>12</code> con <code>11223344B</code>.</div>
+      </div></div></div>`;
 }
 function textoCuenta(){ const s = Math.max(0, Math.floor((S.hasta - Date.now())/1000)); return Math.floor(s/3600)+' h '+String(Math.floor(s%3600/60)).padStart(2,'0')+' min'; }
-function chipsDias(){
-  const out = [];
-  for (let i = 0; i < 7; i++){
-    const k = clave(sumar(hoy(), i)), d = deClave(k), cerr = k === DIA_CERRADO;
-    out.push(`<button class="chip ${S.dia===k?'on':''}" data-ac="dia" data-k="${k}" ${cerr?'disabled':''}>${i===0?'Hoy':i===1?'Mañana':DIAS[d.getDay()].slice(0,3)}<small>${d.getDate()} ${MESES[d.getMonth()]}${cerr?' · cerrado':''}</small></button>`);
-  }
-  return out.join('');
+function textoSync(){ if (!S.sync) return 'sin descargar'; const s = Math.floor((Date.now() - S.sync)/1000); return s < 5 ? 'ahora mismo' : 'hace ' + s + ' s'; }
+function resumenTxt(){
+  const fr = FRANJAS.find(f => f.id === S.franja);
+  return {dia:S.dia ? fmtDia(S.dia) : null, fr, ok:!!(S.dia && fr)};
 }
 function vNueva(){
-  const fr = FRANJAS.find(f => f.id === S.franja), libres = fr && S.dia ? plazasLibres(S.dia, fr) : 0;
-  const max = Math.max(1, Math.min(99, libres));
-  if (S.com > max) S.com = max;
-  const listo = S.dia && fr && libres > 0;
-  const quedan = (f) => plazasLibres(S.dia, f);
-  return `<div class="centro" style="padding-top:12px">
-    ${S.enviada ? `<div class="ok">Solicitud enviada. ${S.conectado ? 'En unos segundos te decimos si está confirmada.' : 'La sociedad no está conectada ahora: queda <b>pendiente de confirmar</b> y se procesa cuando vuelva.'} Míralo en «Mis reservas».</div>` : ''}
-    <div class="paso"><h2>1 · Día</h2><div class="chips">${chipsDias()}</div>
-      <label class="cp" style="margin-top:10px;font-weight:600;font-size:15px">Otro día (hasta dentro de 1 mes)<input type="date" class="campo" id="fecha" min="${HOYK}" max="${clave(sumar(hoy(), ANTELACION_DIAS))}" value="${S.dia}"></label>
-      ${S.dia === DIA_CERRADO ? '<div class="error" style="margin-top:8px">Ese día la sociedad está cerrada por un evento.</div>' : ''}</div>
-    <div class="paso"><h2>2 · Turno</h2><div class="chips">${FRANJAS.map(f => { const q = S.dia ? quedan(f) : null; return `<button class="chip fr ${S.franja===f.id?'on':''}" data-ac="franja" data-id="${f.id}" ${S.dia&&(q<=0||S.dia===DIA_CERRADO)?'disabled':''}>${f.nombre}<small>${f.desde}–${f.hasta}${q===null?'':q>0?` · quedan ${q} plazas`:' · completo'}</small></button>`; }).join('')}</div></div>
-    <div class="paso"><h2>3 · Comensales</h2><div class="stepper"><button data-ac="com" data-d="-1" aria-label="Menos">−</button><output>${S.com}</output><button data-ac="com" data-d="1" aria-label="Más">+</button></div>${listo ? `<div class="nota">Máximo ${max} (plazas libres de ese turno).</div>` : ''}</div>
-    <div class="paso"><h2>4 · Horno o freidora (si lo necesitas)</h2><div class="chips">${MAQ.map(m => { const oc = S.dia && fr ? maqOcupada(S.dia, fr, m) : false; return `<button class="chip ${S.maq.includes(m.id)?'on':''}" data-ac="maq" data-id="${m.id}" ${oc?'disabled':''}>${m.nombre}<small>${oc?'ocupado':'libre'}</small></button>`; }).join('')}</div>
-      <div class="nota">Una reserva por aparato y turno.</div></div>
-    ${listo ? `<div class="resumen">${fmtDia(S.dia)} · ${fr.nombre} · ${S.com} comensal${S.com>1?'es':''}${S.maq.length ? ' · '+S.maq.map(id=>MAQ.find(m=>m.id===id).nombre).join(', ') : ''}</div>` : ''}
-    <button class="btn" data-ac="solicitar" ${listo?'':'disabled'}>Solicitar reserva</button>
-    <p class="nota">La reserva se confirma cuando la sociedad la acepta. Si algo ya no está libre, te lo diremos con el motivo.</p>
-  </div>`;
+  const R = resumenTxt(), fr = R.fr, sn = S.dia && fr ? snapDe(S.dia, fr.id) : null, libres = sn ? sn.libres : 0;
+  const max = Math.max(1, Math.min(99, libres)); if (S.com > max) S.com = max;
+  const listo = !!(S.dia && fr && libres > 0 && S.dia !== DIA_CERRADO);
+  const dias = []; for (let i = 0; i < 14; i++){ const k = clave(sumar(hoy(), i)), d = deClave(k), cerr = k === DIA_CERRADO;
+    dias.push(`<button class="dia ${S.dia===k?'on':''}" data-ac="dia" data-k="${k}" ${cerr?'disabled':''}><span>${i===0?'hoy':i===1?'mañana':DIAS[d.getDay()].slice(0,3)}</span><b>${d.getDate()}</b><small>${cerr?'cerrado':MESES[d.getMonth()]}</small></button>`); }
+  const turnos = FRANJAS.map(f => { const s = S.dia ? snapDe(S.dia, f.id) : null, q = s ? s.libres : null, pct = s ? Math.round((1 - s.libres / s.max) * 100) : 0, cls = s ? (s.libres / s.max < .15 ? 'p' : s.libres / s.max < .4 ? 'm' : '') : '';
+    return `<button class="turno ${S.franja===f.id?'on':''}" data-ac="franja" data-id="${f.id}" ${S.dia&&(q<=0||S.dia===DIA_CERRADO)?'disabled':''}><b>${f.nombre}</b><small>${f.desde}–${f.hasta}</small>${s?`<div class="barra ${cls}"><i style="width:${pct}%"></i></div><small>${q>0?'quedan '+q+' plazas':'completo'}</small>`:'<small>Elige primero el día</small>'}</button>`; }).join('');
+  const aparatos = MAQ.map(m => { const oc = sn ? sn.maq[m.id] : false; return `<button class="aparato ${S.maq.includes(m.id)?'on':''}" data-ac="maq" data-id="${m.id}" ${oc?'disabled':''}>${m.nombre}<small>${!sn?'—':oc?'ocupado':'libre'}</small></button>`; }).join('');
+  const maqTxt = S.maq.map(id => MAQ.find(m => m.id === id).nombre).join(', ');
+  const resumen = `<div class="resumen"><h2>Tu reserva</h2>${listo ? `<dl><dt>Día</dt><dd>${R.dia}</dd><dt>Turno</dt><dd>${fr.nombre}</dd><dt>Comensales</dt><dd>${S.com}</dd><dt>Aparatos</dt><dd>${maqTxt || 'ninguno'}</dd></dl>` : '<div class="vacio">Elige día y turno para ver aquí el resumen.</div>'}
+      <button class="btn" data-ac="solicitar" ${listo?'':'disabled'}>Solicitar reserva</button>
+      <p class="nota">Se confirma cuando la sociedad la acepta. Si algo ya no está libre, te lo decimos con el motivo.</p></div>`;
+  return `${S.enviada ? `<div class="ok" style="margin-bottom:14px">Solicitud enviada. ${S.conectado ? 'En unos segundos te decimos si está confirmada.' : 'La sociedad no está conectada ahora: queda <b>pendiente de confirmar</b> y se procesa cuando vuelva.'} Míralo en «Mis reservas».</div>` : ''}
+  ${S.errNueva ? `<div class="aviso" style="margin-bottom:14px">${esc(S.errNueva)}</div>` : ''}
+  <div class="cols"><div class="pasos">
+    <div class="paso ancho"><h2><i>1</i> Día</h2><div class="dias">${dias.join('')}</div>
+      <label class="cp" style="margin-top:12px;font-weight:600;font-size:15px">Otro día (hasta dentro de 1 mes)<input type="date" class="campo" id="fecha" min="${HOYK}" max="${clave(sumar(hoy(), ANTELACION_DIAS))}" value="${S.dia}"></label>
+      ${S.dia === DIA_CERRADO ? '<div class="error" style="margin-top:10px">Ese día la sociedad está cerrada por un evento.</div>' : ''}</div>
+    <div class="paso ancho"><h2><i>2</i> Turno</h2><div class="turnos">${turnos}</div></div>
+    <div class="paso"><h2><i>3</i> Comensales</h2><div class="stepper"><button data-ac="com" data-d="-1" aria-label="Menos">−</button><output>${S.com}</output><button data-ac="com" data-d="1" aria-label="Más">+</button></div>${listo ? `<div class="nota" style="margin-top:8px">Máximo ${max} (plazas libres de ese turno).</div>` : ''}</div>
+    <div class="paso"><h2><i>4</i> Horno o freidora</h2><div class="aparatos">${aparatos}</div><div class="nota" style="margin-top:8px">Opcional. Una reserva por aparato y turno.</div></div>
+  </div><div class="lado">${resumen}</div></div>
+  <div class="movilbar"><div class="tx">${listo ? `${R.dia} · ${fr.nombre}<small>${S.com} comensal${S.com>1?'es':''}${maqTxt ? ' · ' + esc(maqTxt) : ''}</small>` : 'Elige día y turno'}</div><button class="btn" data-ac="solicitar" ${listo?'':'disabled'}>Solicitar</button></div>`;
 }
 function vMis(){
   const l = misReservas();
-  return `<div class="centro" style="padding-top:12px">${l.length ? l.map(r => {
+  return `<div class="lista">${l.length ? l.map(r => {
     const fr = FRANJAS.find(f => f.id === r.franja);
     const num = r.estado==='confirmada' ? `<span class="idtag">Reserva ${r.idr}</span>` : r.estado==='solicitada' ? '<span class="idtag">Solicitud</span>' : '';
     const txt = {solicitada:'Pendiente de confirmar', confirmada:'Confirmada', rechazada:'Rechazada', anulada:'Anulada'}[r.estado];
     return `<div class="res"><div class="t"><b>${num}${fmtDia(r.dia)} · ${fr.nombre.toLowerCase()}</b><span class="est ${r.estado}">${txt}</span></div>
       <div class="m">${r.comensales} comensal${r.comensales>1?'es':''}${r.maq.length ? ' · '+r.maq.map(id=>MAQ.find(m=>m.id===id).nombre).join(', ') : ''}</div>
       ${r.motivo ? `<div class="m" style="color:var(--rojo)">${esc(r.motivo)}</div>` : ''}
-      ${(r.estado==='confirmada'||r.estado==='solicitada') ? (S.anularId===r.creada ? `<div class="acc"><span class="m" style="flex:1;align-self:center">¿Anular esta reserva?</span><button data-ac="noAnular">No</button><button class="peligro" data-ac="siAnular" data-id="${r.creada}">Sí, anular</button></div>` : `<div class="acc"><button class="peligro" data-ac="anular" data-id="${r.creada}">Anular</button></div>`) : ''}</div>`; }).join('') : '<div class="vacio">Todavía no tienes reservas.<br>Pide la primera en «Nueva reserva».</div>'}
-    <p class="nota">Las reservas no se borran: si anulas una, queda anotada como anulada.</p></div>`;
+      ${(r.estado==='confirmada'||r.estado==='solicitada') ? (S.anularId===r.creada ? `<div class="acc"><span class="m" style="flex:1">¿Anular esta reserva?</span><button data-ac="noAnular">No</button><button class="peligro" data-ac="siAnular" data-id="${r.creada}">Sí, anular</button></div>` : `<div class="acc"><button class="peligro" data-ac="anular" data-id="${r.creada}">Anular</button></div>`) : ''}</div>`; }).join('') : '<div class="vacio">Todavía no tienes reservas.<br>Pide la primera en «Nueva reserva».</div>'}</div>
+    <p class="nota" style="margin-top:12px">Las reservas no se borran: si anulas una, queda anotada como anulada.</p>`;
+}
+function vRegistro(){
+  return `<details class="reg" ${S.regAbierto?'open':''}><summary data-ac="reg">Ver lo que se envía y se recibe (solo demo)</summary><ol>${S.log.length ? S.log.map(l => `<li class="${l.tipo==='up'?'ba':l.tipo==='down'?'su':l.tipo==='err'?'er':'ot'}">${l.h} ${esc(l.txt)}</li>`).join('') : '<li class="ot">Todavía no se ha enviado ni recibido nada.</li>'}</ol></details>`;
 }
 function vApp(){
   const pend = misReservas().filter(r => r.estado==='solicitada').length;
-  return `<div class="cab"><button class="bexp" style="background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.45)" data-ac="expandir" aria-label="Ocupar toda la pantalla">${iconoExp()}</button><div><b>${esc(S.socio+' - '+SOCIOS[S.socio].nombre)}</b><small>Sesión abierta · caduca en <span id="cuenta">${textoCuenta()}</span></small></div><button data-ac="salir">Salir</button></div>
-  <div class="tabs"><button class="tab ${S.tab==='nueva'?'on':''}" data-ac="tab" data-t="nueva">Nueva reserva</button><button class="tab ${S.tab==='mis'?'on':''}" data-ac="tab" data-t="mis">Mis reservas${pend?`<b>${pend}</b>`:''}</button></div>
-  ${S.tab==='nueva' ? vNueva() : vMis()}`;
+  return `<div class="cab"><div class="in"><div class="marca nombre">${NOMBRE}</div><div class="quien"><b>${esc(S.socio+' - '+SOCIOS[S.socio].nombre)}</b><small>Sesión abierta · caduca en <span id="cuenta">${textoCuenta()}</span></small></div><button class="bexp" data-ac="expandir" aria-label="Ocupar toda la pantalla">${iconoExp()}</button><button data-ac="salir">Salir</button></div></div>
+  <div class="wrap"><div class="tabs"><button class="tab ${S.tab==='nueva'?'on':''}" data-ac="tab" data-t="nueva">Nueva reserva</button><button class="tab ${S.tab==='mis'?'on':''}" data-ac="tab" data-t="mis">Mis reservas${pend?`<b>${pend}</b>`:''}</button>
+    <span class="sync">Datos de la sociedad: <b id="sync">${textoSync()}</b> <button data-ac="actualizar">Actualizar</button></span></div>
+  ${S.tab==='nueva' ? vNueva() : vMis()}${vRegistro()}</div>`;
 }
 function pintar(){
   const f = document.activeElement, id = f && f.id, ini = f && f.selectionStart;
@@ -195,7 +285,7 @@ function pintar(){
   const cuerpo = S.fase === 'app' ? vApp() : vLogin();
   const app = document.getElementById('app');
   app.classList.toggle('completa', S.completa);
-  app.innerHTML = `<div class="demo"><span>Demostración · datos inventados</span><span><button data-ac="conexion">Servidor de la sociedad: ${S.conectado ? 'conectado' : 'SIN conexión'}</button> <button data-ac="caducar">Simular que pasan 2 h</button></span></div>${cuerpo}<div class="pie">${esc(SOCIEDAD.nombre)} · ${esc(SOCIEDAD.sub)}</div>`;
+  app.innerHTML = `<div class="demo"><span>Demostración · datos inventados</span><span class="bs"><button data-ac="conexion">Servidor de la sociedad: ${S.conectado ? 'conectado' : 'SIN conexión'}</button><button data-ac="otro">Otro socio reserva ahora</button><button data-ac="caducar">Simular que pasan 2 h</button></span></div>${cuerpo}<div class="pie">${esc(SOCIEDAD.nombre)} · ${esc(SOCIEDAD.sub)}</div>`;
   if (id){ const n = document.getElementById(id); if (n){ n.focus(); try{ n.setSelectionRange(ini, ini); }catch(e){} } }
   window.scrollTo(0, y);
   if (S.fase === 'app') guardar();
@@ -214,7 +304,8 @@ const ACC = {
       else S.error = 'Número de socio o DNI incorrectos.';   /* siempre el mismo mensaje: no se dice cuál falla */
       return;
     }
-    S.intentos[n] = 0; S.socio = n; S.hasta = Date.now() + HORAS_SESION*3600000; S.fase = 'app'; S.tab = 'nueva'; S.dia = ''; S.franja = ''; S.com = 2; S.maq = []; S.enviada = null; S.dni = ''; S.num = '';
+    S.intentos[n] = 0; S.socio = n; S.hasta = Date.now() + HORAS_SESION*3600000; S.fase = 'app'; S.tab = 'nueva'; S.dia = ''; S.franja = ''; S.com = 2; S.maq = []; S.enviada = null; S.errNueva = ''; S.dni = ''; S.num = '';
+    log('ot', '· Sesión abierta del socio ' + n + ' (solo para reservar)'); descargar(HOYK, 'al entrar: se resincroniza lo que hay');
   },
   salir(){ Object.assign(S, {fase:'login', socio:0, hasta:0, aviso:'Sesión cerrada. Hasta pronto.', error:'', enviada:null}); guardar(); },
   caducar(){ if (S.fase !== 'app') return; Object.assign(S, {fase:'login', socio:0, hasta:0, aviso:'Tu sesión ha caducado. Vuelve a entrar.', error:''}); guardar(); },
@@ -222,36 +313,60 @@ const ACC = {
     S.completa = !S.completa;
     try { if (S.completa && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {}); else if (!S.completa && document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch(e){}
   },
-  conexion(){ S.conectado = !S.conectado; if (S.conectado) procesarPendientes(); },
+  conexion(){ S.conectado = !S.conectado; log('ot', S.conectado ? '· La sociedad vuelve a estar conectada: procesa lo pendiente en orden' : '· La sociedad se queda sin conexión: las solicitudes esperan en la cola'); if (S.conectado) procesarPendientes(); },
+  reg(){ S.regAbierto = !S.regAbierto; return; },
   tab(el){ S.tab = el.dataset.t; S.enviada = null; S.anularId = null; },
-  dia(el){ S.dia = el.dataset.k; S.enviada = null; revisa(); },
-  franja(el){ S.franja = el.dataset.id; S.enviada = null; revisa(); },
+  actualizar(){ if (S.dia) descargar(S.dia, 'a mano'); else { S.sync = Date.now(); log('down', '↓ Descargado lo existente (todavía sin día elegido)'); } S.errNueva = ''; revisa(); },
+  dia(el){ S.dia = el.dataset.k; S.enviada = null; S.errNueva = ''; descargar(S.dia); revisa(); },
+  franja(el){ S.franja = el.dataset.id; S.enviada = null; S.errNueva = ''; revisa(); },
   com(el){ S.com = Math.max(1, S.com + parseInt(el.dataset.d, 10)); S.enviada = null; },
   maq(el){ const id = el.dataset.id; S.maq = S.maq.includes(id) ? S.maq.filter(x => x !== id) : S.maq.concat(id); S.enviada = null; },
   solicitar(){
-    const r = {creada:Date.now(), socio:S.socio, dia:S.dia, franja:S.franja, comensales:S.com, maq:S.maq.slice(), estado:'solicitada', idr:null, motivo:''};
-    S.reservas.push(r); S.enviada = true; S.dia = ''; S.franja = ''; S.com = 2; S.maq = [];
-    if (S.conectado) setTimeout(() => procesar(r), 1500);
+    if (!S.dia || !S.franja) return;
+    /* Antes de escribir se comprueba la versión: si la sociedad ha cambiado ese turno desde que lo descargamos, error y a descargar otra vez */
+    const vista = S.vistas[vk(S.dia, S.franja)] || 0, actual = ver(S.dia, S.franja);
+    if (actual > vista){
+      log('err', '✕ Conflicto: descargado v' + vista + ', ahora hay v' + actual + ' en «' + fmtDia(S.dia) + ' ' + S.franja + '». No se escribe nada.');
+      S.errNueva = 'Mientras elegías, ese turno ha cambiado en la sociedad (otra reserva). Hemos descargado los datos otra vez: revisa lo que queda libre y vuelve a pedirla.';
+      descargar(S.dia, 'tras el conflicto'); revisa(); return;
+    }
+    const r = {creada:Date.now(), socio:S.socio, dia:S.dia, franja:S.franja, comensales:S.com, maq:S.maq.slice(), estado:'solicitada', idr:null, motivo:'', base:vista};
+    S.reservas.push(r); sube(r.dia, r.franja);
+    log('up', '↑ Solicitud enviada (basada en v' + vista + '): ' + fmtDia(r.dia) + ' ' + r.franja + ' · ' + r.comensales + ' pers.' + (r.maq.length ? ' · ' + r.maq.join('+') : ''));
+    S.enviada = true; S.errNueva = ''; const d = S.dia; S.dia = ''; S.franja = ''; S.com = 2; S.maq = [];
+    if (S.conectado) setTimeout(() => procesar(r), 1500); else log('ot', '· La sociedad no responde: la solicitud queda pendiente en la cola');
   },
   anular(el){ S.anularId = +el.dataset.id; },
   noAnular(){ S.anularId = null; },
-  siAnular(el){ const r = S.reservas.find(x => x.creada === +el.dataset.id); if (r){ r.estado = 'anulada'; r.motivo = 'Anulada por ti.'; } S.anularId = null; }
+  siAnular(el){ const r = S.reservas.find(x => x.creada === +el.dataset.id); if (r){ r.estado = 'anulada'; r.motivo = 'Anulada por ti.'; sube(r.dia, r.franja); log('up', '↑ Anulación enviada: ' + fmtDia(r.dia) + ' ' + r.franja); } S.anularId = null; },
+  otro(){   /* demo: otra persona (o la TPV, o el panel) reserva en la sociedad mientras tú estás eligiendo */
+    const dia = S.dia || HOYK, fid = S.franja || (FRANJAS.find(f => plazasLibres(dia, f) > 6) || FRANJAS[0]).id, fr = FRANJAS.find(f => f.id === fid);
+    const n = Math.min(plazasLibres(dia, fr), 6); if (n <= 0 || dia === DIA_CERRADO) return;
+    S.reservas.push({creada:Date.now(), socio:0, dia, franja:fid, comensales:n, maq:[], estado:'confirmada', idr:++_idr, motivo:''});
+    sube(dia, fid); log('ot', '· Otro socio (o la TPV) reserva ' + n + ' plazas en «' + fmtDia(dia) + ' ' + fid + '» y actualiza Redis: la versión sube a v' + ver(dia, fid) + '. Esta pantalla NO se entera hasta que vuelva a sincronizar.');
+  }
 };
-function revisa(){   /* si lo elegido ya no está libre, se quita */
-  const fr = FRANJAS.find(f => f.id === S.franja);
+function revisa(){   /* si lo elegido ya no está libre (según lo descargado), se quita */
+  const sn = S.dia && S.franja ? snapDe(S.dia, S.franja) : null;
   if (S.dia === DIA_CERRADO){ S.franja = ''; S.maq = []; return; }
-  if (fr && S.dia){ if (plazasLibres(S.dia, fr) <= 0) S.franja = ''; S.maq = S.maq.filter(id => !maqOcupada(S.dia, fr, MAQ.find(m => m.id === id))); }
+  if (sn){ if (sn.libres <= 0) S.franja = ''; S.maq = S.maq.filter(id => !sn.maq[id]); }
 }
-document.addEventListener('click', e => { const el = e.target.closest('[data-ac]'); if (!el || el.disabled || !ACC[el.dataset.ac]) return; ACC[el.dataset.ac](el); pintar(); });
+document.addEventListener('click', e => { const el = e.target.closest('[data-ac]'); if (!el || el.disabled || !ACC[el.dataset.ac]) return; const ant = S.regAbierto; ACC[el.dataset.ac](el); if (el.dataset.ac === 'reg'){ e.preventDefault(); } pintar(); });
 document.addEventListener('input', e => {
   const t = e.target;
   if (t.id === 'num'){ S.num = t.value.replace(/\D/g, '').slice(0, 5); t.value = S.num; }
   else if (t.id === 'dni') S.dni = t.value;
-  else if (t.id === 'fecha'){ const v = t.value; if (v && v >= HOYK && v <= clave(sumar(hoy(), ANTELACION_DIAS))){ S.dia = v; S.enviada = null; revisa(); pintar(); } }
+  else if (t.id === 'fecha'){ const v = t.value; if (v && v >= HOYK && v <= clave(sumar(hoy(), ANTELACION_DIAS))){ S.dia = v; S.enviada = null; S.errNueva = ''; descargar(S.dia, 'al elegir otro día'); revisa(); pintar(); } }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && S.fase === 'login' && (e.target.id === 'num' || e.target.id === 'dni')){ ACC.entrar(); pintar(); } });
 document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && S.completa){ S.completa = false; pintar(); } });
-setInterval(() => { if (S.fase !== 'app') return; if (Date.now() > S.hasta){ ACC.caducar(); pintar(); return; } const c = document.getElementById('cuenta'); if (c) c.textContent = textoCuenta(); }, 1000);
+/* Cada segundo solo se actualiza el texto de la cuenta atrás y del «hace N s». NO hay refresco automático (ni cron): se resincroniza al entrar, al elegir día, al pulsar Actualizar y cuando hay un conflicto de versión. */
+setInterval(() => {
+  if (S.fase !== 'app') return;
+  if (Date.now() > S.hasta){ ACC.caducar(); pintar(); return; }
+  const c = document.getElementById('cuenta'); if (c) c.textContent = textoCuenta();
+  const s = document.getElementById('sync'); if (s) s.textContent = textoSync();
+}, 1000);
 pintar();
 if (S.fase === 'app') procesarPendientes();
 </script>
