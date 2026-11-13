@@ -254,11 +254,11 @@ button:active{transform:scale(.98)}
 .rfila .tu{font-style:normal;background:var(--acento);color:#3a2000;border-radius:8px;padding:0 8px;font-size:20px;margin-left:6px}
 .subnav{gap:10px}
 .subnav button{height:62px;box-shadow:0 1px 3px rgba(31,41,51,.10)}
-.sn-nueva{background:var(--panel);color:var(--principal);border:var(--grosor) solid var(--borde);padding:0 16px;gap:12px}
-.sn-nueva .mas{width:38px;height:38px;font-size:28px;background:var(--principal-claro);color:var(--principal)}
+.sn-nueva{background:#e1f0e7;color:#2f7050;border:var(--grosor) solid #3f8a63;padding:0 16px;gap:12px}
+.sn-nueva .mas{width:38px;height:38px;font-size:28px;background:#fff;color:#3f8a63}
 .sn-nueva b{font-size:26px}.sn-nueva small{font-size:18px;color:var(--suave)}
-.sn-nueva:not(.on){opacity:1}.sn-nueva.on{background:var(--principal-claro);border:2px solid var(--principal);outline:none}
-.sn-otra{font-size:24px}.sn-otra small{font-size:18px}.pto{position:absolute;bottom:8px;width:16px;height:16px;border-radius:50%;background:var(--acento);box-shadow:0 0 0 3px rgba(242,163,107,.3)}.pto-l{position:static;display:inline-block;width:14px;height:14px;vertical-align:-1px}.cd{position:relative}
+.sn-nueva:not(.on){opacity:1}.sn-nueva.on{background:#e1f0e7;border:3px solid #3f8a63;outline:none}
+.sn-otra{font-size:24px}.sn-otra small{font-size:18px}.cd{position:relative}.pto{position:absolute;bottom:4px;min-width:32px;height:28px;padding:0 8px;border-radius:99px;background:var(--acento);color:#3a2000;font-size:19px;font-weight:800;display:grid;place-items:center;line-height:1}.pto-l{position:static;display:inline-grid;min-width:28px;height:26px;font-size:16px;vertical-align:-6px;margin-right:4px}.cd:has(.pto){justify-content:flex-start;padding-top:6px}
 .cd .ocu{font-size:20px;font-weight:700;color:var(--suave);line-height:1.1}.cd.sel .ocu{color:#e3eaf0}
 .franja .rs{font-size:22px;color:var(--suave);font-weight:600}
 .cd.cerrado{background:#f6e6e3;border-color:#ebcbc5;color:#a05a4f;box-shadow:none}
@@ -386,10 +386,10 @@ const TEXTOS = {
     mas:'Más', atras:'Atrás', formaBanca:'banca', formaEfectivo:'efectivo', formaTarjeta:'tarjeta',
     sobreDentro:'Mete <mark>dentro del sobre</mark>:', sobreElDinero:'el dinero', sobreFin:'Cierra el sobre y échalo a la caja fuerte',
     modoConsumo:'Consumo', modoReservas:'Reservas', manana:'Mañana', hoyM:'HOY', mananaM:'MAÑANA',
-    pasoDia:'Día', pasoFranja:'Franja', pasoComensales:'Comensales', pasoMaquinas:'Máquinas', misReservas:'Mis reservas', nuevaReserva:'Nueva reserva', nuevaReservaSub:'Día, franja, comensales y máquinas', todasReservas:'Todas las reservas', leyendaPunto:'Un punto naranja marca los días con reservas. Toca un día para ver cuáles.', sinReservasDia:'Ese día no hay reservas.', soloNumeros:'Aquí solo se ve el número de socio, la fecha, el turno, los comensales y lo que usan.',
+    pasoDia:'Día', pasoFranja:'Franja', pasoComensales:'Comensales', pasoMaquinas:'Máquinas', misReservas:'Mis reservas', nuevaReserva:'Nueva reserva', nuevaReservaSub:'Día, franja, comensales y máquinas', todasReservas:'Todas las reservas', leyendaPunto:'El círculo naranja de cada día son los comensales ya reservados. Toca un día para ver las reservas.', sinReservasDia:'Ese día no hay reservas.', soloNumeros:'Aquí solo se ve el número de socio, la fecha, el turno, los comensales y lo que usan.',
     queDia:'¿Qué día?', cerrado:'Cerrado', hastaEl:'Puedes reservar hasta el {0}', queFranja:'¿Para qué comida?', cuantosComen:'¿Cuántos comensales?', quierMaquinas:'¿Quieres horno o freidora?',
     eligePrimeroDia:'Elige primero el día.', eligePrimeroFranja:'Elige primero el día y la comida.',
-    sinReservasTurno:'Sin reservas todavía', leyendaOcupacion:'El número pequeño de cada día son los comensales ya reservados.',
+    sinReservasTurno:'Sin reservas todavía', leyendaOcupacion:'El círculo naranja de cada día son los comensales ya reservados.',
     quedanPlazas:'Quedan {0} plazas', completo:'Completo', soloQuedan:'Solo quedan {0} plazas',
     maquinasAyuda:'Una reserva por comida. Se cobra por horas al cerrar el Ticket.', ocupado:'Ocupado', libre:'Libre', reservadoM:'Reservado ✓', reservadoM2:'Reservado para vosotros', siguiente:'Siguiente',
     sinMaquinas2:'Sin horno ni freidora', ninguna:'Ninguna', tuReserva:'Tu reserva', cambiando:'Cambiando', empezarDeNuevo:'Empezar de nuevo',
@@ -948,7 +948,7 @@ function centroDia(){
     h += (dentro && diaCerrado(clave))
       ? `<span class="cd cerrado"><b>${d.getDate()}</b><small>${tx('cerrado')}</small></span>`
       : dentro
-      ? `<button class="cd ${clave===hoyClave?'hoy':''} ${r.dia===clave?'sel':''}" data-accion="rDiaClave" data-c="${clave}"><b>${d.getDate()}</b>${marca}${totalComensalesDia(clave)?`<span class="ocu">${totalComensalesDia(clave)}</span>`:''}</button>`
+      ? `<button class="cd ${clave===hoyClave?'hoy':''} ${r.dia===clave?'sel':''}" data-accion="rDiaClave" data-c="${clave}"><b>${d.getDate()}</b>${marca}${totalComensalesDia(clave)?`<span class="pto">${totalComensalesDia(clave)}</span>`:''}</button>`
       : `<span class="cd fuera"><b>${d.getDate()}</b></span>`;
   }
   const meses = mesDe(HOY)===mesDe(lim) ? mesDe(HOY) : `${mesDe(HOY)} – ${mesDe(lim)}`;
@@ -1021,17 +1021,17 @@ function centroTodas(){
   /* Solo para ver en qué días hay reservas (de cualquier socio): un punto naranja grande. Al tocar un día, se abre lo que hay ese día. */
   const lim = sumarDias(HOY, diasAdelante()-1), dow = d => (d.getDay()+6)%7;
   const ini = sumarDias(HOY, -dow(HOY)), fin = sumarDias(lim, 6-dow(lim)), celdas = Math.round((fin-ini)/864e5)+1, hoyClave = fechaClave(HOY);
-  const con = new Set(todasLasReservas(diasAdelante()).map(x=>x.dia)), mesDe = d => d.toLocaleDateString('es-ES',{month:'long'});
+  const mesDe = d => d.toLocaleDateString('es-ES',{month:'long'});
   let h = ['lun','mar','mié','jue','vie','sáb','dom'].map(s=>`<span class="sem">${s}</span>`).join('');
   for(let i=0;i<celdas;i++){
     const d = sumarDias(ini,i), clave = fechaClave(d), dentro = d>=HOY && d<=lim;
     const marca = (d.getDate()===1 || clave===hoyClave) ? `<small>${d.toLocaleDateString('es-ES',{month:'short'}).replace('.','')}</small>` : '';
     h += (dentro && diaCerrado(clave)) ? `<span class="cd cerrado"><b>${d.getDate()}</b><small>${tx('cerrado')}</small></span>`
-      : dentro ? `<button class="cd ${clave===hoyClave?'hoy':''}" data-accion="rVerDia" data-c="${clave}"><b>${d.getDate()}</b>${marca}${con.has(clave)?'<span class="pto"></span>':''}</button>`
+      : dentro ? `<button class="cd ${clave===hoyClave?'hoy':''}" data-accion="rVerDia" data-c="${clave}"><b>${d.getDate()}</b>${marca}${totalComensalesDia(clave)?`<span class="pto">${totalComensalesDia(clave)}</span>`:''}</button>`
       : `<span class="cd fuera"><b>${d.getDate()}</b></span>`;
   }
   const meses = mesDe(HOY)===mesDe(lim) ? mesDe(HOY) : `${mesDe(HOY)} – ${mesDe(lim)}`;
-  return `<h2 class="rtit">${tx('todasReservas')} <span class="mesesTit">${meses}</span></h2><div class="cal">${h}</div><p class="sub" style="font-size:22px"><span class="pto pto-l"></span> ${tx('leyendaPunto')}</p>`;
+  return `<h2 class="rtit">${tx('todasReservas')} <span class="mesesTit">${meses}</span></h2><div class="cal">${h}</div><p class="sub" style="font-size:22px"><span class="pto pto-l">n</span> ${tx('leyendaPunto')}</p>`;
 }
 function verDiaReservas(dia){
   const orden = id => FRANJAS.findIndex(f=>f.id===id);
