@@ -34,3 +34,13 @@ Tres maquetas para tocar, con **datos inventados**. Todo ocurre en tu navegador:
 Las formas de pago que activas en el panel son las que ofrece la TPV, y los dos comparten los mismos artículos y menú. Para que se vea, abre las dos en pestañas del mismo navegador.
 
 Son un boceto para enseñar cómo va a ser; muchas cosas cambiarán.
+
+## Para comprobar: precios de WhatsApp
+
+Los avisos a los socios (tickets, confirmaciones de reserva, códigos) irán por la API oficial de WhatsApp, que cobra por mensaje. Estas son las páginas oficiales de precios para consultar las tarifas vigentes:
+
+- **[Precios de la API de WhatsApp (Meta)](https://developers.facebook.com/docs/whatsapp/pricing)**: cómo se cobra cada tipo de mensaje y las tarifas por país.
+- **[Tarifas de la plataforma de WhatsApp Business](https://whatsappbusiness.com/es-la/products/platform-pricing/#rates)**: tabla de tarifas.
+- **[Primeros pasos con la API en la nube](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started)**: alta y puesta en marcha.
+
+> Cifra de partida que estamos usando: unos **0,0166 € por mensaje**. **Falta comprobarla** contra la tarifa de España y el tipo de mensaje (utilidad o autenticación), y ver si lleva IVA aparte.
