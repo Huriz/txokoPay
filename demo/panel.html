@@ -1135,14 +1135,16 @@ function limpiarHtml(html){
 document.addEventListener('paste', e=>{ const r=e.target.closest&&e.target.closest('.rte'); if(!r||r.classList.contains('lectura')) return;
   e.preventDefault(); const cd=e.clipboardData, h=cd.getData('text/html'), tx=cd.getData('text/plain');
   document.execCommand('insertHTML', false, h ? limpiarHtml(h) : esc(tx).replace(/\n/g,'<br>')); });
-function modalGasto(){
+function modalGasto(){ S.gUlt='base';
   abrirModal(`<h3>Nuevo gasto</h3><p class="nota">Para luz, agua, gas, teléfono… Los albaranes no se meten aquí: se meten en Almacén y llegan solos.</p>
     <div class="fila-form" style="margin:0 0 8px"><label class="campo" style="margin:0">Fecha<input type="date" id="gFecha" value="${HOYK}"></label>
       <label class="campo" style="margin:0">Cuenta<select id="gCuenta">${S.cuentas.filter(c=>c.activa).map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join('')}</select></label>
       <label class="campo" style="margin:0">Categoría<select id="gCat">${S.catGastos.filter(c=>c.activa&&c.id!=='mercancia').map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join('')}</select></label></div>
     <div class="fila-form" style="margin:0 0 8px"><label class="campo" style="margin:0;flex:1">Concepto o proveedor<input type="text" id="gConcepto" list="gProv" style="width:100%"><datalist id="gProv">${S.proveedores.map(p=>`<option value="${esc(p)}">`).join('')}</datalist></label>
       <label class="campo" style="margin:0">Base (€)<input type="number" id="gBase" min="0" step="0.01" style="width:100px"></label>
-      <label class="campo" style="margin:0">IVA<select id="gIva">${[0,4,10,21].map(v=>`<option value="${v}" ${v===21?'selected':''}>${v} %</option>`).join('')}</select></label></div>
+      <label class="campo" style="margin:0">IVA<select id="gIva">${[0,4,10,21].map(v=>`<option value="${v}" ${v===21?'selected':''}>${v} %</option>`).join('')}</select></label>
+      <label class="campo" style="margin:0">Total con IVA (€)<input type="number" id="gTotal" min="0" step="0.01" style="width:110px"></label></div>
+    <div class="nota" id="gResumen" style="margin:-2px 0 8px">Escribe la base o el total de la factura: el otro se calcula solo con el IVA elegido.</div>
     <div class="campo" style="margin:0 0 8px">Detalle de la factura <span class="muted">(opcional: pega aquí el texto y se ve tal cual)</span>
       <div class="rte-barra">${[['bold','<b>N</b>','Negrita'],['italic','<i>C</i>','Cursiva'],['insertUnorderedList','• Lista','Lista'],['undo','Deshacer','Deshacer'],['removeFormat','Quitar formato','Quitar el formato']].map(([c,e,tt])=>`<button type="button" class="ib" title="${tt}" onmousedown="event.preventDefault();document.execCommand('${c}')">${e}</button>`).join('')}</div>
       <div id="gDetalle" class="rte" contenteditable="true" role="textbox" aria-multiline="true"></div></div>
@@ -1665,9 +1667,10 @@ Object.assign(ACC, {
     cerrarModal(); pintarPagina(); aviso(`Restauración simulada de la copia del ${fmtDia(el.dataset.d)}: antes se guardó una copia previa`); },
   pestGas: el=>{ S.pestGas=el.dataset.p; pintarPagina(); },
   nuevoGasto: ()=>modalGasto(),
-  guardarGasto: ()=>{ const concepto=$('#gConcepto').value.trim(), base=Math.round(parseFloat($('#gBase').value||'0')*100), iva=Math.round(base*parseFloat($('#gIva').value)/100);
+  guardarGasto: ()=>{ const concepto=$('#gConcepto').value.trim(), pIva=parseFloat($('#gIva').value)/100; let base=Math.round(parseFloat($('#gBase').value||'0')*100), iva=Math.round(base*pIva), totalG=base+iva;
+    if(S.gUlt==='total'){ totalG=Math.round(parseFloat($('#gTotal').value||'0')*100); base=Math.round(totalG/(1+pIva)); iva=totalG-base; }
     if(!concepto) return $('#mErr').textContent='Pon el concepto o el proveedor.'; if(!(base>0)) return $('#mErr').textContent='Pon el importe (la base) del gasto.';
-    S.gastos.unshift({id:S.sigG++, fecha:$('#gFecha').value||HOYK, cuenta:$('#gCuenta').value, cat:$('#gCat').value, concepto, base, iva, total:base+iva, albaran:null, anulado:false, detalle:(()=>{ const e=$('#gDetalle'); return e && e.textContent.trim() ? limpiarHtml(e.innerHTML) : ''; })()});
+    S.gastos.unshift({id:S.sigG++, fecha:$('#gFecha').value||HOYK, cuenta:$('#gCuenta').value, cat:$('#gCat').value, concepto, base, iva, total:totalG, albaran:null, anulado:false, detalle:(()=>{ const e=$('#gDetalle'); return e && e.textContent.trim() ? limpiarHtml(e.innerHTML) : ''; })()});
     cerrarModal(); pintarPagina(); aviso('Gasto guardado'); },
   verDetalleGasto: el=>{ const g=S.gastos.find(x=>x.id===+el.dataset.id); abrirModal(`<h3>Detalle: ${esc(g.concepto)}</h3><div class="rte lectura">${limpiarHtml(g.detalle)}</div><div class="pie"><button class="btn" data-ac="cerrarModal">Cerrar</button></div>`); },
   anularGasto: el=>{ const g=S.gastos.find(x=>x.id===+el.dataset.id); g.anulado=!g.anulado; pintarResultado(); aviso(g.anulado?'Gasto anulado':'Gasto reactivado'); },
@@ -2061,7 +2064,16 @@ function buscarArticulos(q){
   return Object.entries(ART).filter(([,a])=>a.activo!==false && normT(a.nombre).includes(n))
     .sort((x,y)=>(normT(x[1].nombre).startsWith(n)?0:1)-(normT(y[1].nombre).startsWith(n)?0:1) || x[1].nombre.localeCompare(y[1].nombre)).slice(0,8);
 }
-document.addEventListener('input', e=>{ if(e.target.id==='aBusca'){ $('#aArt').value=''; const l=buscarArticulos(e.target.value);
+/* Gastos: se puede escribir la base o el total con IVA; el otro se calcula solo */
+function gastoCalc(quien){
+  const B=$('#gBase'), T=$('#gTotal'), I=$('#gIva'), R=$('#gResumen'); if(!B||!T||!I) return; const p=parseFloat(I.value)/100;
+  if(quien==='base' || (quien==='iva' && S.gUlt!=='total')){ S.gUlt='base'; const b=parseFloat(B.value); T.value = isFinite(b) ? (Math.round(b*100)*(1+p)/100).toFixed(2) : ''; }
+  else { S.gUlt='total'; const tt=Math.round(parseFloat(T.value||'0')*100); B.value = tt>0 ? (Math.round(tt/(1+p))/100).toFixed(2) : ''; }
+  const b=Math.round(parseFloat(B.value||'0')*100), tt=Math.round(parseFloat(T.value||'0')*100);
+  if(R) R.innerHTML = b>0 ? `Base ${euros(b)} + IVA ${euros(tt-b)} = <b>total ${euros(tt)}</b>` : 'Escribe la base o el total de la factura: el otro se calcula solo con el IVA elegido.';
+}
+document.addEventListener('input', e=>{ if(e.target.id==='gBase') gastoCalc('base'); else if(e.target.id==='gTotal') gastoCalc('total'); else if(e.target.id==='gIva') gastoCalc('iva');
+  if(e.target.id==='aBusca'){ $('#aArt').value=''; const l=buscarArticulos(e.target.value);
     $('#aRes').innerHTML = !e.target.value.trim() ? '' : l.length ? l.map(([k,a])=>`<button type="button" class="resopt" data-ac="aElegirArt" data-id="${k}">${esc(a.nombre)} <span class="muted">· ${euros(a.precio)}</span></button>`).join('') : '<div class="muted" style="padding:6px 8px">No hay ningún artículo con ese nombre.</div>'; }
   if(e.target.id==='icImp'){ const esp=+e.target.dataset.esp, enc=Math.round(parseFloat(e.target.value||'0')*100), dif=enc-esp, m=$('#icMotivo'), d=$('#icDif');   /* el sobre se cuenta a mano: al escribir lo encontrado, el motivo se propone solo (se puede cambiar) */
     if(m) m.value = enc===0 ? 'Falta el dinero' : dif!==0 ? 'El importe no coincide' : m.value;
