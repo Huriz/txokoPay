@@ -1497,7 +1497,7 @@ function modalIncidencia(id){
     <div class="campo">Importe encontrado (€)<input type="number" id="icImp" min="0" step="0.01" value="0" data-esp="${totalDe(t)}"></div><div class="nota" id="icDif" style="margin:-4px 0 8px">Esperado ${euros(totalDe(t))} · encontrado ${euros(0)} · <b>faltan ${euros(totalDe(t))}</b></div>
     <div class="campo">Nota<input type="text" id="icNota" placeholder="Detalle"></div>
     <div class="bloque" style="background:#fff7e8;border-color:#f0c78a">Ese importe deja de contar: el saldo de <b>${esc(s.nombre)}</b> pasa de ${chipSaldo(antes)} a ${chipSaldo(despues)}.</div>
-    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="icAviso" checked> Dejar anotado el aviso al socio</label>
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="icAviso"> Apuntar en el historial que ya se ha avisado al socio <span class="muted">(no envía nada)</span></label>
     <div class="error" id="mErr"></div><div class="pie"><button class="btn" data-ac="cancelarIncidencia">Cancelar</button><button class="btn rojo" data-ac="confirmarIncidencia" data-id="${t.id}">Marcar alerta</button></div>`);
 }
 /* --- Inventario y almacén --- */
