@@ -118,7 +118,7 @@ button:active{transform:scale(.98)}
 .marca{position:absolute;top:28px;left:32px;font-size:34px;font-weight:800;color:var(--principal)}
 .cajallave{background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:var(--radio);padding:40px 60px;display:flex;flex-direction:column;align-items:center;gap:18px;width:760px}
 .cajallave h1{margin:0;font-size:52px}
-.cajallave.mal{animation:parpadeoRojo .4s ease-in-out 3}@keyframes parpadeoRojo{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,0);background:var(--panel)}50%{box-shadow:0 0 0 7px #c0392b;background:#fdecea}}.cajallave.mal .pista{color:#a8342a;font-weight:700}
+.cajallave{transition:box-shadow .1s,background-color .1s}.cajallave.mal{box-shadow:0 0 0 8px #c0392b;background:#fdecea}.cajallave.mal .pista{color:#a8342a;font-weight:700}
 #campoLlave{width:100%;height:84px;font-size:36px;text-align:center;border:2px solid var(--principal);border-radius:var(--radio);letter-spacing:.3em;background:var(--fondo)}
 #campoLlave:focus{outline:4px solid var(--amarillo);outline-offset:2px}
 .pista{font-size:22px;color:var(--suave);margin:0}
@@ -642,9 +642,17 @@ function enfocarLlave(){ const c=document.getElementById('campoLlave'); if(c && 
 const LLAVES_VALIDAS = ['064C21A1','0004A7F3C2','00051B22D9','0007D41E80'];   // demo: en la aplicación real salen de las llaves de los socios
 const PAUSA_LECTURA = 1000;   // ms sin llegar caracteres = lectura terminada (1 segundo)
 let tLlave = null, tMal = null;
-function llaveMal(){   // parpadea en rojo (3 veces, ~1,2 s) y vuelve a quedar normal, con el campo en blanco para otra lectura
-  E.llaveMal = true; pintar(); enfocarLlave();
-  clearTimeout(tMal); tMal = setTimeout(()=>{ if(!E.llaveMal) return; E.llaveMal=false; const cj=document.querySelector('.cajallave'); if(cj){ cj.classList.remove('mal'); const p=cj.querySelector('.pista'); if(p) p.textContent=tx('pistaLlave'); } }, 1300);
+function llaveMal(){   // parpadea en rojo 3 veces (se enciende y se apaga con un temporizador, no depende de animaciones) y vuelve a quedar normal, con el campo en blanco para otra lectura
+  clearTimeout(tMal); E.llaveMal = true; pintar(); enfocarLlave();
+  let n = 0;
+  const paso = ()=>{
+    if(!E.llaveMal) return;   // si ya empezó otra lectura, se corta
+    const cj = document.querySelector('.cajallave'); n++;
+    if(n >= 6){ E.llaveMal=false; if(cj){ cj.classList.remove('mal'); const p=cj.querySelector('.pista'); if(p) p.textContent=tx('pistaLlave'); } return; }
+    if(cj) cj.classList.toggle('mal');
+    tMal = setTimeout(paso, 200);
+  };
+  tMal = setTimeout(paso, 200);
 }
 function leerLlave(){
   clearTimeout(tLlave);
