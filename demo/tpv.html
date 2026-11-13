@@ -236,6 +236,29 @@ button:active{transform:scale(.98)}
 .cd.hoy{border:2px solid var(--principal)}
 .cd.sel{background:var(--principal);border-color:var(--principal);color:#fff}
 .cd.sel small{color:#e3eaf0}
+.tpv.res{grid-template-rows:auto minmax(0,1fr)}
+.subnav{grid-column:1/-1;display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
+.subnav button{height:74px;border-radius:var(--radio);font-weight:800;box-shadow:0 5px 0 rgba(31,41,51,.22),0 8px 14px rgba(31,41,51,.14)}
+.sn-nueva{background:var(--principal);color:#fff;border:0;display:flex;align-items:center;gap:14px;padding:0 20px;text-align:left}
+.sn-nueva .mas{width:46px;height:46px;border-radius:50%;background:var(--acento);color:#3a2000;display:grid;place-items:center;font-size:34px;font-weight:700;line-height:1;flex:none}
+.sn-nueva b{font-size:30px;display:block;line-height:1.1}.sn-nueva small{font-size:20px;font-weight:500;color:#e3eaf0}
+.sn-nueva:not(.on){opacity:.85}.sn-nueva.on{outline:4px solid var(--acento);outline-offset:-4px}
+.sn-otra{background:var(--panel);border:var(--grosor) solid var(--borde);color:var(--suave);font-size:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+.sn-otra small{font-size:20px;font-weight:500}
+.sn-otra.on{background:var(--principal-claro);color:var(--principal);border:2px solid var(--principal)}
+.paso.bloq{opacity:.45}
+.filas.todas{gap:0}.filas.todas li{list-style:none}
+.dhead{display:flex;justify-content:space-between;align-items:baseline;padding:10px 16px;background:var(--principal-claro);color:var(--principal);border-radius:10px;margin-top:8px}.dhead b{font-size:28px;text-transform:capitalize}.dhead span{font-size:22px}
+.rfila{display:grid;grid-template-columns:150px 170px 190px 1fr;gap:8px;align-items:center;padding:8px 16px;border-bottom:var(--grosor) solid var(--borde);font-size:26px}
+.rfila .tp{font-weight:800;text-transform:capitalize}.rfila .us{color:var(--suave);font-size:24px}.rfila.mia{background:#fbe9a6}
+.rfila .tu{font-style:normal;background:var(--acento);color:#3a2000;border-radius:8px;padding:0 8px;font-size:20px;margin-left:6px}
+.subnav{gap:10px}
+.subnav button{height:62px;box-shadow:0 1px 3px rgba(31,41,51,.10)}
+.sn-nueva{background:var(--panel);color:var(--principal);border:var(--grosor) solid var(--borde);padding:0 16px;gap:12px}
+.sn-nueva .mas{width:38px;height:38px;font-size:28px;background:var(--principal-claro);color:var(--principal)}
+.sn-nueva b{font-size:26px}.sn-nueva small{font-size:18px;color:var(--suave)}
+.sn-nueva:not(.on){opacity:1}.sn-nueva.on{background:var(--principal-claro);border:2px solid var(--principal);outline:none}
+.sn-otra{font-size:24px}.sn-otra small{font-size:18px}.pto{position:absolute;bottom:8px;width:16px;height:16px;border-radius:50%;background:var(--acento);box-shadow:0 0 0 3px rgba(242,163,107,.3)}.pto-l{position:static;display:inline-block;width:14px;height:14px;vertical-align:-1px}.cd{position:relative}
 .cd .ocu{font-size:20px;font-weight:700;color:var(--suave);line-height:1.1}.cd.sel .ocu{color:#e3eaf0}
 .franja .rs{font-size:22px;color:var(--suave);font-weight:600}
 .cd.cerrado{background:#f6e6e3;border-color:#ebcbc5;color:#a05a4f;box-shadow:none}
@@ -363,7 +386,7 @@ const TEXTOS = {
     mas:'Más', atras:'Atrás', formaBanca:'banca', formaEfectivo:'efectivo', formaTarjeta:'tarjeta',
     sobreDentro:'Mete <mark>dentro del sobre</mark>:', sobreElDinero:'el dinero', sobreFin:'Cierra el sobre y échalo a la caja fuerte',
     modoConsumo:'Consumo', modoReservas:'Reservas', manana:'Mañana', hoyM:'HOY', mananaM:'MAÑANA',
-    pasoDia:'Día', pasoFranja:'Franja', pasoComensales:'Comensales', pasoMaquinas:'Máquinas', misReservas:'Mis reservas',
+    pasoDia:'Día', pasoFranja:'Franja', pasoComensales:'Comensales', pasoMaquinas:'Máquinas', misReservas:'Mis reservas', nuevaReserva:'Nueva reserva', nuevaReservaSub:'Día, franja, comensales y máquinas', todasReservas:'Todas las reservas', leyendaPunto:'Un punto naranja marca los días con reservas. Toca un día para ver cuáles.', sinReservasDia:'Ese día no hay reservas.', soloNumeros:'Aquí solo se ve el número de socio, la fecha, el turno, los comensales y lo que usan.',
     queDia:'¿Qué día?', cerrado:'Cerrado', hastaEl:'Puedes reservar hasta el {0}', queFranja:'¿Para qué comida?', cuantosComen:'¿Cuántos comensales?', quierMaquinas:'¿Quieres horno o freidora?',
     eligePrimeroDia:'Elige primero el día.', eligePrimeroFranja:'Elige primero el día y la comida.',
     sinReservasTurno:'Sin reservas todavía', leyendaOcupacion:'El número pequeño de cada día son los comensales ya reservados.',
@@ -568,7 +591,7 @@ function pintarTpv(){
     <button class="saldo ${claseSaldo(E.saldo)}" data-accion="cuenta">${fichaIcono('banca','s')}<span>${tx('banca')}</span><b>${euros(E.saldo)}</b></button>
     <div class="reloj" id="reloj"></div>
   </header>
-  <main class="tpv">
+  <main class="tpv ${enReservas?'res':''}">
     ${enReservas ? pintarReservas() : `${pintarGrupos()}
     <section class="articulos">
       <div class="rejilla">${visibles.map(a=>{ const c=cantidadDe(a.id); return `
@@ -846,7 +869,7 @@ function ingresoHecho(c, forma){
 }
 
 /* ---------- reservas (dentro de la propia TPV) ---------- */
-function nuevoR(){ return {paso:1, dia:null, franjaId:null, comensales:'', maquinas:[], editando:null, pagDias:0, pagMias:0, nuevoNum:true}; }
+function nuevoR(){ return {paso:1, dia:null, franjaId:null, comensales:'', maquinas:[], editando:null, pagDias:0, pagMias:0, pagTodas:0, nuevoNum:true}; }
 const mesasDe = n => Math.ceil(n/PLAZAS_MESA);
 const txtMesas = n => `${n} ${n===1?'mesa':'mesas'}`;
 const reservaDeHoy = ()=>{
@@ -876,8 +899,7 @@ function ocupacion(dia, franjaId, excluirId){
 
 // cuántas reservas y cuántos comensales hay ya en un turno (los de la sociedad, simulados, más las reservas de esta pantalla)
 function resumenFranja(dia, f){
-  const hs = hash('m'+dia+f.id) % 20, base = hs===0 ? maxMesas(f.id) : Math.floor(maxMesas(f.id)*(hs%10)/12);
-  let n = base>0 ? Math.ceil(base/2) : 0, c = Math.round(base*PLAZAS_MESA*0.8);
+  let {n, c} = baseFranja(dia, f);
   E.reservas.filter(r=>!r.anulada && r.dia===dia && r.franjaId===f.id).forEach(r=>{ n++; c += parseInt(r.comensales,10)||0; });
   return {n, c};
 }
@@ -907,12 +929,11 @@ function resumenPaso(n){
 function navPasos(){
   const r = E.R, st = estadoR();
   const hecho = {1:!!r.dia, 2:!!r.franjaId, 3:st.comenOk, 4:maquinasDeR().length>0};
+  const abierto = {1:true, 2:!!r.dia, 3:!!r.dia && !!r.franjaId, 4:!!r.dia && !!r.franjaId && st.comenOk};   // orden obligatorio: no se avanza a un paso si no está hecho el anterior
   const pasos = [[1,'pasoDia'],[2,'pasoFranja'],[3,'pasoComensales'],[4,'pasoMaquinas']].map(([n,k])=>
-    `<button class="paso ${E.rVista==='pasos' && r.paso===n?'activo':''} ${hecho[n]?'hecho':''}" data-accion="rPaso" data-p="${n}">
+    `<button class="paso ${E.rVista==='pasos' && r.paso===n?'activo':''} ${hecho[n]?'hecho':''} ${abierto[n]?'':'bloq'}" data-accion="rPaso" data-p="${n}" ${abierto[n]?'':'disabled'}>
       <span class="pn">${hecho[n]?icono('ok'):n}</span><span class="pt"><b>${tx(k)}</b><small>${resumenPaso(n)}</small></span></button>`).join('');
-  const n = reservasVigentes().length;
-  return `<nav class="grupos">${pasos}
-    <button class="paso mis ${E.rVista==='mias'?'activo':''}" data-accion="rMias"><span class="pn">${icono('calendario')}</span><span class="pt"><b>${tx('misReservas')}</b><small>${n} ${n===1?'reserva':'reservas'}</small></span></button></nav>`;
+  return `<nav class="grupos">${pasos}</nav>`;
 }
 // calendario por semanas (lunes a domingo): todo el mes a la vista, sin pasar de página
 function centroDia(){
@@ -967,7 +988,60 @@ function centroMaquinas(){
   return tit + `<p class="sub">${tx('maquinasAyuda')}</p><div class="maquinas">${botones}</div>`;
 }
 
-function centroMias(){
+// arriba de la pantalla de reservas: Nueva reserva (grande), Mis reservas y Todas las reservas
+function subnavReservas(){
+  const n = reservasVigentes().length;
+  return `<div class="subnav">
+    <button class="sn-nueva ${E.rVista==='pasos'?'on':''}" data-accion="rNueva"><span class="mas">+</span><span><b>${tx('nuevaReserva')}</b><small>${tx('nuevaReservaSub')}</small></span></button>
+    <button class="sn-otra ${E.rVista==='mias'?'on':''}" data-accion="rMias">${tx('misReservas')}<small>${n} ${n===1?'reserva':'reservas'}</small></button>
+    <button class="sn-otra ${E.rVista==='todas'?'on':''}" data-accion="rTodas">${tx('todasReservas')}</button></div>`;
+}
+// reservas de TODOS los socios, solo con lo que no es privado (número de socio, fecha, turno, comensales y lo que usan)
+const POOL_SOCIOS = [4, 9, 15, 18, 27, 31, 36, 42, 51, 58];
+function baseFranja(dia, f){
+  const hs = hash('m'+dia+f.id) % 20, base = hs===0 ? maxMesas(f.id) : Math.floor(maxMesas(f.id)*(hs%10)/12);
+  return {n: base>0 ? Math.ceil(base/2) : 0, c: Math.round(base*PLAZAS_MESA*0.8)};
+}
+function todasLasReservas(dias){
+  const out = [];
+  for(let i=0;i<dias;i++){
+    const dia = fechaClave(sumarDias(HOY, i)); if(diaCerrado(dia)) continue;
+    franjasActivas().forEach(f=>{
+      const {n, c} = baseFranja(dia, f);
+      if(n>0){ let resto = c; const grupo = [];
+        for(let k=0;k<n;k++){ const x = k===n-1 ? resto : Math.max(1, Math.min(resto-(n-1-k), Math.round(c/n))); resto -= x; grupo.push({socio:POOL_SOCIOS[hash(dia+f.id+k)%POOL_SOCIOS.length], dia, franjaId:f.id, comensales:x, maq:[], mia:false}); }
+        MAQUINAS.forEach(mq=>{ if(hash(mq.id+dia+f.id)%4===0) grupo[hash(mq.id+dia)%grupo.length].maq.push(mq.id); });
+        grupo.forEach(g=>out.push(g)); }
+      E.reservas.filter(r=>!r.anulada && r.dia===dia && r.franjaId===f.id).forEach(r=>out.push({socio:E.socio.numero, dia, franjaId:f.id, comensales:parseInt(r.comensales,10)||0, maq:r.maquinas.map(m=>m.id), mia:true}));
+    });
+  }
+  return out;
+}
+function centroTodas(){
+  /* Solo para ver en qué días hay reservas (de cualquier socio): un punto naranja grande. Al tocar un día, se abre lo que hay ese día. */
+  const lim = sumarDias(HOY, diasAdelante()-1), dow = d => (d.getDay()+6)%7;
+  const ini = sumarDias(HOY, -dow(HOY)), fin = sumarDias(lim, 6-dow(lim)), celdas = Math.round((fin-ini)/864e5)+1, hoyClave = fechaClave(HOY);
+  const con = new Set(todasLasReservas(diasAdelante()).map(x=>x.dia)), mesDe = d => d.toLocaleDateString('es-ES',{month:'long'});
+  let h = ['lun','mar','mié','jue','vie','sáb','dom'].map(s=>`<span class="sem">${s}</span>`).join('');
+  for(let i=0;i<celdas;i++){
+    const d = sumarDias(ini,i), clave = fechaClave(d), dentro = d>=HOY && d<=lim;
+    const marca = (d.getDate()===1 || clave===hoyClave) ? `<small>${d.toLocaleDateString('es-ES',{month:'short'}).replace('.','')}</small>` : '';
+    h += (dentro && diaCerrado(clave)) ? `<span class="cd cerrado"><b>${d.getDate()}</b><small>${tx('cerrado')}</small></span>`
+      : dentro ? `<button class="cd ${clave===hoyClave?'hoy':''}" data-accion="rVerDia" data-c="${clave}"><b>${d.getDate()}</b>${marca}${con.has(clave)?'<span class="pto"></span>':''}</button>`
+      : `<span class="cd fuera"><b>${d.getDate()}</b></span>`;
+  }
+  const meses = mesDe(HOY)===mesDe(lim) ? mesDe(HOY) : `${mesDe(HOY)} – ${mesDe(lim)}`;
+  return `<h2 class="rtit">${tx('todasReservas')} <span class="mesesTit">${meses}</span></h2><div class="cal">${h}</div><p class="sub" style="font-size:22px"><span class="pto pto-l"></span> ${tx('leyendaPunto')}</p>`;
+}
+function verDiaReservas(dia){
+  const orden = id => FRANJAS.findIndex(f=>f.id===id);
+  const rs = todasLasReservas(diasAdelante()).filter(x=>x.dia===dia).sort((a,b)=>orden(a.franjaId)-orden(b.franjaId) || a.socio-b.socio);
+  V.cerrarDia = cerrarVentana;
+  abrirVentana(`<h2>${nombreDia(dia)}</h2>` + (rs.length
+    ? `<ul class="filas todas" style="margin-top:10px">${rs.map(x=>`<li class="rfila ${x.mia?'mia':''}"><span class="tp">${nom(FRANJAS.find(f=>f.id===x.franjaId)).toLowerCase()}</span><b>${tx('socio')} ${x.socio}${x.mia?` <i class="tu">tú</i>`:''}</b><span>${x.comensales} ${tx('comensales')}</span><span class="us">${x.maq.length ? x.maq.map(id=>nom(MAQUINAS.find(m=>m.id===id))).join(' · ') : '—'}</span></li>`).join('')}</ul>`
+    : `<p class="sub">${tx('sinReservasDia')}</p>`)
+    + `<p class="sub" style="font-size:20px">${tx('soloNumeros')}</p><button class="boton verde entero" style="margin-top:14px" data-accion="v" data-k="cerrarDia">${tx('cerrar')}</button>`, 'media');
+}function centroMias(){
   const r = E.R, POR = 5, lista = reservasVigentes(), total = Math.max(1, Math.ceil(lista.length/POR));
   r.pagMias = Math.max(0, Math.min(r.pagMias, total-1));
   const filas = lista.slice(r.pagMias*POR, (r.pagMias+1)*POR).map(b=>`<li><button class="fila" data-accion="rVer" data-id="${b.id}">
@@ -996,8 +1070,8 @@ function panelResumen(){
 }
 function pintarReservas(){
   const r = E.R;
-  const centro = E.rVista==='mias' ? centroMias() : r.paso===1 ? centroDia() : r.paso===2 ? centroFranja() : r.paso===3 ? centroComensales() : centroMaquinas();
-  return `${navPasos()}<section class="articulos centro">${centro}</section>${panelResumen()}`;
+  const centro = E.rVista==='mias' ? centroMias() : E.rVista==='todas' ? centroTodas() : r.paso===1 ? centroDia() : r.paso===2 ? centroFranja() : r.paso===3 ? centroComensales() : centroMaquinas();
+  return `${subnavReservas()}${navPasos()}<section class="articulos centro">${centro}</section>${panelResumen()}`;
 }
 function verReserva(id){
   const b = E.reservas.find(x=>x.id===id);
@@ -1130,6 +1204,10 @@ const acciones = {
   rMaquina: d=>{ const r=E.R; r.maquinas = r.maquinas.includes(d.m) ? r.maquinas.filter(x=>x!==d.m) : [...r.maquinas, d.m]; pintar(); },
   rVer: d=>verReserva(+d.id),
   rPagMias: d=>{ E.R.pagMias += +d.paso; pintar(); },
+  rNueva: ()=>{ E.rVista='pasos'; pintar(); },
+  rTodas: ()=>{ E.rVista='todas'; pintar(); },
+  rVerDia: d=>verDiaReservas(d.c),
+  rPagTodas: d=>{ E.R.pagTodas = (E.R.pagTodas||0) + +d.paso; pintar(); },
   rReset: ()=>{ E.R=nuevoR(); pintar(); },
   rConfirmar: confirmarReserva,
   articulo: d=>{
