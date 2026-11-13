@@ -660,7 +660,7 @@ function leerLlave(){
   const v = c.value.trim().toUpperCase(); c.value = '';
   if(!LLAVES_VALIDAS.includes(v)){ llaveMal(); return; }
   E.llaveMal = false;
-  teclado({titulo:tx('contrasena'), oculto:true, max:12, alAceptar:comprobarContrasena});
+  entrar();   // la llave da acceso total: si es válida entra directamente a la TPV, sin pedir contraseña
 }
 // contraseña: mientras no se cambie vale cualquiera; al cambiarla se guarda para siempre
 const CLAVE_ALMACEN = 'app_contrasena';
