@@ -124,6 +124,7 @@ a.tg:hover{filter:brightness(.93);text-decoration:underline}
 .btn-ed{display:inline-flex;align-items:center;justify-content:center;border:1px solid #9ec0ee;background:#eaf2fd;color:#1f4f93;border-radius:8px;width:28px;height:24px;padding:0}
 .btn-ed .ico{width:15px;height:15px}
 .btn-ed[disabled]{opacity:.4;cursor:default}
+.resbusca{margin-top:4px}.resopt{display:block;width:100%;text-align:left;border:1px solid #d5dbe1;background:#fff;border-radius:10px;padding:8px 12px;margin-bottom:4px;font:inherit;cursor:pointer}.resopt:hover,.resopt:focus{background:#eef2f6;border-color:#9fb1c0}
 .chipx{display:inline-flex;align-items:center;gap:4px;white-space:normal}.chipx .x{border:0;background:rgba(31,41,51,.14);color:inherit;border-radius:50%;width:16px;height:16px;line-height:14px;font-size:13px;padding:0;cursor:pointer}.chipx .x:hover{background:rgba(31,41,51,.3)}.tg.nota{background:#eef2f6;color:#1f2933;font-weight:600}
 .rte-barra{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}.rte-barra .ib{width:auto;padding:0 9px}.rte{min-height:130px;max-height:260px;overflow:auto;border:1px solid #d5dbe1;border-radius:10px;padding:8px 10px;background:#fff;font-size:14px;line-height:1.4;outline:none}.rte:focus{border-color:var(--principal);box-shadow:0 0 0 3px rgba(60,85,104,.14)}.rte.lectura{min-height:0;background:#f7f9fb}.rte table{border-collapse:collapse;margin:4px 0}.rte td,.rte th{border:1px solid #c3ccd5;padding:2px 6px}.rte ul,.rte ol{margin:4px 0;padding-left:22px}
 .ib{border:1px solid #d5dbe1;background:#fff;border-radius:10px;width:28px;height:25px;color:var(--suave)}
@@ -741,7 +742,7 @@ const bloqueMotivos = (motivos, marca) => `<div class="bloque"><h3>Revisión</h3
   ${motivos.length ? motivos.map(([t,n,k])=>`<div class="motivo"><span class="tg ${alerta(k).clase}">${esc(alerta(k).texto)}${k==='maquina'?'':''}</span> ${esc(t)}</div>`).join('') : '<div class="muted">Sin incoherencias detectadas.</div>'}</div>`;
 const bloqueHistorial = (ent,id) => { const h=S.hist.filter(x=>x.ent===ent && x.id===id);
   return `<div class="bloque"><h3>Historial</h3>${h.length?`<ul class="historial">${h.map(x=>`<li>${esc(x.texto)}<br><small>${fmtFechaHora(x.at)} · ${esc(x.usuario||'sistema')}</small></li>`).join('')}</ul>`:'<div class="muted">Sin cambios todavía.</div>'}</div>`; };
-const bloqueNota = obj => `<div class="bloque"><h3>Nota de la junta</h3><div class="campo"><textarea id="nota" placeholder="Anota aquí lo que haga falta…">${esc(obj.nota)}</textarea></div><button class="btn" data-ac="guardarNota">Guardar nota</button></div>`;
+const bloqueNota = obj => `<div class="bloque"><h3>Comentario</h3><div class="campo"><textarea id="nota" placeholder="Escribe aquí el comentario…">${esc(obj.nota)}</textarea></div><button class="btn" data-ac="guardarNota">Guardar comentario</button></div>`;
 const quienSel = base => S.cajonSocio ?? String(base);
 const selectorSocio = (base, texto, ampl) => { const q=ampl?'todos':quienSel(base);
   return `<label class="campo" style="margin:0 0 6px">${texto}${inputSocio(`id="selSocio" data-base="${base}"`, q===String(base)?'':q, {todos:true, def:'', ph:`Mismo socio (${etSocioTxt(base)}) · escribe otro o «todos»`, w:360})}</label>`; };const deSocio = (x,q) => q==='todos' || x.socio===+q;
@@ -866,7 +867,9 @@ function modalAjuste(){
     <div class="campo">Fecha real de consumo<input type="date" id="aFecha" value="${(t.fechaConsumo||t.fecha).slice(0,10)}"></div>
     <table class="lineas"><tr><th>Artículo</th><th class="der">Ahora</th><th class="der">Cambio (+ / −)</th></tr>
       ${t.lineas.map((l,i)=>`<tr><td>${ART[l.id].nombre}</td><td class="der">${l.cantidad}</td><td class="der"><input type="number" step="1" value="0" data-lin="${i}" style="width:80px"></td></tr>`).join('')}</table>
-    <div class="fila-form"><select id="aArt"><option value="">Añadir otro artículo…</option>${Object.entries(ART).map(([id,a])=>`<option value="${id}">${a.nombre} · ${euros(a.precio)}</option>`).join('')}</select><input type="number" step="1" value="1" id="aCant" style="width:80px"></div>
+    <div class="campo buscador" style="margin-top:8px">Añadir otro artículo
+      <div class="fila-form" style="margin:0"><input type="text" id="aBusca" placeholder="Escribe para buscar (por ejemplo: vino)" autocomplete="off" style="flex:1"><input type="hidden" id="aArt" value=""><input type="number" step="1" value="1" id="aCant" style="width:80px" title="Cantidad"></div>
+      <div id="aRes" class="resbusca"></div></div>
     <div class="campo" style="margin-top:10px">Motivo del ajuste<input type="text" id="aMot" placeholder="Por qué se ajusta"></div>
     <div class="error" id="mErr"></div><div class="pie"><button class="btn" data-ac="cerrarModal">Cancelar</button><button class="btn principal" data-ac="confirmarAjuste">Crear ajuste</button></div>`);
 }
@@ -912,10 +915,10 @@ const ACC = {
   cerrarPanel: el=>{ const pn=el.closest('.panel'), i=+pn.dataset.i, k=S.pila[i]; S.pila.splice(i,1); if(k && k.tipo==='tickets') S.sel=null; S.cajonSocio=null; pintarCajon(); pintarResultado(); },
   cerrarModal: ()=>cerrarModal(),
   marcarOK: ()=>{ const e=entidad(); e.marca='Conforme'; anota(tipoCtx(), e.id, 'Marcada como conforme'); refrescar(true); aviso('Marcada como conforme'); },
-  guardarNota: el=>{ const e=entidad(), v=el.closest('.panel').querySelector('#nota').value.trim(); if(v===e.nota) return; e.nota=v; anota(tipoCtx(), e.id, v?`Nota: ${v}`:'Nota borrada'); refrescar(true); aviso('Nota guardada'); },
+  guardarNota: el=>{ const e=entidad(), v=el.closest('.panel').querySelector('#nota').value.trim(); if(v===e.nota) return; e.nota=v; anota(tipoCtx(), e.id, v?`Comentario: ${v}`:'Comentario borrado'); refrescar(true); aviso('Comentario guardado'); },
   /* comentario rápido, junto al desplegable de Revisión */
   comentar: el=>{ const t=el.dataset.t, e = t==='ticket' ? S.tickets.find(x=>x.id===+el.dataset.id) : S.reservas.find(x=>x.id===+el.dataset.id);
-    abrirModal(`<h3>Comentario de ${t==='ticket'?'el ticket':'la reserva'} #${e.id}</h3><p class="nota">Se guarda en la nota de la junta y queda en el historial.</p>
+    abrirModal(`<h3>Comentario de ${t==='ticket'?'el ticket':'la reserva'} #${e.id}</h3><p class="nota">Se guarda como comentario y queda en el historial.</p>
       <div class="campo"><textarea id="cmTxt" placeholder="Escribe aquí el comentario…">${esc(e.nota)}</textarea></div>
       <div class="pie">${e.nota?`<button class="btn rojo" data-ac="guardarComentario" data-t="${t}" data-id="${e.id}" data-borrar="1">Borrar comentario</button>`:''}<button class="btn" data-ac="cerrarModal">Cancelar</button><button class="btn principal" data-ac="guardarComentario" data-t="${t}" data-id="${e.id}">Guardar</button></div>`);
     const c=$('#cmTxt'); if(c){ c.focus(); c.setSelectionRange(c.value.length,c.value.length); } },
@@ -965,6 +968,7 @@ const ACC = {
     r.anulada=true; r.mods++; anota('reserva', r.id, `Anulada: ${mot}`); cerrarModal(); refrescar(true); aviso('Reserva anulada'); },
   /* ticket */
   ajustarTicket: ()=>modalAjuste(),
+  aElegirArt: el=>{ const a=ART[el.dataset.id]; $('#aArt').value=el.dataset.id; $('#aBusca').value=a.nombre+' · '+euros(a.precio); $('#aRes').innerHTML=''; $('#aCant').focus(); $('#aCant').select(); },
   confirmarAjuste: ()=>{ const t=entidad(), fecha=$('#aFecha').value, mot=$('#aMot').value.trim(), lineas=[];
     document.querySelectorAll('[data-lin]').forEach(i=>{ const d=parseInt(i.value||'0',10); if(d) lineas.push({id:t.lineas[+i.dataset.lin].id, cantidad:d, precio:t.lineas[+i.dataset.lin].precio}); });
     const art=$('#aArt').value, cant=parseInt($('#aCant').value||'0',10); if(art && cant) lineas.push({id:art, cantidad:cant, precio:ART[art].precio});
@@ -2051,7 +2055,15 @@ document.addEventListener('change', e=>{
     pintarResultado(); aviso('Guardado'); return; }
   if(t.dataset.gn){ const g=S.menu.find(x=>x.id===t.dataset.gn), v=t.value.trim(); if(v){ g.nombre=v; aviso('Grupo renombrado'); } else t.value=g.nombre; }
 });
-document.addEventListener('input', e=>{ if(e.target.id==='icImp'){ const esp=+e.target.dataset.esp, enc=Math.round(parseFloat(e.target.value||'0')*100), dif=enc-esp, m=$('#icMotivo'), d=$('#icDif');   /* el sobre se cuenta a mano: al escribir lo encontrado, el motivo se propone solo (se puede cambiar) */
+/* buscador de artículos del ajuste: escribe «vino» y salen los que coinciden (sin tildes ni mayúsculas) */
+function buscarArticulos(q){
+  const n=normT(q.trim()); if(!n) return [];
+  return Object.entries(ART).filter(([,a])=>a.activo!==false && normT(a.nombre).includes(n))
+    .sort((x,y)=>(normT(x[1].nombre).startsWith(n)?0:1)-(normT(y[1].nombre).startsWith(n)?0:1) || x[1].nombre.localeCompare(y[1].nombre)).slice(0,8);
+}
+document.addEventListener('input', e=>{ if(e.target.id==='aBusca'){ $('#aArt').value=''; const l=buscarArticulos(e.target.value);
+    $('#aRes').innerHTML = !e.target.value.trim() ? '' : l.length ? l.map(([k,a])=>`<button type="button" class="resopt" data-ac="aElegirArt" data-id="${k}">${esc(a.nombre)} <span class="muted">· ${euros(a.precio)}</span></button>`).join('') : '<div class="muted" style="padding:6px 8px">No hay ningún artículo con ese nombre.</div>'; }
+  if(e.target.id==='icImp'){ const esp=+e.target.dataset.esp, enc=Math.round(parseFloat(e.target.value||'0')*100), dif=enc-esp, m=$('#icMotivo'), d=$('#icDif');   /* el sobre se cuenta a mano: al escribir lo encontrado, el motivo se propone solo (se puede cambiar) */
     if(m) m.value = enc===0 ? 'Falta el dinero' : dif!==0 ? 'El importe no coincide' : m.value;
     if(d) d.innerHTML = `Esperado ${euros(esp)} · encontrado ${euros(enc)} · `+(dif<0?`<b>faltan ${euros(-dif)}</b>`:dif>0?`<b>sobran ${euros(dif)}</b>`:'<b>coincide</b>'); }
   if(e.target.id==='mq'){ S.mq=e.target.value; const l=$('#mlista'); if(l) l.innerHTML=htmlListaMenu(); } });
