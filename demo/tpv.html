@@ -118,6 +118,7 @@ button:active{transform:scale(.98)}
 .marca{position:absolute;top:28px;left:32px;font-size:34px;font-weight:800;color:var(--principal)}
 .cajallave{background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:var(--radio);padding:40px 60px;display:flex;flex-direction:column;align-items:center;gap:18px;width:760px}
 .cajallave h1{margin:0;font-size:52px}
+#llaveMal{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#f1b8b0;color:#7a1f16;text-align:center;font-weight:800;animation:llaveMal .15s ease-out}#llaveMal b{font-size:64px}#llaveMal span{font-size:30px;font-weight:600}@keyframes llaveMal{from{opacity:0}to{opacity:1}}
 #campoLlave{width:100%;height:84px;font-size:36px;text-align:center;border:2px solid var(--principal);border-radius:var(--radio);letter-spacing:.3em;background:var(--fondo)}
 #campoLlave:focus{outline:4px solid var(--amarillo);outline-offset:2px}
 .pista{font-size:22px;color:var(--suave);margin:0}
@@ -317,7 +318,7 @@ button:active{transform:scale(.98)}
 <script src="catalogo.js"></script>
 <div id="demo">
   <strong>Prototipo</strong>
-  <button id="dLlave">Simular llave</button>
+  <button id="dLlave">Simular llave</button><button id="dLlaveMala">Llave no válida</button>
   <span class="sep"></span>
   <span class="muted-demo">Formas de pago: se activan en el panel (Formas de pago)</span>
   <span class="sep"></span>
@@ -338,7 +339,7 @@ const TEXTOS = {
   es: {
     socio:'Socio', banca:'Banca', miCuenta:'Mi cuenta', ingreso:'Ingreso', salir:'Salir', cerrarTicket:'Cerrar Ticket',
     ticket:'Ticket', total:'Total', ticketVacio:'Toca un producto para añadirlo.',
-    pasaLlave:'Pasa tu llave', pistaLlave:'Acerca la llave al lector', o:'o',
+    pasaLlave:'Pasa tu llave', pistaLlave:'Acerca la llave al lector', llaveNoValida:'Llave no reconocida', llaveNoValidaSub:'Vuelve a pasarla', o:'o',
     entrarNumero:'Entrar con número de socio', contrasena:'Escribe tu contraseña', numeroSocio:'Número de socio', cifrasDni:'Últimas 2 cifras de tu DNI',
     cancelar:'Cancelar', aceptar:'Aceptar', datosIncorrectos:'Datos incorrectos', borrar:'Borrar', precioUnidad:'{0} cada uno', ayudaQuitar:'0 = quitar del Ticket',
     avisoTicketVacio:'El Ticket está vacío. Toca un producto para añadirlo.', entendido:'Entendido',
@@ -637,9 +638,22 @@ function teclaBorrar(){ K.nuevo=false; K.valor = K.valor.slice(0,-1); pintarTecl
 function teclaAceptar(){ const txt=K.valor, v=parseInt(txt||'0',10), f=K.alAceptar; K=null; cerrarVentana(); f && f(v, txt); }
 function teclaCancelar(){ const f=K.alCancelar; K=null; cerrarVentana(); f && f(); }/* ---------- entrada ---------- */
 function enfocarLlave(){ const c=document.getElementById('campoLlave'); if(c && !ventanaAbierta()) c.focus(); }
+/* El lector escribe como un teclado, muy rápido. Se espera a que pare (pausa de lectura) y entonces se comprueba: si la llave vale se pasa a la contraseña; si no, la pantalla se pone en rojo un momento y el campo queda en blanco para otra lectura. */
+const LLAVES_VALIDAS = ['0004A7F3C2','00051B22D9','0007D41E80'];   // demo: en la aplicación real salen de las llaves de los socios
+const PAUSA_LECTURA = 250;   // ms sin llegar caracteres = lectura terminada
+let tLlave = null;
+function llaveMal(){
+  const c = document.getElementById('campoLlave'); if(c) c.value = '';
+  if(document.getElementById('llaveMal')) return;
+  const d = document.createElement('div'); d.id='llaveMal'; d.setAttribute('role','alert'); d.innerHTML = '<b>'+tx('llaveNoValida')+'</b><span>'+tx('llaveNoValidaSub')+'</span>';
+  document.body.appendChild(d);
+  setTimeout(()=>{ d.remove(); enfocarLlave(); }, 1500);
+}
 function leerLlave(){
+  clearTimeout(tLlave);
   const c = document.getElementById('campoLlave'); if(!c || !c.value.trim()) return;
-  c.value = '';
+  const v = c.value.trim().toUpperCase(); c.value = '';
+  if(!LLAVES_VALIDAS.includes(v)){ llaveMal(); return; }
   teclado({titulo:tx('contrasena'), oculto:true, max:12, alAceptar:comprobarContrasena});
 }
 // contraseña: mientras no se cambie vale cualquiera; al cambiarla se guarda para siempre
@@ -1125,6 +1139,7 @@ window.addEventListener('keydown', e=>{
   }
   if(e.key==='Enter' && e.target.id==='campoLlave'){ e.preventDefault(); leerLlave(); }
 }, true);
+window.addEventListener('input', e=>{ if(e.target.id==='campoLlave'){ clearTimeout(tLlave); tLlave = setTimeout(leerLlave, PAUSA_LECTURA); } }, true);
 
 /* ---------- inactividad y reloj ---------- */
 const LIMITE_INACTIVO = 120;
@@ -1187,6 +1202,7 @@ $('#panelBack').addEventListener('click', e=>{
 $('#dBack').onclick = ()=>{ const p=$('#panelBack'); p.hidden=!p.hidden; if(!p.hidden) pintarBack(); };
 $('#dMarcas').onclick = ()=>{ const p=$('#panelMarcas'); p.hidden=!p.hidden; if(!p.hidden) pintarMarcas(); };
 $('#dLlave').onclick = ()=>{ if(E.pantalla!=='entrada' || ventanaAbierta()) return; document.getElementById('campoLlave').value='0004A7F3C2'; leerLlave(); };
+$('#dLlaveMala').onclick = ()=>{ if(E.pantalla!=='entrada' || ventanaAbierta()) return; document.getElementById('campoLlave').value='9999ZZZZ'; leerLlave(); };
 window.addEventListener('storage', e=>{ if(e.key==='txokopay.pagos'){ E.ajustes = pagosGuardados(); pintar(); } });
 $('#dReiniciar').onclick = ()=>{
   K=null; E = estadoInicial(E.idioma); borrarContrasena();
