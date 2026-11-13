@@ -1460,7 +1460,7 @@ function resultadoCaja(){
   const esp=sumar2(rev), enc=rev.reduce((s,t)=>s+(t.cajaEncontrado||0),0), dif=enc-esp;
   const fila = t => { const s=socio(t.socio), ok=t.marca==='Conforme', clase=t.marca?'f-'+t.marca:'';
     const chip=(clase,txt,x)=>`<span class="tg ${clase} chipx">${txt}${x}</span>`, xb=(ac,extra,tit)=>`<button type="button" class="x" data-ac="${ac}" data-id="${t.id}" ${extra||''} title="${tit}" aria-label="${tit}">&times;</button>`;
-    const anot = [ ...(ok ? [] : [t.cajaMotivo?chip(alerta('incaja').clase,esc(t.cajaMotivo),xb('quitarAlerta','','Quitar la alerta (vuelve a por comprobar; queda anotado)')):'', t.estadoCaja==='incidencia'?chip('gris',`encontrado ${euros(t.cajaEncontrado||0)}`,xb('quitarAlerta','','Quitar la alerta (vuelve a por comprobar; queda anotado)')):'', t.cajaNota?chip('nota',esc(t.cajaNota),xb('quitarNotaCaja','data-i="-1"','Quitar esta anotación')):'']),
+    const anot = [ ...(ok ? [] : [t.estadoCaja==='incidencia'?chip(alerta('incaja').clase,`<b>${esc(t.cajaMotivo||'Incidencia')}</b> · encontrado ${euros(t.cajaEncontrado||0)}`,xb('quitarAlerta','','Quitar la alerta (vuelve a por comprobar; queda anotado)')):'', t.cajaNota?chip('nota',esc(t.cajaNota),xb('quitarNotaCaja','data-i="-1"','Quitar esta anotación')):'']),
       ...(t.notasCaja||[]).map((n,k)=>chip('nota',esc(n),xb('quitarNotaCaja',`data-i="${k}"`,'Quitar esta anotación'))),
       `<button type="button" class="ib" data-ac="anotarCaja" data-id="${t.id}" title="Añadir una anotación" aria-label="Añadir una anotación">${ico('lapiz')}</button>` ].join(' ');
     return `<tr class="${clase}" data-ac="abrir" data-t="ticket" data-id="${t.id}">
