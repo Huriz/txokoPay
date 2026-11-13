@@ -944,7 +944,7 @@ function centroDia(){
   let h = ['lun','mar','mié','jue','vie','sáb','dom'].map(s=>`<span class="sem">${s}</span>`).join('');
   for(let i=0;i<celdas;i++){
     const d = sumarDias(ini,i), clave = fechaClave(d), dentro = d>=HOY && d<=lim;
-    const marca = (d.getDate()===1 || clave===hoyClave) ? `<small>${d.toLocaleDateString('es-ES',{month:'short'}).replace('.','')}</small>` : '';
+    const marca = `<small>${d.toLocaleDateString('es-ES',{month:'short'}).replace('.','')}</small>`;   // el mes en todos los días
     h += (dentro && diaCerrado(clave))
       ? `<span class="cd cerrado"><b>${d.getDate()}</b><small>${tx('cerrado')}</small></span>`
       : dentro
@@ -1025,7 +1025,7 @@ function centroTodas(){
   let h = ['lun','mar','mié','jue','vie','sáb','dom'].map(s=>`<span class="sem">${s}</span>`).join('');
   for(let i=0;i<celdas;i++){
     const d = sumarDias(ini,i), clave = fechaClave(d), dentro = d>=HOY && d<=lim;
-    const marca = (d.getDate()===1 || clave===hoyClave) ? `<small>${d.toLocaleDateString('es-ES',{month:'short'}).replace('.','')}</small>` : '';
+    const marca = `<small>${d.toLocaleDateString('es-ES',{month:'short'}).replace('.','')}</small>`;   // el mes en todos los días
     h += (dentro && diaCerrado(clave)) ? `<span class="cd cerrado"><b>${d.getDate()}</b><small>${tx('cerrado')}</small></span>`
       : dentro ? `<button class="cd ${clave===hoyClave?'hoy':''}" data-accion="rVerDia" data-c="${clave}"><b>${d.getDate()}</b>${marca}${totalComensalesDia(clave)?`<span class="pto">${totalComensalesDia(clave)}</span>`:''}</button>`
       : `<span class="cd fuera"><b>${d.getDate()}</b></span>`;
