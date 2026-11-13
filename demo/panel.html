@@ -821,7 +821,7 @@ function cajonTickets(){
     const tg=[]; if(t.auto && t.reservaId===r.id) tg.push({texto:'automático',clase:'gris'});
     if(t.socio===r.socio) tg.push({texto:'responsable',clase:'gris'});
     artsComensal().forEach(x=>{ const c=cantDe(t,x.id); if(c) tg.push({texto:`${c}× ${x.corto}`,clase:'verde'}); });
-    if(otra) tg.push({texto: m ? `se moverá desde la reserva ${otra.id}` : `ya en reserva ${otra.id} · ${socio(otra.socio).nombre} · ${otra.dia} ${franja(otra.franjaId).nombre.toUpperCase()}`, clase:'naranja'});
+    if(otra) tg.push({texto: m ? `se moverá desde la reserva ${otra.id}` : `en reserva ${otra.id} · ${socio(otra.socio).nombre} · ${otra.dia} ${franja(otra.franjaId).nombre.toUpperCase()}`, clase:'naranja'});
     return `<label class="cardtk ${m?'marcado':''}"><input type="checkbox" data-ck="${t.id}" ${m?'checked':''}><div><div class="cardtk-t"><b>Ticket ${t.id}</b> · ${fmtFechaHora(t.fecha)} · <b>${o.n} - ${esc(o.nombre)}</b> · <b>${euros(totalDe(t))}</b> ${tags(tg)}</div>
       <div class="cardtk-l">${t.lineas.map(l=>`<div>${l.cantidad} x ${ART[l.id].nombre.toUpperCase()}</div>`).join('')}</div></div></label>`;
   };
