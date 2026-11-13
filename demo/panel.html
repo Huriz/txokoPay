@@ -124,6 +124,7 @@ a.tg:hover{filter:brightness(.93);text-decoration:underline}
 .btn-ed{display:inline-flex;align-items:center;justify-content:center;border:1px solid #9ec0ee;background:#eaf2fd;color:#1f4f93;border-radius:8px;width:28px;height:24px;padding:0}
 .btn-ed .ico{width:15px;height:15px}
 .btn-ed[disabled]{opacity:.4;cursor:default}
+.rte-barra{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}.rte-barra .ib{width:auto;padding:0 9px}.rte{min-height:130px;max-height:260px;overflow:auto;border:1px solid #d5dbe1;border-radius:10px;padding:8px 10px;background:#fff;font-size:14px;line-height:1.4;outline:none}.rte:focus{border-color:var(--principal);box-shadow:0 0 0 3px rgba(60,85,104,.14)}.rte.lectura{min-height:0;background:#f7f9fb}.rte table{border-collapse:collapse;margin:4px 0}.rte td,.rte th{border:1px solid #c3ccd5;padding:2px 6px}.rte ul,.rte ol{margin:4px 0;padding-left:22px}
 .ib{border:1px solid #d5dbe1;background:#fff;border-radius:10px;width:28px;height:25px;color:var(--suave)}
 .ib.on{background:#d8e6fa;border-color:#9ec0ee;color:#1f4f93}
 select.rev{border:1px solid #cdbfa9;border-radius:9px;padding:3px 26px 3px 9px;font-size:11.5px;font-weight:700;background-color:#fff;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23786856' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 8px center;box-shadow:0 1px 0 rgba(31,41,51,.12);cursor:pointer}
@@ -343,6 +344,7 @@ function ico(n){ const P={
   ajustes:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>',
   copa:'<path d="M8 22h8M12 15v7M7 3h10l-1 7a4 4 0 0 1-8 0Z"/>',
   menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
+  quitar:'<path d="M18 6 6 18M6 6l12 12"/>',
   derecha:'<path d="m9 18 6-6-6-6"/>'
  }; return `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${P[n]||''}</svg>`; }
 
@@ -1110,8 +1112,21 @@ function resultadoGastos(){
   const vivos=lista.filter(g=>!g.anulado), total=vivos.reduce((s,g)=>s+g.total,0);
   const porCat=S.catGastos.map(c=>[c,vivos.filter(g=>g.cat===c.id).reduce((s,g)=>s+g.total,0)]).filter(x=>x[1]>0);
   return `<div class="pills"><span class="pill">Gastos <b>${vivos.length}</b></span><span class="pill">Total <b>${euros(total)}</b></span>${porCat.map(([c,v])=>`<span class="pill">${esc(c.nombre)} <b>${euros(v)}</b></span>`).join('')}</div>`
-  + (lista.length ? `<div class="scrollx"><table class="tabla" style="width:100%;min-width:0"><thead><tr><th>Fecha</th><th>Cuenta</th><th>Categoría</th><th>Concepto</th><th>Origen</th><th class="der">Base</th><th class="der">IVA</th><th class="der">Total</th><th></th></tr></thead><tbody>${lista.map(g=>`<tr class="${g.anulado?'inactivo':''}"><td>${fmtDia(g.fecha)}</td><td>${esc(cuentaG(g.cuenta).nombre)}</td><td>${esc(catG(g.cat).nombre)}</td><td>${esc(g.concepto)}${g.anulado?' <span class="tg gris">anulado</span>':''}</td><td>${g.albaran?`<span class="tg gris">Albarán ${esc(g.numero)}</span>`:'<span class="muted">a mano</span>'}</td><td class="der">${euros(g.base)}</td><td class="der">${euros(g.iva)}</td><td class="der"><b>${euros(g.total)}</b></td><td><button class="btn" data-ac="anularGasto" data-id="${g.id}">${g.anulado?'Reactivar':'Anular'}</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="vacio">No hay gastos con esos filtros.</div>');
+  + (lista.length ? `<div class="scrollx"><table class="tabla" style="width:100%;min-width:0"><thead><tr><th>Fecha</th><th>Cuenta</th><th>Categoría</th><th>Concepto</th><th>Origen</th><th class="der">Base</th><th class="der">IVA</th><th class="der">Total</th><th></th></tr></thead><tbody>${lista.map(g=>`<tr class="${g.anulado?'inactivo':''}"><td>${fmtDia(g.fecha)}</td><td>${esc(cuentaG(g.cuenta).nombre)}</td><td>${esc(catG(g.cat).nombre)}</td><td>${esc(g.concepto)}${g.anulado?' <span class="tg gris">anulado</span>':''}</td><td>${g.albaran?`<span class="tg gris">Albarán ${esc(g.numero)}</span>`:'<span class="muted">a mano</span>'}</td><td class="der">${euros(g.base)}</td><td class="der">${euros(g.iva)}</td><td class="der"><b>${euros(g.total)}</b></td><td>${g.detalle?`<button class="ib" data-ac="verDetalleGasto" data-id="${g.id}" title="Ver el detalle de la factura">${ico('recibo')}</button> `:''}<button class="btn" data-ac="anularGasto" data-id="${g.id}">${g.anulado?'Reactivar':'Anular'}</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="vacio">No hay gastos con esos filtros.</div>');
 }
+/* Lo que se pega de una factura conserva negrita, listas y tablas, pero se limpia: solo se admiten unas pocas etiquetas y ningún atributo ni script */
+function limpiarHtml(html){
+  const OK={B:1,STRONG:1,I:1,EM:1,U:1,UL:1,OL:1,LI:1,BR:1,P:1,DIV:1,TABLE:1,THEAD:1,TBODY:1,TR:1,TD:1,TH:1,H1:1,H2:1,H3:1,H4:1};
+  const doc=new DOMParser().parseFromString('<body>'+(html||'')+'</body>','text/html'), out=document.createElement('div');
+  const copiar=(n,dest)=>{ n.childNodes.forEach(h=>{
+    if(h.nodeType===3) dest.appendChild(document.createTextNode(h.nodeValue));
+    else if(h.nodeType===1){ const tag=h.tagName; if(tag==='SCRIPT'||tag==='STYLE'||tag==='IFRAME') return;
+      if(OK[tag]){ const e=document.createElement(tag); copiar(h,e); dest.appendChild(e); } else copiar(h,dest); } }); };
+  copiar(doc.body,out); return out.innerHTML;
+}
+document.addEventListener('paste', e=>{ const r=e.target.closest&&e.target.closest('.rte'); if(!r||r.classList.contains('lectura')) return;
+  e.preventDefault(); const cd=e.clipboardData, h=cd.getData('text/html'), tx=cd.getData('text/plain');
+  document.execCommand('insertHTML', false, h ? limpiarHtml(h) : esc(tx).replace(/\n/g,'<br>')); });
 function modalGasto(){
   abrirModal(`<h3>Nuevo gasto</h3><p class="nota">Para luz, agua, gas, teléfono… Los albaranes no se meten aquí: se meten en Almacén y llegan solos.</p>
     <div class="fila-form" style="margin:0 0 8px"><label class="campo" style="margin:0">Fecha<input type="date" id="gFecha" value="${HOYK}"></label>
@@ -1120,6 +1135,9 @@ function modalGasto(){
     <div class="fila-form" style="margin:0 0 8px"><label class="campo" style="margin:0;flex:1">Concepto o proveedor<input type="text" id="gConcepto" list="gProv" style="width:100%"><datalist id="gProv">${S.proveedores.map(p=>`<option value="${esc(p)}">`).join('')}</datalist></label>
       <label class="campo" style="margin:0">Base (€)<input type="number" id="gBase" min="0" step="0.01" style="width:100px"></label>
       <label class="campo" style="margin:0">IVA<select id="gIva">${[0,4,10,21].map(v=>`<option value="${v}" ${v===21?'selected':''}>${v} %</option>`).join('')}</select></label></div>
+    <div class="campo" style="margin:0 0 8px">Detalle de la factura <span class="muted">(opcional: pega aquí el texto y se ve tal cual)</span>
+      <div class="rte-barra">${[['bold','<b>N</b>','Negrita'],['italic','<i>C</i>','Cursiva'],['insertUnorderedList','• Lista','Lista'],['undo','Deshacer','Deshacer'],['removeFormat','Quitar formato','Quitar el formato']].map(([c,e,tt])=>`<button type="button" class="ib" title="${tt}" onmousedown="event.preventDefault();document.execCommand('${c}')">${e}</button>`).join('')}</div>
+      <div id="gDetalle" class="rte" contenteditable="true" role="textbox" aria-multiline="true"></div></div>
     <div class="error" id="mErr"></div><div class="pie"><button class="btn" data-ac="cerrarModal">Cancelar</button><button class="btn principal" data-ac="guardarGasto">Guardar gasto</button></div>`);
 }/* --- Socios en cualquier búsqueda: «N - Nombre», lista alfabética y campo donde se escribe --- */
 const etSocioTxt = n => `${n} - ${socio(n).nombre}`;
@@ -1433,7 +1451,7 @@ function resultadoCaja(){
   const pend=lista.filter(t=>t.estadoCaja==='pendiente'), rev=lista.filter(t=>t.estadoCaja!=='pendiente');
   const esp=sumar2(rev), enc=rev.reduce((s,t)=>s+(t.cajaEncontrado||0),0), dif=enc-esp;
   const fila = t => { const s=socio(t.socio), ok=t.marca==='Conforme', clase=t.marca?'f-'+t.marca:'';
-    const anot = ok ? '' : [t.cajaMotivo?`<span class="tg ${alerta('incaja').clase}">${esc(t.cajaMotivo)}</span>`:'', t.estadoCaja==='incidencia'?`<span class="tg gris">encontrado ${euros(t.cajaEncontrado||0)}</span>`:'', t.cajaNota?`<span class="muted">${esc(t.cajaNota)}</span>`:''].join(' ');
+    const anot = ok ? '' : [t.cajaMotivo?`<span class="tg ${alerta('incaja').clase}">${esc(t.cajaMotivo)}</span>`:'', t.estadoCaja==='incidencia'?`<span class="tg gris">encontrado ${euros(t.cajaEncontrado||0)}</span> <button class="ib" data-ac="quitarAlerta" data-id="${t.id}" title="Quitar la alerta (vuelve a por comprobar; queda anotado)" aria-label="Quitar la alerta">${ico('quitar')}</button>`:'', t.cajaNota?`<span class="muted">${esc(t.cajaNota)}</span>`:''].join(' ');
     return `<tr class="${clase}" data-ac="abrir" data-t="ticket" data-id="${t.id}">
       <td class="rev-cel">${selRev(t.id,t.marca,'data-revt')} <button class="ib ${t.nota?'on':''}" data-ac="comentar" data-t="ticket" data-id="${t.id}" title="${esc(t.nota)||'Añadir un comentario'}">${ico('mensaje')}</button></td>
       <td>${fmtFechaHora(t.fecha)}</td><td>${s.n} - ${esc(s.nombre)}</td>
@@ -1638,8 +1656,9 @@ Object.assign(ACC, {
   nuevoGasto: ()=>modalGasto(),
   guardarGasto: ()=>{ const concepto=$('#gConcepto').value.trim(), base=Math.round(parseFloat($('#gBase').value||'0')*100), iva=Math.round(base*parseFloat($('#gIva').value)/100);
     if(!concepto) return $('#mErr').textContent='Pon el concepto o el proveedor.'; if(!(base>0)) return $('#mErr').textContent='Pon el importe (la base) del gasto.';
-    S.gastos.unshift({id:S.sigG++, fecha:$('#gFecha').value||HOYK, cuenta:$('#gCuenta').value, cat:$('#gCat').value, concepto, base, iva, total:base+iva, albaran:null, anulado:false});
+    S.gastos.unshift({id:S.sigG++, fecha:$('#gFecha').value||HOYK, cuenta:$('#gCuenta').value, cat:$('#gCat').value, concepto, base, iva, total:base+iva, albaran:null, anulado:false, detalle:(()=>{ const e=$('#gDetalle'); return e && e.textContent.trim() ? limpiarHtml(e.innerHTML) : ''; })()});
     cerrarModal(); pintarPagina(); aviso('Gasto guardado'); },
+  verDetalleGasto: el=>{ const g=S.gastos.find(x=>x.id===+el.dataset.id); abrirModal(`<h3>Detalle: ${esc(g.concepto)}</h3><div class="rte lectura">${limpiarHtml(g.detalle)}</div><div class="pie"><button class="btn" data-ac="cerrarModal">Cerrar</button></div>`); },
   anularGasto: el=>{ const g=S.gastos.find(x=>x.id===+el.dataset.id); g.anulado=!g.anulado; pintarResultado(); aviso(g.anulado?'Gasto anulado':'Gasto reactivado'); },
   toggleCatG: el=>{ const c=S.catGastos.find(x=>x.id===el.dataset.k); c.activa=!c.activa; pintarResultado(); },
   nuevaCatG: ()=>{ const n=$('#ncgNombre').value.trim(); if(!n) return aviso('Ponle un nombre a la categoría'); if(S.catGastos.some(c=>c.nombre.toLowerCase()===n.toLowerCase())) return aviso('Ya hay una categoría con ese nombre'); S.catGastos.push({id:idUnico(n,S.catGastos.map(c=>c.id)), nombre:n, activa:true}); pintarResultado(); aviso(`Categoría «${n}» creada`); },
@@ -1704,6 +1723,8 @@ Object.assign(ACC, {
   /* ingresos / sobres */
   sobreOk: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id); marcarSobre(t,'comprobado',totalDe(t),'',''); t.marca='Conforme'; refrescar(true); aviso('✉ Sobre comprobado: conforme'); },
   sobreInc: el=>{ S.pendMarca={id:+el.dataset.id, nueva:'Alerta'}; modalIncidencia(+el.dataset.id); },
+  quitarAlerta: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id); abrirModal(`<h3>Quitar la alerta del Ticket ${t.id}</h3><p class="nota">El sobre vuelve a <b>por comprobar</b> y el importe vuelve a contar en la banca de ${esc(socio(t.socio).nombre)}. <b>No se borra nada:</b> queda anotado en el historial del Ticket.</p><div class="pie"><button class="btn" data-ac="cancelarIncidencia">Cancelar</button><button class="btn rojo" data-ac="confirmarQuitarAlerta" data-id="${t.id}">Quitar la alerta</button></div>`); },
+  confirmarQuitarAlerta: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id); const antes=t.cajaMotivo||'incidencia'; t.estadoCaja='pendiente'; t.cajaEncontrado=null; t.cajaMotivo=''; t.cajaNota=''; t.marca=null; anota('ticket', t.id, `Alerta del sobre quitada (era: ${antes}). Vuelve a por comprobar.`); auditar('Alerta del sobre quitada', `Ticket ${t.id}`); cerrarModal(); refrescar(true); aviso('Alerta quitada: el sobre vuelve a por comprobar'); },
   cancelarIncidencia: ()=>{ S.pendMarca=null; cerrarModal(); pintarResultado(); pintarCajon(true); },
   confirmarIncidencia: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id), imp=Math.round(parseFloat($('#icImp').value||'0')*100), nota=$('#icNota').value.trim();
     if(imp<0){ $('#mErr').textContent='El importe no puede ser negativo.'; return; }
