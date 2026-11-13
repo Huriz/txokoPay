@@ -30,17 +30,8 @@ Tres maquetas para tocar, con **datos inventados**. Todo ocurre en tu navegador:
 - **[Panel de la junta](demo/panel.html)**: reservas y tickets con su revisión, socios y llaves, ingresos y gastos, almacén e inventario, artículos y menú de la TPV, formas de pago, copias de seguridad y auditoría. Para entrar: usuario `admin`, contraseña `admin`.
 
 - **[Móvil, pedir desde el teléfono](demo/movil.html)**: el socio entra con su número y su móvil, recibe un código y apunta lo que toma sin pasar por la barra. Para probarlo: socio `1` y móvil `600 11 22 33`; el código sale en pantalla porque la demo no manda WhatsApp.
+- **[Botones con logo de la bebida](demo/botones.html)**: cómo se verían los botones de la TPV cuando cada artículo lleva su imagen: con un logo, con dos a medias para los combinados y sin imagen. Los colores y rótulos son de ejemplo, no hay marcas reales.
 
 Las formas de pago que activas en el panel son las que ofrece la TPV, y los dos comparten los mismos artículos y menú. Para que se vea, abre las dos en pestañas del mismo navegador.
 
 Son un boceto para enseñar cómo va a ser; muchas cosas cambiarán.
-
-## Para comprobar: precios de WhatsApp
-
-Los avisos a los socios (tickets, confirmaciones de reserva, códigos) irán por la API oficial de WhatsApp, que cobra por mensaje. Estas son las páginas oficiales de precios para consultar las tarifas vigentes:
-
-- **[Precios de la API de WhatsApp (Meta)](https://developers.facebook.com/docs/whatsapp/pricing)**: cómo se cobra cada tipo de mensaje y las tarifas por país.
-- **[Tarifas de la plataforma de WhatsApp Business](https://whatsappbusiness.com/es-la/products/platform-pricing/#rates)**: tabla de tarifas.
-- **[Primeros pasos con la API en la nube](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started)**: alta y puesta en marcha.
-
-> Cifra de partida que estamos usando: unos **0,0166 € por mensaje**. **Falta comprobarla** contra la tarifa de España y el tipo de mensaje (utilidad o autenticación), y ver si lleva IVA aparte.
