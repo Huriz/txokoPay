@@ -450,7 +450,7 @@ const ticketsDe = r => r.ticketIds.map(id=>S.tickets.find(t=>t.id===id)).filter(
 const ticketsEfectivos = r => ticketsDe(r).concat(S.tickets.filter(t=>t.ajusteDe && r.ticketIds.includes(t.ajusteDe)));
 const reservaDe = t => S.reservas.find(r=>r.id===t.reservaId);
 const totalDe = t => t.tipo==='ingreso' ? t.importe : t.lineas.reduce((s,l)=>s+l.cantidad*l.precio,0);
-const artsComensal = () => Object.entries(ART).filter(([,a])=>a.cat===alerta('poca').comen).map(([id,a])=>({id, corto:(a.nombre.replace(/^comensal(es)?\s*/i,'').trim()||'Normal')}));
+const artsComensal = () => Object.entries(ART).filter(([,a])=>a.cat===alerta('poca').comen).map(([id,a])=>({id, corto:(a.nombre.replace(/^comensal(es)?\s*/i,'').trim()||'normal').toLowerCase()}));
 const mayus1 = s => s.charAt(0).toUpperCase()+s.slice(1);
 const dinersDe = t => t.lineas.filter(l=>ART[l.id].cat===alerta('poca').comen).reduce((s,l)=>s+l.cantidad,0);
 const cantDe = (t,id) => t.lineas.filter(l=>l.id===id).reduce((s,l)=>s+l.cantidad,0);
