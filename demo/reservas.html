@@ -58,9 +58,9 @@ input.campo:focus{outline:3px solid var(--acento);outline-offset:1px;border-colo
 .sync{margin-left:auto;align-self:center;color:var(--suave);font-size:14px;display:flex;gap:8px;align-items:center}
 .sync button{border:1px solid var(--borde);background:var(--panel);border-radius:8px;padding:2px 10px;font-size:13.5px;color:var(--suave)}
 .cols{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
-.pasos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.pasos{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
 .paso{background:var(--panel);border:1px solid var(--borde);border-radius:var(--radio);padding:16px;box-shadow:var(--sombra)}
-.paso.ancho{grid-column:1/-1}
+.p-dia{grid-row:1 / span 3}
 .paso h2{font-size:13px;margin-bottom:12px;color:var(--suave);text-transform:uppercase;letter-spacing:.06em;font-weight:700;display:flex;align-items:center;gap:8px}
 .paso h2 i{font-style:normal;background:var(--principal);color:#fff;border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font-size:12px}
 .dias{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:8px}
@@ -97,6 +97,25 @@ input[type=date].campo{font-size:19px;min-height:50px;max-width:260px}
 .res .m{color:var(--suave);font-size:16px}
 .res .acc{display:flex;gap:8px;margin-top:4px;align-items:center}.res .acc button{border:1px solid var(--borde);background:var(--panel);border-radius:10px;padding:6px 14px;font-weight:700;color:var(--suave)}
 .res .acc .peligro{color:var(--rojo);border-color:var(--rojo)}
+.cal{display:flex;flex-direction:column;gap:8px}
+.calcab{display:flex;align-items:center;justify-content:space-between}.calcab b{font-size:21px;text-transform:capitalize}
+.calcab button{width:44px;height:44px;border:1px solid var(--borde);background:var(--panel);border-radius:12px;font-size:26px;line-height:1;color:var(--tinta)}.calcab button:disabled{opacity:.35;cursor:not-allowed}
+.calsem,.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.calsem span{text-align:center;font-size:12.5px;font-weight:700;color:var(--suave);padding:4px 0}
+.cd{min-height:46px;aspect-ratio:1/.92;border:2px solid transparent;background:var(--fondo);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;font-size:18px}
+.cd b{font-weight:700;line-height:1.1}.cd.hoy{border-color:var(--acento)}
+.cd:hover:not(:disabled):not(.on){background:var(--principal-claro)}
+.cd.on{background:var(--principal);color:#fff;border-color:var(--principal)}
+.cd:disabled{background:transparent;color:var(--suave);opacity:.4;cursor:not-allowed}
+.cd.cerr:disabled{background:var(--rojo-claro);color:var(--rojo);opacity:1}.cd small{font-size:9.5px;line-height:1;margin-top:2px;font-weight:700}
+.cd small.oc{font-size:11.5px;color:var(--suave);font-weight:600}.cd.on small.oc{color:rgba(255,255,255,.85)}
+.cd i,.calpie i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--acento)}.cd i{position:absolute;bottom:5px}
+.calpie{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13.5px;color:var(--suave)}.calpie button{border:1px solid var(--borde);background:var(--panel);border-radius:8px;padding:3px 12px;font-weight:700;color:var(--suave)}.calpie span{margin-left:auto;display:flex;gap:6px;align-items:center}
+.edit{border-top:1px dashed var(--borde);padding-top:12px;margin-top:6px;display:flex;flex-direction:column;gap:12px}.edit h3{font-size:13px;color:var(--suave);text-transform:uppercase;letter-spacing:.06em}
+.edit .stepper button{width:46px;height:46px;font-size:26px}.edit .stepper output{font-size:32px;min-width:52px}
+.edit .fila{display:flex;gap:8px;flex-wrap:wrap}.edit .fila .btn{width:auto;min-height:46px;font-size:17px;flex:1}
+.edit .fila .btn.sec{background:var(--panel);color:var(--tinta);border-color:var(--borde);box-shadow:0 3px 0 rgba(31,41,51,.18)}
+.pend{background:var(--amarillo-claro);color:var(--amarillo-tinta);border-radius:10px;padding:6px 10px;font-size:15px;font-weight:600}
 .vacio{padding:34px 10px;text-align:center;color:var(--suave);grid-column:1/-1}
 .idtag{display:inline-block;font-size:12px;font-weight:700;background:#f4dfa0;color:#000;border-radius:8px;padding:1px 8px;margin-right:6px;vertical-align:2px}
 details.reg{margin-top:18px;background:var(--panel);border:1px solid var(--borde);border-radius:var(--radio);padding:10px 14px;font-size:14px;color:var(--suave)}
@@ -120,13 +139,14 @@ details.reg ol{list-style:none;padding:8px 0 0;display:flex;flex-direction:colum
   .movilbar .btn{width:auto;min-width:150px}
 }
 @media (max-width:620px){
-  .pasos{grid-template-columns:1fr}
+  .pasos{grid-template-columns:1fr}.p-dia{grid-row:auto}
   .tabs{flex-wrap:wrap}.tab{flex:1;padding:0 10px}.sync{flex-basis:100%;margin:0}
   .lista{grid-template-columns:1fr}
   .cab .quien small{display:none}
   .dias{grid-template-columns:repeat(4,minmax(0,1fr))}
   .turnos{grid-template-columns:1fr 1fr}
 }
+@media (max-width:1000px) and (min-width:901px){.pasos{grid-template-columns:1fr}.p-dia{grid-row:auto}}
 </style>
 </head>
 <body>
@@ -162,6 +182,9 @@ function maqBase(dia, fr, m){ return (hash(dia+fr.id+m.id) % 5) === 0; }
 function usadas(dia, fr){ return S.reservas.filter(r => r.dia===dia && r.franja===fr.id && (r.estado==='confirmada'||r.estado==='solicitada')); }
 const plazasLibres = (dia, fr) => Math.max(0, fr.max - ocupadosBase(dia, fr) - usadas(dia, fr).reduce((s,r)=>s+r.comensales,0));
 const maqOcupada = (dia, fr, m) => maqBase(dia, fr, m) || usadas(dia, fr).some(r => r.maq.includes(m.id));
+/* Cuántas reservas y cuántos comensales hay ya en cada turno (lo publica el servidor): las de la sociedad (inventadas) más las de esta demo */
+function statsFranja(dia, fr){ const ob = ocupadosBase(dia, fr), u = usadas(dia, fr); return {res:(ob > 0 ? Math.max(1, Math.round(ob / 6)) : 0) + u.length, com:ob + u.reduce((s, r) => s + r.comensales, 0)}; }
+const totalDia = dia => FRANJAS.reduce((s, f) => s + statsFranja(dia, f).com, 0);
 /* ---------- «Redis» de la demo: la copia compartida entre la sociedad (txokoPay) y la web ---------- */
 /* Cada día+turno lleva un número de versión que sube con CUALQUIER cambio (reserva nueva, confirmación, anulación, la TPV, el panel…).
    La web descarga lo existente antes de reservar y, al escribir, comprueba que la versión no haya subido mientras tanto: si ha subido, error y vuelta a descargar. */
@@ -178,19 +201,28 @@ const cargar = () => { try { const g = JSON.parse(localStorage.getItem('txoko_re
 const guardar = () => { try { localStorage.setItem('txoko_reservas_demo', JSON.stringify({reservas:S.reservas, idr:_idr, socio:S.fase==='app'?S.socio:0, hasta:S.hasta})); } catch(e){} };
 cargar();
 const misReservas = () => S.reservas.filter(r => r.socio === S.socio).sort((a,b) => a.dia < b.dia ? 1 : a.dia > b.dia ? -1 : b.creada - a.creada);
-S.vistas = {}; S.snap = {}; S.sync = 0; S.log = []; S.errNueva = '';
+S.vistas = {}; S.snap = {}; S.sync = 0; S.log = []; S.errNueva = ''; S.editId = null; S.edit = null; S.errEdit = ''; S.mes = '';
+const MESESL = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 /* Descarga lo que hay en la sociedad para un día: plazas libres y aparatos cogidos de cada turno + las versiones */
 function descargar(dia, motivo){
   if (!dia) return;
   S.snap[dia] = {};
   FRANJAS.forEach(f => {
     S.vistas[vk(dia, f.id)] = ver(dia, f.id);
-    S.snap[dia][f.id] = {libres:plazasLibres(dia, f), max:f.max, maq:Object.fromEntries(MAQ.map(m => [m.id, maqOcupada(dia, f, m)])), v:ver(dia, f.id)};
+    S.snap[dia][f.id] = {libres:plazasLibres(dia, f), max:f.max, maq:Object.fromEntries(MAQ.map(m => [m.id, maqOcupada(dia, f, m)])), v:ver(dia, f.id), ...statsFranja(dia, f)};
   });
+  descargarMes(dia);
   S.sync = Date.now();
   log('down', '↓ Descargado «' + fmtDia(dia) + '» (' + (motivo || 'al elegir el día') + ') · versiones ' + FRANJAS.map(f => f.id.slice(0,3) + ' v' + ver(dia, f.id)).join(' '));
 }
 const snapDe = (dia, fid) => (S.snap[dia] || {})[fid];
+/* Descarga también los totales de comensales de todos los días del mes (para los números del calendario) */
+S.snapMes = {};
+function descargarMes(dia){
+  const b = deClave(dia), ym = b.getFullYear() + '-' + b.getMonth(), nd = new Date(b.getFullYear(), b.getMonth() + 1, 0).getDate(), m = {};
+  for (let d = 1; d <= nd; d++){ const k = clave(new Date(b.getFullYear(), b.getMonth(), d)); m[k] = totalDia(k); }
+  S.snapMes[ym] = m;
+}
 
 /* ---------- El «servidor» de la sociedad: único que escribe; confirma o rechaza en orden ---------- */
 function procesar(r){
@@ -208,7 +240,24 @@ function procesar(r){
   if (S.dia === r.dia) descargar(r.dia, 'tras la respuesta');
   guardar(); pintar();
 }
-function procesarPendientes(){ S.reservas.filter(r => r.estado==='solicitada').forEach((r,i) => setTimeout(() => procesar(r), 600*(i+1))); }
+function procesarCambio(r){   /* el servidor valida el cambio (comensales y aparatos) sin contar la propia reserva */
+  if (!r.cambio || r.estado !== 'confirmada') return;
+  const fr = FRANJAS.find(f => f.id === r.franja), c = r.cambio;
+  const otras = S.reservas.filter(x => x !== r && x.dia===r.dia && x.franja===r.franja && x.estado==='confirmada');
+  const ocup = ocupadosBase(r.dia, fr) + otras.reduce((s,x)=>s+x.comensales,0);
+  const choque = c.maq.find(id => !r.maq.includes(id) && (maqBase(r.dia, fr, MAQ.find(m=>m.id===id)) || otras.some(x => x.maq.includes(id))));
+  if (ocup + c.comensales > fr.max){ r.cambioMotivo = 'No se ha podido cambiar: ya no quedan plazas suficientes en ese turno.'; }
+  else if (choque){ r.cambioMotivo = 'No se ha podido cambiar: ' + MAQ.find(m=>m.id===choque).nombre + ' ya está cogido en ese turno.'; }
+  else { r.comensales = c.comensales; r.maq = c.maq.slice(); r.mods = (r.mods||0) + 1; r.cambioMotivo = ''; }
+  r.cambio = null; sube(r.dia, r.franja);
+  log('down', '↓ La sociedad ha ' + (r.cambioMotivo ? 'rechazado el cambio de la Reserva ' + r.idr + ' (' + r.cambioMotivo.replace('No se ha podido cambiar: ','') + ')' : 'aplicado el cambio de la Reserva ' + r.idr + ' · ' + r.comensales + ' pers.'));
+  if (S.dia === r.dia) descargar(r.dia, 'tras la respuesta');
+  guardar(); pintar();
+}
+function procesarPendientes(){
+  S.reservas.filter(r => r.estado==='solicitada').forEach((r,i) => setTimeout(() => procesar(r), 600*(i+1)));
+  S.reservas.filter(r => r.cambio).forEach((r,i) => setTimeout(() => procesarCambio(r), 600*(i+1)));
+}
 
 /* ---------- Pantallas ---------- */
 const iconoExp = () => '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (S.completa ? '<path d="M9 4v5H4M15 4v5h5M20 15h-5v5M4 15h5v5"/>' : '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>') + '</svg>';
@@ -232,14 +281,29 @@ function resumenTxt(){
   const fr = FRANJAS.find(f => f.id === S.franja);
   return {dia:S.dia ? fmtDia(S.dia) : null, fr, ok:!!(S.dia && fr)};
 }
+/* Calendario de mes (la semana empieza en lunes). Se pueden pasar de un mes a otro; los días pasados, los que están a más de 1 mes y los cerrados por un evento no se pueden elegir. El puntito marca los días en los que ya tienes reserva. */
+function vCalendario(){
+  const base = S.mes ? deClave(S.mes) : (() => { const d = hoy(); d.setDate(1); return d; })();
+  const año = base.getFullYear(), mes = base.getMonth(), offset = (new Date(año, mes, 1).getDay() + 6) % 7, nd = new Date(año, mes + 1, 0).getDate();
+  const maxD = sumar(hoy(), ANTELACION_DIAS), maxK = clave(maxD), minM = hoy().getFullYear() * 12 + hoy().getMonth(), maxM = maxD.getFullYear() * 12 + maxD.getMonth(), cur = año * 12 + mes;
+  const propias = new Set(misReservas().filter(r => r.estado === 'confirmada' || r.estado === 'solicitada').map(r => r.dia));
+  const celdas = []; for (let i = 0; i < offset; i++) celdas.push('<span></span>');
+  for (let d = 1; d <= nd; d++){
+    const k = clave(new Date(año, mes, d)), cerr = k === DIA_CERRADO, off = k < HOYK || k > maxK || cerr, tot = (S.snapMes[año + '-' + mes] || {})[k];
+    celdas.push(`<button class="cd ${S.dia===k?'on':''} ${k===HOYK?'hoy':''} ${cerr?'cerr':''}" data-ac="dia" data-k="${k}" ${off?'disabled':''} ${cerr?'title="Cerrado por un evento"':tot?`title="${tot} comensales ya reservados"`:''}><b>${d}</b>${cerr?'<small>cerrado</small>':(tot && !off ? `<small class="oc">${tot}</small>` : '')}${propias.has(k)?'<i></i>':''}</button>`);
+  }
+  return `<div class="cal"><div class="calcab"><button data-ac="mes" data-d="-1" ${cur<=minM?'disabled':''} aria-label="Mes anterior">‹</button><b>${MESESL[mes]} ${año}</b><button data-ac="mes" data-d="1" ${cur>=maxM?'disabled':''} aria-label="Mes siguiente">›</button></div>
+    <div class="calsem">${['L','M','X','J','V','S','D'].map(x => `<span>${x}</span>`).join('')}</div><div class="calgrid">${celdas.join('')}</div>
+    <div class="calpie"><button data-ac="dia" data-k="${HOYK}">Hoy</button><button data-ac="dia" data-k="${clave(sumar(hoy(),1))}">Mañana</button><span><i></i> Ya tienes reserva</span></div>
+    <div class="nota" style="margin:0">El número pequeño de cada día son los <b>comensales ya reservados</b>. El detalle de cada turno sale al elegir el día.</div>
+    ${S.dia === DIA_CERRADO ? '<div class="error">Ese día la sociedad está cerrada por un evento.</div>' : ''}</div>`;
+}
 function vNueva(){
   const R = resumenTxt(), fr = R.fr, sn = S.dia && fr ? snapDe(S.dia, fr.id) : null, libres = sn ? sn.libres : 0;
   const max = Math.max(1, Math.min(99, libres)); if (S.com > max) S.com = max;
   const listo = !!(S.dia && fr && libres > 0 && S.dia !== DIA_CERRADO);
-  const dias = []; for (let i = 0; i < 14; i++){ const k = clave(sumar(hoy(), i)), d = deClave(k), cerr = k === DIA_CERRADO;
-    dias.push(`<button class="dia ${S.dia===k?'on':''}" data-ac="dia" data-k="${k}" ${cerr?'disabled':''}><span>${i===0?'hoy':i===1?'mañana':DIAS[d.getDay()].slice(0,3)}</span><b>${d.getDate()}</b><small>${cerr?'cerrado':MESES[d.getMonth()]}</small></button>`); }
   const turnos = FRANJAS.map(f => { const s = S.dia ? snapDe(S.dia, f.id) : null, q = s ? s.libres : null, pct = s ? Math.round((1 - s.libres / s.max) * 100) : 0, cls = s ? (s.libres / s.max < .15 ? 'p' : s.libres / s.max < .4 ? 'm' : '') : '';
-    return `<button class="turno ${S.franja===f.id?'on':''}" data-ac="franja" data-id="${f.id}" ${S.dia&&(q<=0||S.dia===DIA_CERRADO)?'disabled':''}><b>${f.nombre}</b><small>${f.desde}–${f.hasta}</small>${s?`<div class="barra ${cls}"><i style="width:${pct}%"></i></div><small>${q>0?'quedan '+q+' plazas':'completo'}</small>`:'<small>Elige primero el día</small>'}</button>`; }).join('');
+    return `<button class="turno ${S.franja===f.id?'on':''}" data-ac="franja" data-id="${f.id}" ${S.dia&&(q<=0||S.dia===DIA_CERRADO)?'disabled':''}><b>${f.nombre}</b><small>${f.desde}–${f.hasta}</small>${s?`<div class="barra ${cls}"><i style="width:${pct}%"></i></div><small>${q>0?'quedan '+q+' plazas':'completo'}</small><small>${s.res} reserva${s.res===1?'':'s'} · ${s.com} comensales</small>`:'<small>Elige primero el día</small>'}</button>`; }).join('');
   const aparatos = MAQ.map(m => { const oc = sn ? sn.maq[m.id] : false; return `<button class="aparato ${S.maq.includes(m.id)?'on':''}" data-ac="maq" data-id="${m.id}" ${oc?'disabled':''}>${m.nombre}<small>${!sn?'—':oc?'ocupado':'libre'}</small></button>`; }).join('');
   const maqTxt = S.maq.map(id => MAQ.find(m => m.id === id).nombre).join(', ');
   const resumen = `<div class="resumen"><h2>Tu reserva</h2>${listo ? `<dl><dt>Día</dt><dd>${R.dia}</dd><dt>Turno</dt><dd>${fr.nombre}</dd><dt>Comensales</dt><dd>${S.com}</dd><dt>Aparatos</dt><dd>${maqTxt || 'ninguno'}</dd></dl>` : '<div class="vacio">Elige día y turno para ver aquí el resumen.</div>'}
@@ -248,10 +312,8 @@ function vNueva(){
   return `${S.enviada ? `<div class="ok" style="margin-bottom:14px">Solicitud enviada. ${S.conectado ? 'En unos segundos te decimos si está confirmada.' : 'La sociedad no está conectada ahora: queda <b>pendiente de confirmar</b> y se procesa cuando vuelva.'} Míralo en «Mis reservas».</div>` : ''}
   ${S.errNueva ? `<div class="aviso" style="margin-bottom:14px">${esc(S.errNueva)}</div>` : ''}
   <div class="cols"><div class="pasos">
-    <div class="paso ancho"><h2><i>1</i> Día</h2><div class="dias">${dias.join('')}</div>
-      <label class="cp" style="margin-top:12px;font-weight:600;font-size:15px">Otro día (hasta dentro de 1 mes)<input type="date" class="campo" id="fecha" min="${HOYK}" max="${clave(sumar(hoy(), ANTELACION_DIAS))}" value="${S.dia}"></label>
-      ${S.dia === DIA_CERRADO ? '<div class="error" style="margin-top:10px">Ese día la sociedad está cerrada por un evento.</div>' : ''}</div>
-    <div class="paso ancho"><h2><i>2</i> Turno</h2><div class="turnos">${turnos}</div></div>
+    <div class="paso p-dia"><h2><i>1</i> Día</h2>${vCalendario()}</div>
+    <div class="paso"><h2><i>2</i> Turno</h2><div class="turnos">${turnos}</div></div>
     <div class="paso"><h2><i>3</i> Comensales</h2><div class="stepper"><button data-ac="com" data-d="-1" aria-label="Menos">−</button><output>${S.com}</output><button data-ac="com" data-d="1" aria-label="Más">+</button></div>${listo ? `<div class="nota" style="margin-top:8px">Máximo ${max} (plazas libres de ese turno).</div>` : ''}</div>
     <div class="paso"><h2><i>4</i> Horno o freidora</h2><div class="aparatos">${aparatos}</div><div class="nota" style="margin-top:8px">Opcional. Una reserva por aparato y turno.</div></div>
   </div><div class="lado">${resumen}</div></div>
@@ -266,8 +328,20 @@ function vMis(){
     return `<div class="res"><div class="t"><b>${num}${fmtDia(r.dia)} · ${fr.nombre.toLowerCase()}</b><span class="est ${r.estado}">${txt}</span></div>
       <div class="m">${r.comensales} comensal${r.comensales>1?'es':''}${r.maq.length ? ' · '+r.maq.map(id=>MAQ.find(m=>m.id===id).nombre).join(', ') : ''}</div>
       ${r.motivo ? `<div class="m" style="color:var(--rojo)">${esc(r.motivo)}</div>` : ''}
-      ${(r.estado==='confirmada'||r.estado==='solicitada') ? (S.anularId===r.creada ? `<div class="acc"><span class="m" style="flex:1">¿Anular esta reserva?</span><button data-ac="noAnular">No</button><button class="peligro" data-ac="siAnular" data-id="${r.creada}">Sí, anular</button></div>` : `<div class="acc"><button class="peligro" data-ac="anular" data-id="${r.creada}">Anular</button></div>`) : ''}</div>`; }).join('') : '<div class="vacio">Todavía no tienes reservas.<br>Pide la primera en «Nueva reserva».</div>'}</div>
+      ${r.cambio ? `<div class="pend">Cambio pendiente de confirmar: ${r.cambio.comensales} comensal${r.cambio.comensales>1?'es':''}${r.cambio.maq.length ? ' · '+r.cambio.maq.map(id=>MAQ.find(m=>m.id===id).nombre).join(', ') : ' · sin aparatos'}</div>` : ''}
+      ${r.cambioMotivo ? `<div class="m" style="color:var(--rojo)">${esc(r.cambioMotivo)}</div>` : ''}
+      ${S.editId===r.creada ? vEditor(r) : (r.estado==='confirmada'||r.estado==='solicitada') ? (S.anularId===r.creada ? `<div class="acc"><span class="m" style="flex:1">¿Anular esta reserva?</span><button data-ac="noAnular">No</button><button class="peligro" data-ac="siAnular" data-id="${r.creada}">Sí, anular</button></div>` : `<div class="acc">${r.estado==='confirmada' && !r.cambio && r.dia >= HOYK ? `<button data-ac="editar" data-id="${r.creada}">Editar</button>` : ''}<button class="peligro" data-ac="anular" data-id="${r.creada}">Anular</button></div>`) : ''}</div>`; }).join('') : '<div class="vacio">Todavía no tienes reservas.<br>Pide la primera en «Nueva reserva».</div>'}</div>
     <p class="nota" style="margin-top:12px">Las reservas no se borran: si anulas una, queda anotada como anulada.</p>`;
+}
+/* Editar una reserva confirmada: comensales y aparatos (el día y el turno no se cambian: se anula y se pide otra). El cambio viaja como una petición y el servidor lo valida, igual que una reserva nueva. */
+function vEditor(r){
+  const sn = snapDe(r.dia, r.franja), ed = S.edit, max = Math.max(1, Math.min(99, (sn ? sn.libres : 0) + r.comensales));
+  return `<div class="edit"><h3>Editar la reserva</h3>
+    ${S.errEdit ? `<div class="aviso">${esc(S.errEdit)}</div>` : ''}
+    <div><div class="nota" style="margin:0 0 6px">Comensales (máximo ${max})</div><div class="stepper"><button data-ac="edcom" data-d="-1" aria-label="Menos">−</button><output>${ed.com}</output><button data-ac="edcom" data-d="1" aria-label="Más">+</button></div></div>
+    <div><div class="nota" style="margin:0 0 6px">Horno o freidora</div><div class="aparatos">${MAQ.map(m => { const oc = sn ? (sn.maq[m.id] && !r.maq.includes(m.id)) : false; return `<button class="aparato ${ed.maq.includes(m.id)?'on':''}" data-ac="edmaq" data-id="${m.id}" ${oc?'disabled':''}>${m.nombre}<small>${oc?'ocupado':'libre'}</small></button>`; }).join('')}</div></div>
+    <p class="nota">El día y el turno no se cambian: si necesitas otro, anula esta reserva y pide una nueva.</p>
+    <div class="fila"><button class="btn sec" data-ac="edcancelar">Cancelar</button><button class="btn" data-ac="edguardar">Guardar cambios</button></div></div>`;
 }
 function vRegistro(){
   return `<details class="reg" ${S.regAbierto?'open':''}><summary data-ac="reg">Ver lo que se envía y se recibe (solo demo)</summary><ol>${S.log.length ? S.log.map(l => `<li class="${l.tipo==='up'?'ba':l.tipo==='down'?'su':l.tipo==='err'?'er':'ot'}">${l.h} ${esc(l.txt)}</li>`).join('') : '<li class="ot">Todavía no se ha enviado ni recibido nada.</li>'}</ol></details>`;
@@ -317,7 +391,7 @@ const ACC = {
   reg(){ S.regAbierto = !S.regAbierto; return; },
   tab(el){ S.tab = el.dataset.t; S.enviada = null; S.anularId = null; },
   actualizar(){ if (S.dia) descargar(S.dia, 'a mano'); else { S.sync = Date.now(); log('down', '↓ Descargado lo existente (todavía sin día elegido)'); } S.errNueva = ''; revisa(); },
-  dia(el){ S.dia = el.dataset.k; S.enviada = null; S.errNueva = ''; descargar(S.dia); revisa(); },
+  dia(el){ S.dia = el.dataset.k; S.mes = clave(new Date(deClave(S.dia).getFullYear(), deClave(S.dia).getMonth(), 1)); S.enviada = null; S.errNueva = ''; descargar(S.dia); revisa(); },
   franja(el){ S.franja = el.dataset.id; S.enviada = null; S.errNueva = ''; revisa(); },
   com(el){ S.com = Math.max(1, S.com + parseInt(el.dataset.d, 10)); S.enviada = null; },
   maq(el){ const id = el.dataset.id; S.maq = S.maq.includes(id) ? S.maq.filter(x => x !== id) : S.maq.concat(id); S.enviada = null; },
@@ -336,11 +410,32 @@ const ACC = {
     S.enviada = true; S.errNueva = ''; const d = S.dia; S.dia = ''; S.franja = ''; S.com = 2; S.maq = [];
     if (S.conectado) setTimeout(() => procesar(r), 1500); else log('ot', '· La sociedad no responde: la solicitud queda pendiente en la cola');
   },
-  anular(el){ S.anularId = +el.dataset.id; },
+  mes(el){ const b = S.mes ? deClave(S.mes) : (() => { const d = hoy(); d.setDate(1); return d; })(); S.mes = clave(new Date(b.getFullYear(), b.getMonth() + parseInt(el.dataset.d, 10), 1)); descargarMes(S.mes); S.sync = Date.now(); log('down', '↓ Descargado el calendario de ' + MESESL[deClave(S.mes).getMonth()] + ' (comensales ya reservados de cada día)'); },
+  editar(el){ const r = S.reservas.find(x => x.creada === +el.dataset.id); if (!r) return; S.editId = r.creada; S.anularId = null; S.errEdit = ''; r.cambioMotivo = ''; S.edit = {com:r.comensales, maq:r.maq.slice()}; descargar(r.dia, 'al editar la Reserva ' + r.idr); },
+  edcom(el){ const r = S.reservas.find(x => x.creada === S.editId), sn = snapDe(r.dia, r.franja), max = Math.max(1, Math.min(99, (sn ? sn.libres : 0) + r.comensales)); S.edit.com = Math.max(1, Math.min(max, S.edit.com + parseInt(el.dataset.d, 10))); },
+  edmaq(el){ const id = el.dataset.id; S.edit.maq = S.edit.maq.includes(id) ? S.edit.maq.filter(x => x !== id) : S.edit.maq.concat(id); },
+  edcancelar(){ S.editId = null; S.edit = null; S.errEdit = ''; },
+  edguardar(){
+    const r = S.reservas.find(x => x.creada === S.editId); if (!r) return;
+    const vista = S.vistas[vk(r.dia, r.franja)] || 0, actual = ver(r.dia, r.franja);
+    if (actual > vista){   /* misma comprobación que al reservar: si Redis es más nuevo, no se escribe */
+      log('err', '✕ Conflicto al editar: descargado v' + vista + ', ahora hay v' + actual + '. No se escribe nada.');
+      S.errEdit = 'Mientras editabas, ese turno ha cambiado en la sociedad. Hemos descargado los datos otra vez: revisa lo que queda libre y vuelve a guardar.';
+      descargar(r.dia, 'tras el conflicto');
+      const sn = snapDe(r.dia, r.franja); S.edit.maq = S.edit.maq.filter(id => r.maq.includes(id) || !sn.maq[id]); S.edit.com = Math.min(S.edit.com, Math.max(1, sn.libres + r.comensales)); return;
+    }
+    if (S.edit.com === r.comensales && S.edit.maq.slice().sort().join() === r.maq.slice().sort().join()){ S.editId = null; S.edit = null; return; }
+    r.cambio = {comensales:S.edit.com, maq:S.edit.maq.slice(), base:vista}; sube(r.dia, r.franja);
+    log('up', '↑ Cambio enviado de la Reserva ' + r.idr + ' (basado en v' + vista + '): ' + r.cambio.comensales + ' pers.' + (r.cambio.maq.length ? ' · ' + r.cambio.maq.join('+') : ' · sin aparatos'));
+    S.editId = null; S.edit = null; S.errEdit = '';
+    if (S.conectado) setTimeout(() => procesarCambio(r), 1500); else log('ot', '· La sociedad no responde: el cambio queda pendiente en la cola');
+  },
+  anular(el){ S.anularId = +el.dataset.id; S.editId = null; },
   noAnular(){ S.anularId = null; },
   siAnular(el){ const r = S.reservas.find(x => x.creada === +el.dataset.id); if (r){ r.estado = 'anulada'; r.motivo = 'Anulada por ti.'; sube(r.dia, r.franja); log('up', '↑ Anulación enviada: ' + fmtDia(r.dia) + ' ' + r.franja); } S.anularId = null; },
   otro(){   /* demo: otra persona (o la TPV, o el panel) reserva en la sociedad mientras tú estás eligiendo */
-    const dia = S.dia || HOYK, fid = S.franja || (FRANJAS.find(f => plazasLibres(dia, f) > 6) || FRANJAS[0]).id, fr = FRANJAS.find(f => f.id === fid);
+    const re = S.editId && S.reservas.find(x => x.creada === S.editId);   /* si estás editando una reserva, el otro socio reserva en ese mismo turno */
+    const dia = re ? re.dia : (S.dia || HOYK), fid = re ? re.franja : (S.franja || (FRANJAS.find(f => plazasLibres(dia, f) > 6) || FRANJAS[0]).id), fr = FRANJAS.find(f => f.id === fid);
     const n = Math.min(plazasLibres(dia, fr), 6); if (n <= 0 || dia === DIA_CERRADO) return;
     S.reservas.push({creada:Date.now(), socio:0, dia, franja:fid, comensales:n, maq:[], estado:'confirmada', idr:++_idr, motivo:''});
     sube(dia, fid); log('ot', '· Otro socio (o la TPV) reserva ' + n + ' plazas en «' + fmtDia(dia) + ' ' + fid + '» y actualiza Redis: la versión sube a v' + ver(dia, fid) + '. Esta pantalla NO se entera hasta que vuelva a sincronizar.');

@@ -236,6 +236,8 @@ button:active{transform:scale(.98)}
 .cd.hoy{border:2px solid var(--principal)}
 .cd.sel{background:var(--principal);border-color:var(--principal);color:#fff}
 .cd.sel small{color:#e3eaf0}
+.cd .ocu{font-size:20px;font-weight:700;color:var(--suave);line-height:1.1}.cd.sel .ocu{color:#e3eaf0}
+.franja .rs{font-size:22px;color:var(--suave);font-weight:600}
 .cd.cerrado{background:#f6e6e3;border-color:#ebcbc5;color:#a05a4f;box-shadow:none}
 .cd.cerrado small{color:#b0584b;font-size:16px;text-transform:uppercase;font-weight:700}
 .cd.fuera{background:none;border-color:transparent;box-shadow:none;color:#cbbda9}
@@ -364,6 +366,7 @@ const TEXTOS = {
     pasoDia:'Día', pasoFranja:'Franja', pasoComensales:'Comensales', pasoMaquinas:'Máquinas', misReservas:'Mis reservas',
     queDia:'¿Qué día?', cerrado:'Cerrado', hastaEl:'Puedes reservar hasta el {0}', queFranja:'¿Para qué comida?', cuantosComen:'¿Cuántos comensales?', quierMaquinas:'¿Quieres horno o freidora?',
     eligePrimeroDia:'Elige primero el día.', eligePrimeroFranja:'Elige primero el día y la comida.',
+    sinReservasTurno:'Sin reservas todavía', leyendaOcupacion:'El número pequeño de cada día son los comensales ya reservados.',
     quedanPlazas:'Quedan {0} plazas', completo:'Completo', soloQuedan:'Solo quedan {0} plazas',
     maquinasAyuda:'Una reserva por comida. Se cobra por horas al cerrar el Ticket.', ocupado:'Ocupado', libre:'Libre', reservadoM:'Reservado ✓', reservadoM2:'Reservado para vosotros', siguiente:'Siguiente',
     sinMaquinas2:'Sin horno ni freidora', ninguna:'Ninguna', tuReserva:'Tu reserva', cambiando:'Cambiando', empezarDeNuevo:'Empezar de nuevo',
@@ -871,6 +874,14 @@ function ocupacion(dia, franjaId, excluirId){
   return {mesasLibres:Math.max(0, maxMesas(franjaId)-mesas), maquinas};
 }
 
+// cuántas reservas y cuántos comensales hay ya en un turno (los de la sociedad, simulados, más las reservas de esta pantalla)
+function resumenFranja(dia, f){
+  const hs = hash('m'+dia+f.id) % 20, base = hs===0 ? maxMesas(f.id) : Math.floor(maxMesas(f.id)*(hs%10)/12);
+  let n = base>0 ? Math.ceil(base/2) : 0, c = Math.round(base*PLAZAS_MESA*0.8);
+  E.reservas.filter(r=>!r.anulada && r.dia===dia && r.franjaId===f.id).forEach(r=>{ n++; c += parseInt(r.comensales,10)||0; });
+  return {n, c};
+}
+const totalComensalesDia = dia => franjasActivas().reduce((s,f)=>s+resumenFranja(dia,f).c, 0);
 function estadoR(){
   const r = E.R, c = parseInt(r.comensales||'0',10);
   const plazas = (r.dia && r.franjaId) ? ocupacion(r.dia, r.franjaId, r.editando).mesasLibres*PLAZAS_MESA : null;
@@ -916,19 +927,19 @@ function centroDia(){
     h += (dentro && diaCerrado(clave))
       ? `<span class="cd cerrado"><b>${d.getDate()}</b><small>${tx('cerrado')}</small></span>`
       : dentro
-      ? `<button class="cd ${clave===hoyClave?'hoy':''} ${r.dia===clave?'sel':''}" data-accion="rDiaClave" data-c="${clave}"><b>${d.getDate()}</b>${marca}</button>`
+      ? `<button class="cd ${clave===hoyClave?'hoy':''} ${r.dia===clave?'sel':''}" data-accion="rDiaClave" data-c="${clave}"><b>${d.getDate()}</b>${marca}${totalComensalesDia(clave)?`<span class="ocu">${totalComensalesDia(clave)}</span>`:''}</button>`
       : `<span class="cd fuera"><b>${d.getDate()}</b></span>`;
   }
   const meses = mesDe(HOY)===mesDe(lim) ? mesDe(HOY) : `${mesDe(HOY)} – ${mesDe(lim)}`;
-  return `<h2 class="rtit">${tx('queDia')} <span class="mesesTit">${meses}</span></h2><div class="cal">${h}</div>`;
+  return `<h2 class="rtit">${tx('queDia')} <span class="mesesTit">${meses}</span></h2><div class="cal">${h}</div><p class="sub" style="font-size:22px">${tx('leyendaOcupacion')}</p>`;
 }
 function centroFranja(){
   const r = E.R, tit = `<h2 class="rtit">${tx('queFranja')}</h2>`;
   if(!r.dia) return tit + `<p class="sub">${tx('eligePrimeroDia')}</p>`;
   const tarjetas = franjasActivas().map(f=>{
-    const plazas = ocupacion(r.dia, f.id, r.editando).mesasLibres*PLAZAS_MESA;
+    const plazas = ocupacion(r.dia, f.id, r.editando).mesasLibres*PLAZAS_MESA, rs = resumenFranja(r.dia, f);
     return `<button class="franja ${r.franjaId===f.id?'sel':''}" data-accion="rFranja" data-id="${f.id}" ${plazas===0?'disabled':''}>
-      <span class="t">${nom(f)}</span><span class="h">${f.desde}–${f.hasta}</span><span class="l ${plazas===0?'malo':''}">${plazas===0?tx('completo'):tx('quedanPlazas',plazas)}</span></button>`;
+      <span class="t">${nom(f)}</span><span class="h">${f.desde}–${f.hasta}</span><span class="l ${plazas===0?'malo':''}">${plazas===0?tx('completo'):tx('quedanPlazas',plazas)}</span><span class="rs">${rs.n===0 ? tx('sinReservasTurno') :`${rs.n} ${rs.n===1?'reserva':'reservas'} · ${rs.c} ${tx('comensales')}`}</span></button>`;
   }).join('');
   return tit + `<p class="sub">${nombreDia(r.dia)}</p><div class="franjas">${tarjetas}</div>`;
 }
