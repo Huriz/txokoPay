@@ -350,6 +350,13 @@ button:active{transform:scale(.98)}
 .flechasdia span{font-size:26px;font-weight:700;color:var(--suave);min-width:90px;text-align:center}
 .flechasdia button{width:92px;height:68px;border-radius:16px;border:1px solid var(--borde);background:var(--panel);color:var(--principal);display:grid;place-items:center;padding:0}
 .flechasdia button:disabled{opacity:.3}.flechasdia .ico{width:38px;height:38px}
+/* flechas a la derecha, largas, en vertical (sustituyen a las de abajo) */
+.hoja.dia{width:980px}
+.dialista{display:flex;gap:16px;align-items:stretch;margin-top:6px}
+.dialista .filas.todas{flex:1;min-width:0;margin:0;min-height:410px}
+.flechasdia{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;margin:0;width:96px;flex:none}
+.flechasdia button{width:96px;height:auto;flex:1;min-height:120px;border-radius:18px}
+.flechasdia span{min-width:0;font-size:22px;font-weight:700;color:var(--suave)}
 </style>
 </head>
 <body>
@@ -1048,16 +1055,16 @@ function centroTodas(){
   return `<h2 class="rtit">${tx('todasReservas')} <span class="mesesTit">${meses}</span></h2><div class="cal">${h}</div><p class="sub" style="font-size:22px"><span class="pto pto-l">n</span> ${tx('leyendaPunto')}</p>`;
 }
 function verDiaReservas(dia, pag=0){
-  /* Ventana encima de todo, en lista (una columna), sin scroll: si hay más reservas de las que caben, flechas arriba y abajo para cambiar de página */
-  const POR = 6, orden = id => FRANJAS.findIndex(f=>f.id===id);
+  /* Ventana encima de todo, en lista (una columna) y sin scroll. Las flechas van a la derecha, largas y en vertical, para no quitar sitio a la lista. */
+  const POR = 7, orden = id => FRANJAS.findIndex(f=>f.id===id);
   const rs = todasLasReservas(diasAdelante()).filter(x=>x.dia===dia).sort((a,b)=>orden(a.franjaId)-orden(b.franjaId) || a.socio-b.socio);
   const total = Math.max(1, Math.ceil(rs.length/POR)); pag = Math.max(0, Math.min(pag, total-1));
   V.cerrarDia = cerrarVentana; V.diaArriba = ()=>verDiaReservas(dia, pag-1); V.diaAbajo = ()=>verDiaReservas(dia, pag+1);
   const fila = x => `<li class="rfila ${x.mia?'mia':''}"><span class="tp">${nom(FRANJAS.find(f=>f.id===x.franjaId)).toLowerCase()}</span><b>${x.socio} - ${nombreDemo(x.socio)}${x.mia?` <i class="tu">tú</i>`:''}</b><span class="cm">${x.comensales} ${tx('comensales')}</span>${x.maq.length ? `<span class="us">${x.maq.map(id=>nom(MAQUINAS.find(m=>m.id===id))).join(' · ')}</span>` : ''}</li>`;
   abrirVentana(`<button class="xcerrar" data-accion="v" data-k="cerrarDia" aria-label="${tx('cerrar')}">✕</button><h2>${nombreDia(dia)}</h2>`
     + `<p class="sub">${rs.length} ${rs.length===1?'reserva':'reservas'} · ${rs.reduce((s,x)=>s+x.comensales,0)} ${tx('comensales')}</p>`
-    + (rs.length ? `<ul class="filas todas pag">${rs.slice(pag*POR,(pag+1)*POR).map(fila).join('')}</ul>` : `<p class="sub">${tx('sinReservasDia')}</p>`)
-    + (true ? `<div class="flechasdia"><button data-accion="v" data-k="diaArriba" ${pag===0?'disabled':''} aria-label="${tx('anteriores')}">${icono('arriba')}</button><span>${pag+1} / ${total}</span><button data-accion="v" data-k="diaAbajo" ${pag>=total-1?'disabled':''} aria-label="${tx('siguientes')}">${icono('abajo')}</button></div>` : '')
+    + `<div class="dialista">` + (rs.length ? `<ul class="filas todas pag">${rs.slice(pag*POR,(pag+1)*POR).map(fila).join('')}</ul>` : `<div class="filas todas pag"><p class="sub">${tx('sinReservasDia')}</p></div>`)
+    + `<div class="flechasdia"><button data-accion="v" data-k="diaArriba" ${pag===0?'disabled':''} aria-label="${tx('anteriores')}">${icono('arriba')}</button><span>${pag+1} / ${total}</span><button data-accion="v" data-k="diaAbajo" ${pag>=total-1?'disabled':''} aria-label="${tx('siguientes')}">${icono('abajo')}</button></div></div>`
     + `<p class="sub peq">${tx('soloNumeros')}</p>`, 'dia');
 }function centroMias(){
   const r = E.R, POR = 5, lista = reservasVigentes(), total = Math.max(1, Math.ceil(lista.length/POR));
