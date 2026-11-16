@@ -1056,8 +1056,8 @@ function verDiaReservas(dia, pag=0){
   const fila = x => `<li class="rfila ${x.mia?'mia':''}"><span class="tp">${nom(FRANJAS.find(f=>f.id===x.franjaId)).toLowerCase()}</span><b>${x.socio} - ${nombreDemo(x.socio)}${x.mia?` <i class="tu">tú</i>`:''}</b><span class="cm">${x.comensales} ${tx('comensales')}</span>${x.maq.length ? `<span class="us">${x.maq.map(id=>nom(MAQUINAS.find(m=>m.id===id))).join(' · ')}</span>` : ''}</li>`;
   abrirVentana(`<button class="xcerrar" data-accion="v" data-k="cerrarDia" aria-label="${tx('cerrar')}">✕</button><h2>${nombreDia(dia)}</h2>`
     + `<p class="sub">${rs.length} ${rs.length===1?'reserva':'reservas'} · ${rs.reduce((s,x)=>s+x.comensales,0)} ${tx('comensales')}</p>`
-    + (rs.length ? `<ul class="filas todas ${total>1?'pag':''}">${rs.slice(pag*POR,(pag+1)*POR).map(fila).join('')}</ul>` : `<p class="sub">${tx('sinReservasDia')}</p>`)
-    + (total>1 ? `<div class="flechasdia"><button data-accion="v" data-k="diaArriba" ${pag===0?'disabled':''} aria-label="${tx('anteriores')}">${icono('arriba')}</button><span>${pag+1} / ${total}</span><button data-accion="v" data-k="diaAbajo" ${pag>=total-1?'disabled':''} aria-label="${tx('siguientes')}">${icono('abajo')}</button></div>` : '')
+    + (rs.length ? `<ul class="filas todas pag">${rs.slice(pag*POR,(pag+1)*POR).map(fila).join('')}</ul>` : `<p class="sub">${tx('sinReservasDia')}</p>`)
+    + (true ? `<div class="flechasdia"><button data-accion="v" data-k="diaArriba" ${pag===0?'disabled':''} aria-label="${tx('anteriores')}">${icono('arriba')}</button><span>${pag+1} / ${total}</span><button data-accion="v" data-k="diaAbajo" ${pag>=total-1?'disabled':''} aria-label="${tx('siguientes')}">${icono('abajo')}</button></div>` : '')
     + `<p class="sub peq">${tx('soloNumeros')}</p>`, 'dia');
 }function centroMias(){
   const r = E.R, POR = 5, lista = reservasVigentes(), total = Math.max(1, Math.ceil(lista.length/POR));
