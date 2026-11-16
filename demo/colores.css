@@ -1,0 +1,11 @@
+/* Colores de txokoPay: UNA sola lista que usan la TPV, el panel, el móvil y la web de reservas.
+   Si se cambia un color aquí, cambia en todas. (El modo oscuro, si una pantalla lo tiene, lo define ella misma.) */
+:root{
+  --acento:#f2a36b;
+  --fondo:#f3f5f7; --panel:#ffffff; --tinta:#1f2933; --suave:#5b6773; --borde:#dce1e6;
+  --principal:#3c5568; --principal-osc:#2f4658; --principal-claro:#e3eaf0;
+  --verde:#3f8a63; --verde-claro:#e1f0e7;
+  --rojo:#b8554d; --rojo-claro:#f6e3e0;
+  --amarillo:#f3dc9a; --amarillo-claro:#fbe9a6; --amarillo-tinta:#4a3a00;
+  --azul:#2a62b0;
+}

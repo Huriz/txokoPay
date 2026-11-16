@@ -68,3 +68,12 @@ window.CATALOGO = {
   },  poca:{ cats:['refresco','cerveza','vino','agua','chupito','botellalicor','combinado'], comen:'comensal' }
 };
 })();
+
+/* ===== Datos de ejemplo de ocupación, COMPARTIDOS por la TPV y la web de reservas: así los números salen iguales en las dos ===== */
+const hashDemo = s => { let x = 0; for (const c of String(s)) x = (x * 31 + c.charCodeAt(0)) >>> 0; return x; };
+function ocupacionBaseDemo(dia, franjaId, comensalesMax){      // lo que ya hay reservado por otros (inventado): mesas de 4, reservas y comensales
+  const mesasMax = Math.floor(comensalesMax / 4), hs = hashDemo('m' + dia + franjaId) % 20;
+  const mesas = hs === 0 ? mesasMax : Math.floor(mesasMax * (hs % 10) / 12);
+  return {mesas, n: mesas > 0 ? Math.ceil(mesas / 2) : 0, c: Math.round(mesas * 4 * 0.8)};
+}
+const maquinaOcupadaBaseDemo = (dia, franjaId, maquinaId) => hashDemo(maquinaId + dia + franjaId) % 4 === 0;

@@ -11,11 +11,9 @@
   antes de hacer la app de verdad. Abrir en Chrome/Edge; F11 para pantalla completa.
   Preparado para varios idiomas (TEXTOS), de momento solo castellano.
 -->
+<link rel="stylesheet" href="colores.css">
 <style>
-:root{--acento:#f2a36b;
-  --fondo:#f3f5f7; --panel:#ffffff; --tinta:#1f2933; --suave:#5b6773; --borde:#dce1e6;
-  --principal:#3c5568; --principal-claro:#e3eaf0;
-  --verde:#3f8a63; --amarillo:#f3dc9a; --amarillo-tinta:#3a2c00; --rojo:#b8554d;
+:root{
   --altoDemo:56px; --radio:12px; --grosor:1px;
 }
 *{box-sizing:border-box}
@@ -39,7 +37,7 @@ button:active{transform:scale(.98)}
 .ficha.xl .ico{width:78px;height:78px}
 .ficha.s{width:48px;height:48px;border-radius:15px}
 .ficha.s .ico{width:28px;height:28px}
-.ficha.claro{background:rgba(255,255,255,.2);color:#fff}
+.ficha.claro{background:var(--principal-claro);color:var(--principal)}
 .saldo.s-amarillo .ficha,.saldo.s-rojo .ficha{background:rgba(255,255,255,.6);color:inherit}
 /* relieve: sombra inferior marcada, como un botón que se pulsa */
 .articulo,.grupo,.boton,.abajo button,.saldo,.paginas button,.tecla,.grupos-pag button,.modo{box-shadow:0 5px 0 rgba(31,41,51,.22),0 8px 14px rgba(31,41,51,.14);transition:transform .05s,box-shadow .05s}
@@ -63,11 +61,11 @@ button:active{transform:scale(.98)}
 .icocentro{display:flex;justify-content:center;margin-bottom:12px}
 
 /* barra superior */
-.arriba{height:92px;flex:none;display:flex;align-items:center;gap:18px;padding:0 20px;background:var(--principal);color:#fff}
+.arriba{height:92px;flex:none;display:flex;align-items:center;gap:18px;padding:0 20px;background:var(--panel);color:var(--tinta);border-bottom:1px solid var(--borde)}
 .quien{display:flex;align-items:center;gap:14px;flex:1;min-width:0}
 .quien .ico{width:44px;height:44px}
 .nombre{font-size:30px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.quien .sub{font-size:22px;opacity:.9;margin:0;color:#fff}
+.quien .sub{font-size:22px;margin:0;color:var(--suave)}
 .saldo{display:flex;align-items:center;gap:12px;padding:0 20px;height:68px;border-radius:var(--radio);font-size:24px}
 .saldo .ico{width:36px;height:36px}
 .saldo b{font-size:30px;font-variant-numeric:tabular-nums}
@@ -205,10 +203,10 @@ button:active{transform:scale(.98)}
 .p-comprobado{background:#dff3e6;color:var(--verde);font-size:22px}
 
 /* pestañas Consumo / Reservas */
-.modos{display:flex;gap:5px;padding:5px;background:rgba(255,255,255,.18);border-radius:var(--radio)}
-.modo{height:58px;padding:0 20px;border-radius:9px;background:none;color:#fff;font-weight:700;font-size:26px;display:flex;align-items:center;gap:10px}
+.modos{display:flex;gap:5px;padding:5px;background:var(--fondo);border:1px solid var(--borde);border-radius:var(--radio)}
+.modo{height:58px;padding:0 20px;border-radius:9px;background:none;color:var(--suave);font-weight:700;font-size:26px;display:flex;align-items:center;gap:10px}
 .modo .ico{width:30px;height:30px}
-.modo.on{background:#fff;color:var(--principal)}
+.modo.on{background:var(--principal-claro);color:var(--principal);box-shadow:inset 0 0 0 2px var(--principal)}
 /* reservas dentro de la TPV */
 .paso{flex:none;height:88px;display:flex;align-items:center;gap:10px;text-align:left;padding:0 12px;background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:var(--radio);box-shadow:0 1px 3px rgba(31,41,51,.10)}
 .paso .pn{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:50%;background:var(--borde);color:var(--tinta);font-weight:800;font-size:24px}
@@ -217,9 +215,9 @@ button:active{transform:scale(.98)}
 .paso .pt b{font-size:25px}
 .paso .pt small{font-size:20px;color:var(--suave);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .paso.hecho .pn{background:var(--verde);color:#fff}
-.paso.activo{background:var(--principal);color:#fff;border-color:var(--principal);box-shadow:none}
-.paso.activo small{color:#e3eaf0}
-.paso.activo .pn{background:#fff;color:var(--principal)}
+.paso.activo{background:var(--principal-claro);color:var(--principal);border-color:var(--principal);box-shadow:inset 0 0 0 1px var(--principal)}
+.paso.activo small{color:var(--suave)}
+.paso.activo .pn{background:var(--principal);color:#fff}
 .paso.mis{margin-top:auto}
 .paso.mis .pt b{font-size:22px;white-space:nowrap}
 .centro .tecla.si{font-size:26px}
@@ -234,8 +232,8 @@ button:active{transform:scale(.98)}
 .cd b{font-size:38px;line-height:1}
 .cd small{font-size:18px;color:var(--suave);text-transform:uppercase;font-weight:700}
 .cd.hoy{border:2px solid var(--principal)}
-.cd.sel{background:var(--principal);border-color:var(--principal);color:#fff}
-.cd.sel small{color:#e3eaf0}
+.cd.sel{background:var(--principal-claro);border-color:var(--principal);color:var(--principal);box-shadow:inset 0 0 0 1px var(--principal)}
+.cd.sel small{color:var(--suave)}
 .tpv.res{grid-template-rows:auto minmax(0,1fr)}
 .subnav{grid-column:1/-1;display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
 .subnav button{height:74px;border-radius:var(--radio);font-weight:800;box-shadow:0 5px 0 rgba(31,41,51,.22),0 8px 14px rgba(31,41,51,.14)}
@@ -471,7 +469,7 @@ function estadoInicial(idioma){
       crearReserva(1, fechaClave(HOY), 'cena', 8, ['horno1','freidora']),
       crearReserva(2, fechaClave(sumarDias(HOY,5)), 'comida', 4, [])
     ],
-    siguienteIdReserva:3, modo:'consumo', rVista:'pasos', R:nuevoR(),
+    siguienteIdReserva:3, modo:'consumo', rVista:'todas', R:nuevoR(),
     movimientos:[
       tk('08/11','banca',[['rioja',2],['agua',1],['solo',3]]),
       ing('08/11','efectivo',5000),
@@ -1191,7 +1189,7 @@ const acciones = {
   pagina: d=>{ E.pagina += +d.paso; pintar(); },
   pagTicket: d=>{ E.pagTicket = (E.pagTicket ?? 0) + +d.paso; pintar(); },
   pagGrupos: d=>{ E.pagGrupos = (E.pagGrupos||0) + +d.paso; pintar(); },
-  modo: d=>{ E.modo = d.m; pintar(); },
+  modo: d=>{ E.modo = d.m; if(d.m==='reservas'){ E.rVista='todas'; E.R.paso=1; } pintar(); },
   rPaso: d=>{ E.rVista='pasos'; E.R.paso=+d.p; if(+d.p===3) E.R.nuevoNum=true; pintar(); },
   rMias: ()=>{ E.rVista='mias'; pintar(); },
   rDiaClave: d=>{ if(E.R.dia!==d.c) E.R.maquinas=[]; E.R.dia=d.c; E.R.paso=2; pintar(); },
