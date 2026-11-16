@@ -279,6 +279,12 @@ input.comn-s{width:84px;min-height:46px;height:46px;font-size:28px;border-radius
 @media (min-width:1500px){.wrap{max-width:min(1500px,94vw)}.wiz{max-width:min(1440px,92vw)}}
 @media (min-width:900px){.cab .in{max-width:min(1320px,96vw)}}
 @media (min-width:1500px){.cab .in{max-width:min(1500px,94vw)}}
+/* ---- número y círculo uno debajo del otro (nunca se montan), los dos crecen con la celda ---- */
+.cal .cd{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:3px 2px;overflow:hidden}
+.cal .cd b{font-size:clamp(14px,calc(var(--celda) * .36),28px);line-height:1;margin:0}
+.cal .cd:has(.pto){justify-content:space-between}
+.cal .cd .pto{position:static;margin:0;box-shadow:none;height:clamp(17px,calc(var(--celda) * .36),30px);min-width:clamp(22px,calc(var(--celda) * .5),34px);font-size:clamp(10px,calc(var(--celda) * .26),15px);padding:0 4px}
+.cal .cd small{line-height:1}
 </style>
 </head>
 <body>
