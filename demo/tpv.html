@@ -357,6 +357,12 @@ button:active{transform:scale(.98)}
 .flechasdia{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;margin:0;width:96px;flex:none}
 .flechasdia button{width:96px;height:auto;flex:1;min-height:120px;border-radius:18px}
 .flechasdia span{min-width:0;font-size:22px;font-weight:700;color:var(--suave)}
+/* botones de la ventana del dia mas marcados */
+.flechasdia button{border:2px solid var(--principal);background:var(--principal-claro);color:var(--principal-osc);box-shadow:0 3px 0 var(--principal)}
+.flechasdia button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 var(--principal)}
+.flechasdia button:disabled{opacity:.45;border-color:var(--borde);box-shadow:none;background:var(--panel);color:var(--suave)}
+.flechasdia .ico{width:56px;height:56px;stroke-width:3}
+.hoja.dia .xcerrar{border:2px solid var(--principal);background:var(--principal-claro);color:var(--principal-osc);box-shadow:0 3px 0 var(--principal)}
 </style>
 </head>
 <body>
