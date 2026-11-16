@@ -251,6 +251,34 @@ input.comn-s{width:84px;min-height:46px;height:46px;font-size:28px;border-radius
 .wscr .aparatos{grid-template-columns:repeat(3,1fr)}
 @media (max-width:700px){.wiz{min-height:0}.wscr{min-height:520px}.warrow{width:56px;height:56px;font-size:38px}.wtit b{font-size:21px}.wscr .turnos{gap:8px}}
 @media (max-width:700px){.n-otra{min-height:44px;font-size:15px}.n-nueva{min-height:52px}.n-nueva b{font-size:18px}.sync{margin-bottom:8px}.wbar{margin-bottom:10px}}
+/* ---- en el ordenador: todo más grande y aprovechando la pantalla (el móvil se queda como está) ---- */
+:root{--celda:clamp(48px,5.4vw,88px)}
+@media (min-width:900px){
+  .wrap{max-width:min(1320px,96vw)}
+  .wiz{max-width:min(1240px,94vw)}
+  .wscr{min-height:clamp(580px,72vh,780px);padding:26px 30px}
+  .warrow{width:72px;height:72px;font-size:48px}.wtit b{font-size:28px}.wtit small{font-size:15px}
+  .cal{max-width:none}.todas .cal{max-width:none!important}
+  .calcab b{font-size:clamp(22px,2vw,30px)}.calcab button{width:50px;height:50px;font-size:28px}
+  .calsem span{font-size:clamp(13px,1.2vw,17px);padding:4px 0}
+  .calgrid{gap:8px;grid-auto-rows:var(--celda);min-height:calc(5*var(--celda) + 4*8px)}
+  .cal .cd{height:var(--celda);font-size:clamp(19px,1.9vw,28px);border-radius:14px;padding-top:6px}
+  .cd:has(.pto) b{margin-top:0}
+  .pto,.cal .cd .pto{min-width:32px;height:30px;font-size:15px;bottom:6px;padding:0 7px}
+  .cal .cd small{font-size:12px}
+  .calpie{font-size:15px}.calpie button{padding:6px 16px;font-size:15px}
+  .wscr .turnos{grid-template-columns:repeat(4,1fr);gap:16px}
+  .turno{padding:20px}.turno b{font-size:26px}.turno small{font-size:16px}.barra{height:10px}
+  .stepper2 button{width:88px;height:88px;font-size:44px}
+  input.comn{width:210px;min-height:112px;height:112px;font-size:72px;border-radius:22px}
+  .wscr .aparatos{gap:16px}.aparato{padding:26px 10px;font-size:24px}.aparato small{font-size:16px}
+  .rdl{padding:18px 22px;font-size:22px}.rdl dt{font-size:18px}
+  .wpie .btn{height:64px;min-height:64px;font-size:22px}
+  .p-det{display:none}
+}
+@media (min-width:1500px){.wrap{max-width:min(1500px,94vw)}.wiz{max-width:min(1440px,92vw)}}
+@media (min-width:900px){.cab .in{max-width:min(1320px,96vw)}}
+@media (min-width:1500px){.cab .in{max-width:min(1500px,94vw)}}
 </style>
 </head>
 <body>
