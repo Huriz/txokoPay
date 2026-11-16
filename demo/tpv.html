@@ -381,6 +381,16 @@ button:active{transform:scale(.98)}
 .rcm .rb:disabled{background:#e6e8eb;border-color:#c9cdd2;color:#a3a9b1;box-shadow:none}
 .rcm .rv{min-width:96px;height:84px;text-align:center;font-size:44px;font-weight:700;border-radius:18px;border:2px dashed #8e959e;background:#fff;color:var(--tinta);padding:0}
 .rtot{font-weight:700}.rtot.ok{color:var(--verde)}
+/* Mi cuenta compacta: sin scroll */
+.hoja.ancha{padding:22px 30px}
+.cuenta-saldo{padding:12px 26px;gap:22px}.cuenta-saldo .cifra{font-size:52px;line-height:1.05}.cuenta-saldo .titulo{font-size:24px}.cuenta-saldo .estado{font-size:22px}
+.cuenta-cols{grid-template-columns:1.9fr 1fr;margin-top:14px;gap:20px}
+.cuenta-cols h3{margin:0 0 2px;padding-bottom:6px;font-size:26px}
+.cuenta-cols .filas .fila{padding:6px 8px}
+.cuenta-cols .filas .fila .t{font-size:24px;line-height:1.15}.cuenta-cols .filas .fila .t .s{font-size:19px}
+.cuenta-cols .filas .fila .i{font-size:26px}
+.cuenta-cols .paginas{height:64px!important;margin-top:8px!important}
+.hoja.ancha .dos.pie{margin-top:12px}
 </style>
 </head>
 <body>
@@ -1244,7 +1254,7 @@ function verCuenta(){
     <div class="cuenta-saldo ${claseSaldo(E.saldo)}">${fichaIcono('banca','xl')}<div>
       <div class="titulo">${tx('banca')}</div><div class="cifra">${euros(E.saldo)}</div><div class="estado">${textoSaldo(E.saldo)}</div></div></div>
     <div class="cuenta-cols">
-      <section><h3>${tx('ultimosMovimientos')}</h3><ul class="filas" style="${totalPag>1?'min-height:420px':''}">${movs}</ul>${botonesPagina('mp', E.pagMov, totalPag)}</section>
+      <section><h3>${tx('ultimosMovimientos')}</h3><ul class="filas" style="${totalPag>1?'min-height:340px':''}">${movs}</ul>${botonesPagina('mp', E.pagMov, totalPag)}</section>
       <section><h3>${icono('calendario')} ${tx('proximasReservas')}</h3><ul class="lista">${reservas}</ul></section>
     </div>
     <div class="dos pie">
