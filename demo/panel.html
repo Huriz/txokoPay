@@ -1871,7 +1871,7 @@ const formServicio = () => `<div class="filtros"><div class="fila"><label>Nuevo 
   <label>Precio (€)<input type="number" min="0" step="0.01" id="nsPrecio" value="0.00" style="width:90px"></label><button class="btn principal" data-ac="nuevoServicio">Añadir servicio</button></div></div>`;
 function filaServicio(k,a){
   const v=a.reserva||'';
-  const enlace = `<select class="ed" data-a="${k}.reserva"><option value="" ${!v?'selected':''}>Ninguno</option><optgroup label="Reservables">${MAQUINAS.map(m=>`<option value="maq:${m.id}" ${v==='maq:'+m.id?'selected':''}>${esc(m.nombre)}</option>`).join('')}</optgroup><optgroup label="De la reserva"><option value="comensales" ${v==='comensales'?'selected':''}>Comensales</option><option value="cocina" ${v==='cocina'?'selected':''}>Hora de cocina</option></optgroup></select>`;
+  const enlace = `<select class="ed" data-a="${k}.reserva"><option value="" ${!v?'selected':''}>Ninguno</option><optgroup label="Reservables">${MAQUINAS.map(m=>`<option value="maq:${m.id}" ${v==='maq:'+m.id?'selected':''}>${esc(m.nombre)}</option>`).join('')}</optgroup><optgroup label="De la reserva"><option value="comensales" ${v==='comensales'?'selected':''}>Comensales (los de la reserva)</option><option value="cualquiera" ${v==='cualquiera'?'selected':''}>Cualquier reserva (se pregunta al cerrar)</option></optgroup></select>`;
   return `<tr class="${a.activo?'':'inactivo'}"><td><code class="idart">${a.num}</code></td><td><input class="ed" type="text" data-a="${k}.nombre" value="${esc(a.nombre)}" style="width:190px"></td>
     <td><input class="ed" type="number" min="0" step="0.01" data-a="${k}.precio" value="${(a.precio/100).toFixed(2)}" style="width:80px"></td>
     <td>${enlace}</td>
@@ -1882,7 +1882,7 @@ function resultadoServicios(){
   const lista=Object.entries(ART).filter(([,a])=>a.servicio);
   return `<div class="scrollx"><table class="tabla compacta" style="width:100%"><thead><tr><th>ID</th><th>Servicio</th><th>Precio (€)</th><th>Se enlaza con la reserva</th><th>Preguntar en la TPV al cerrar el ticket</th><th>Activo</th><th></th></tr></thead><tbody>
     ${lista.map(([k,a])=>filaServicio(k,a)).join('') || '<tr><td colspan="7" class="muted">No hay servicios.</td></tr>'}</tbody></table></div>
-    <p class="nota-lista">Cada servicio tiene <b>su propio precio</b>. «Si está en la reserva»: la TPV pregunta antes de cerrar el ticket si hay una reserva con ese servicio (la máquina reservada, la hora de cocina o los comensales). «Siempre»: pregunta en todos los tickets. «Nunca»: solo se cobra si lo marcan a mano; <b>cualquier servicio se puede marcar sin reserva</b>. Todos aparecen en el <b>Menú de la TPV</b> para enlazarlos a un botón.</p>`;
+    <p class="nota-lista">Cada servicio tiene <b>su propio precio</b>. «Si está en la reserva»: la TPV pregunta antes de cerrar el ticket si hay una reserva con ese servicio (la máquina reservada, los comensales o, en el caso de la hora de cocina, cualquier reserva: no se pide al reservar, se pregunta al cerrar). «Siempre»: pregunta en todos los tickets. «Nunca»: solo se cobra si lo marcan a mano; <b>cualquier servicio se puede marcar sin reserva</b>. Todos aparecen en el <b>Menú de la TPV</b> para enlazarlos a un botón.</p>`;
 }
 function filaArt(k,a){
   const modo = a.almacen ? ((a.soloBarra||!S.usaAlmacen)?'barra':'almacen') : (a.deriva && a.deriva.length) ? 'deriva' : 'ninguno';

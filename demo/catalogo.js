@@ -41,7 +41,7 @@ window.CATALOGO = {
     descafeinado:n('Descafeinado','cafe',110), infusion:n('Infusión','cafe',100),
     comensal:{...n('Comensal','comensal',500), servicio:true, pregunta:'reserva', reserva:'comensales'}, almuerzo:n('Comensal almuerzo','comensal',300), bocadillo:n('Comensal bocadillo','comensal',200), pizza:n('Comensal pizza','comensal',200),
     hora_horno:{...n('Hora de horno 1','servicio',300), servicio:true, pregunta:'reserva'}, hora_horno2:{...n('Hora de horno 2','servicio',300), servicio:true, pregunta:'reserva'},
-    freidora:{...n('Hora de freidora','servicio',300), servicio:true, pregunta:'reserva'}, hora_cocina:{...n('Hora de cocina','servicio',300), servicio:true, pregunta:'reserva', reserva:'cocina'},
+    freidora:{...n('Hora de freidora','servicio',300), servicio:true, pregunta:'reserva'}, hora_cocina:{...n('Hora de cocina','servicio',300), servicio:true, pregunta:'reserva', reserva:'cualquiera'},
     hielo:{...n('Hielo','servicio',100), servicio:true, pregunta:'nunca'}, descorche:{...n('Descorche','servicio',300), servicio:true, pregunta:'nunca'}, mantel:n('Mantel','varios',100), servilletas:n('Servilletas de tela','varios',50)
   },
   menu:[
