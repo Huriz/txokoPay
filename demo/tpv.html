@@ -249,13 +249,13 @@ button:active{transform:scale(.98)}
 .dhead{display:flex;justify-content:space-between;align-items:baseline;padding:10px 16px;background:var(--principal-claro);color:var(--principal);border-radius:10px;margin-top:8px}.dhead b{font-size:28px;text-transform:capitalize}.dhead span{font-size:22px}
 .rfila{display:grid;grid-template-columns:150px 170px 190px 1fr;gap:8px;align-items:center;padding:8px 16px;border-bottom:var(--grosor) solid var(--borde);font-size:26px}
 .rfila .tp{font-weight:800;text-transform:capitalize}.rfila .us{color:var(--suave);font-size:24px}.rfila.mia{background:#fbe9a6}
-.hoja.dia{width:1120px;max-height:none;overflow:visible;position:relative;text-align:left;padding:28px 32px}
+.hoja.dia{width:1210px;max-height:none;overflow:visible;position:relative;text-align:left;padding:28px 32px}
 .hoja.dia h2{margin:0 90px 4px 0}.hoja.dia .sub{margin-bottom:10px}.hoja.dia .sub.peq{font-size:20px;margin:12px 0 0}
 .xcerrar{position:absolute;top:18px;right:18px;width:68px;height:68px;border-radius:18px;border:1px solid var(--borde);background:var(--panel);font-size:36px;line-height:1;color:var(--suave);display:grid;place-items:center;padding:0}
 .xcerrar:active{background:var(--principal-claro)}
 .filas.todas.dos{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;row-gap:0}
 .hoja.dia .rfila{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 14px;padding:7px 10px;font-size:24px}
-.hoja.dia .rfila .tp{min-width:104px}.hoja.dia .rfila .us{flex-basis:100%;font-size:20px}.rfila .tu{font-style:normal;background:var(--acento);color:#3a2000;border-radius:8px;padding:0 8px;font-size:20px;margin-left:6px}
+.hoja.dia .rfila .tp{min-width:104px}.hoja.dia .rfila b{font-size:23px}.hoja.dia .rfila .us{flex-basis:100%;font-size:20px}.rfila .tu{font-style:normal;background:var(--acento);color:#3a2000;border-radius:8px;padding:0 8px;font-size:20px;margin-left:6px}
 .subnav{gap:10px}
 .subnav button{height:62px;box-shadow:0 1px 3px rgba(31,41,51,.10)}
 .sn-nueva{background:#e1f0e7;color:#2f7050;border:var(--grosor) solid #3f8a63;padding:0 16px;gap:12px}
@@ -390,7 +390,7 @@ const TEXTOS = {
     mas:'Más', atras:'Atrás', formaBanca:'banca', formaEfectivo:'efectivo', formaTarjeta:'tarjeta',
     sobreDentro:'Mete <mark>dentro del sobre</mark>:', sobreElDinero:'el dinero', sobreFin:'Cierra el sobre y échalo a la caja fuerte',
     modoConsumo:'Consumo', modoReservas:'Reservas', manana:'Mañana', hoyM:'HOY', mananaM:'MAÑANA',
-    pasoDia:'Día', pasoFranja:'Franja', pasoComensales:'Comensales', pasoMaquinas:'Máquinas', misReservas:'Mis reservas', nuevaReserva:'Nueva reserva', nuevaReservaSub:'Día, franja, comensales y máquinas', todasReservas:'Todas las reservas', leyendaPunto:'El círculo naranja de cada día son los comensales ya reservados. Toca un día para ver las reservas.', sinReservasDia:'Ese día no hay reservas.', soloNumeros:'Aquí solo se ve el número de socio, la fecha, el turno, los comensales y lo que usan.',
+    pasoDia:'Día', pasoFranja:'Franja', pasoComensales:'Comensales', pasoMaquinas:'Máquinas', misReservas:'Mis reservas', nuevaReserva:'Nueva reserva', nuevaReservaSub:'Día, franja, comensales y máquinas', todasReservas:'Todas las reservas', leyendaPunto:'El círculo naranja de cada día son los comensales ya reservados. Toca un día para ver las reservas.', sinReservasDia:'Ese día no hay reservas.', soloNumeros:'De cada reserva se ve el socio (número y nombre), el turno, los comensales y lo que usan.',
     queDia:'¿Qué día?', cerrado:'Cerrado', hastaEl:'Puedes reservar hasta el {0}', queFranja:'¿Para qué comida?', cuantosComen:'¿Cuántos comensales?', quierMaquinas:'¿Quieres horno o freidora?',
     eligePrimeroDia:'Elige primero el día.', eligePrimeroFranja:'Elige primero el día y la comida.',
     sinReservasTurno:'Sin reservas todavía', leyendaOcupacion:'El círculo naranja de cada día son los comensales ya reservados.',
@@ -1001,7 +1001,7 @@ function subnavReservas(){
     <button class="sn-otra ${E.rVista==='todas'?'on':''}" data-accion="rTodas">${tx('todasReservas')}</button></div>`;
 }
 // reservas de TODOS los socios, solo con lo que no es privado (número de socio, fecha, turno, comensales y lo que usan)
-const POOL_SOCIOS = [4, 9, 15, 18, 27, 31, 36, 42, 51, 58];
+const POOL_SOCIOS = POOL_SOCIOS_DEMO;
 function baseFranja(dia, f){
   const hs = hash('m'+dia+f.id) % 20, base = hs===0 ? maxMesas(f.id) : Math.floor(maxMesas(f.id)*(hs%10)/12);
   return {n: base>0 ? Math.ceil(base/2) : 0, c: Math.round(base*PLAZAS_MESA*0.8)};
@@ -1042,7 +1042,7 @@ function verDiaReservas(dia){
   const orden = id => FRANJAS.findIndex(f=>f.id===id);
   const rs = todasLasReservas(diasAdelante()).filter(x=>x.dia===dia).sort((a,b)=>orden(a.franjaId)-orden(b.franjaId) || a.socio-b.socio);
   V.cerrarDia = cerrarVentana;
-  const fila = x => `<li class="rfila ${x.mia?'mia':''}"><span class="tp">${nom(FRANJAS.find(f=>f.id===x.franjaId)).toLowerCase()}</span><b>${tx('socio')} ${x.socio}${x.mia?` <i class="tu">tú</i>`:''}</b><span>${x.comensales} ${tx('comensales')}</span>${x.maq.length ? `<span class="us">${x.maq.map(id=>nom(MAQUINAS.find(m=>m.id===id))).join(' · ')}</span>` : ''}</li>`;
+  const fila = x => `<li class="rfila ${x.mia?'mia':''}"><span class="tp">${nom(FRANJAS.find(f=>f.id===x.franjaId)).toLowerCase()}</span><b>${x.socio} - ${nombreDemo(x.socio)}${x.mia?` <i class="tu">tú</i>`:''}</b><span>${x.comensales} ${tx('comensales')}</span>${x.maq.length ? `<span class="us">${x.maq.map(id=>nom(MAQUINAS.find(m=>m.id===id))).join(' · ')}</span>` : ''}</li>`;
   abrirVentana(`<button class="xcerrar" data-accion="v" data-k="cerrarDia" aria-label="${tx('cerrar')}">✕</button><h2>${nombreDia(dia)}</h2>`
     + `<p class="sub">${rs.length} ${rs.length===1?'reserva':'reservas'} · ${rs.reduce((s,x)=>s+x.comensales,0)} ${tx('comensales')}</p>`
     + (rs.length ? `<ul class="filas todas dos">${rs.map(fila).join('')}</ul>` : `<p class="sub">${tx('sinReservasDia')}</p>`)

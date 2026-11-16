@@ -296,9 +296,15 @@ input.comn-s{width:84px;min-height:46px;height:46px;font-size:28px;border-radius
 .cajon .cuerpo{flex:1;overflow:auto;padding:6px 0}
 .cajon .gt{display:flex;justify-content:space-between;gap:8px;align-items:baseline;padding:8px 18px;margin-top:8px;background:var(--principal-claro);color:var(--principal)}.cajon .gt b{font-size:17px}.cajon .gt span{font-size:14px}
 .cajon .rf2{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 14px;padding:7px 18px;border-bottom:1px solid var(--borde);font-size:16.5px}
-.cajon .rf2 b{min-width:84px}.cajon .rf2 .us{flex-basis:100%;color:var(--suave);font-size:14.5px}.cajon .rf2.mia{background:var(--amarillo-claro)}
+.cajon .rf2 b{min-width:0}.cajon .rf2 .us{flex-basis:100%;color:var(--suave);font-size:14.5px}.cajon .rf2.mia{background:var(--amarillo-claro)}
 .cajon .pie2{margin:0;padding:10px 18px;border-top:1px solid var(--borde)}
-@media (max-width:600px){.cajon{width:100vw}}</style>
+@media (max-width:600px){.cajon{width:100vw}}/* cajón más compacto: que quepa el día más cargado sin scroll */
+.cajon header{padding:10px 16px}.cajon .x{width:44px;height:44px}
+.cajon .cuerpo{padding:0}
+.cajon .gt{padding:5px 16px;margin-top:4px}.cajon .gt b{font-size:16px}.cajon .gt span{font-size:13.5px}
+.cajon .rf2{padding:4px 16px;font-size:15.5px;line-height:1.25;gap:0 12px}.cajon .rf2 .us{font-size:13.5px}
+.cajon .pie2{padding:6px 16px;font-size:12.5px;line-height:1.3}
+</style>
 </head>
 <body>
 <div id="app"></div>
@@ -482,7 +488,7 @@ function vNueva(){
   else pantalla = `<dl class="rdl"><dt>Día</dt><dd>${R.dia}</dd><dt>Turno</dt><dd>${fr.nombre}</dd><dt>Comensales</dt><dd>${S.com}</dd><dt>Aparatos</dt><dd>${maqTxt || 'ninguno'}</dd></dl>    <p class="nota" style="margin-top:8px">Se confirma cuando la sociedad la acepta. Si algo ya no está libre, te lo decimos con el motivo.</p>`;
   return `${S.errNueva ? `<div class="aviso toast">${esc(S.errNueva)}</div>` : ''}<div class="wiz">${barra}<div class="wscr"><div class="wcont">${pantalla}</div>${p<=2 ? '' : `<div class="wpie"><button class="btn" id="wfoot" data-ac="${p===5?'solicitar':'paso'}" ${p<5?'data-d="1"':''} ${(p===5?listo:puedeSiguiente(p))?'':'disabled'}>${p===5?'Terminar reserva':'Siguiente'}</button></div>`}</div></div>`;
 }/* «Todas las reservas»: solo el número de socio, la fecha, el turno, los comensales y lo que usan (nunca nombres ni teléfonos). Salen de lo que se descargó de la sociedad. */
-const POOL_SOCIOS = [4, 9, 15, 18, 27, 31, 36, 42, 51, 58];
+const POOL_SOCIOS = POOL_SOCIOS_DEMO;
 function reservasBase(dia, fr){   /* las reservas de otros socios (inventadas) que suman lo que ya hay ocupado */
   const b0 = baseDe(dia, fr), ob = b0.c; if (ob <= 0) return [];
   const n = Math.max(1, b0.n), out = []; let resto = ob;
@@ -517,8 +523,8 @@ function vTodas(){
   /* El detalle sale por la derecha, en un cajón con una X (en el móvil ocupa todo el ancho) */
   const grupos = FRANJAS.map(f => ({f, l:rs.filter(r => r.franja === f.id)})).filter(g => g.l.length);
   const cajon = !S.diaVer ? '' : `<div class="cajonfondo" data-ac="cerrarDia"></div><aside class="cajon ${S.cajonVisto===S.diaVer?'':'abre'}" role="dialog" aria-label="Reservas del día"><header><div><b>${fmtDia(S.diaVer)}</b><small>${rs.length} reservas · ${rs.reduce((s, r) => s + r.comensales, 0)} comensales</small></div><button class="x" data-ac="cerrarDia" aria-label="Cerrar">✕</button></header>
-    <div class="cuerpo">${grupos.length ? grupos.map(g => `<div class="gt"><b>${g.f.nombre}</b><span>${g.l.length} reserva${g.l.length===1?'':'s'} · ${g.l.reduce((s, r) => s + r.comensales, 0)} comensales</span></div>${g.l.map(r => `<div class="rf2 ${r.mia?'mia':''}"><b>Socio ${r.socio}${r.mia ? ' <i class="tu">tú</i>' : ''}</b><span>${r.comensales} comensal${r.comensales>1?'es':''}</span>${r.maq.length ? `<span class="us">${r.maq.map(id => MAQ.find(m => m.id === id).nombre).join(' · ')}</span>` : ''}</div>`).join('')}`).join('') : '<div class="espera" style="min-height:0">Ese día no hay reservas.</div>'}</div>
-    <p class="nota pie2">De cada reserva solo se ve el número de socio, el turno, los comensales y lo que usan. Ni nombres ni teléfonos.</p></aside>`;
+    <div class="cuerpo">${grupos.length ? grupos.map(g => `<div class="gt"><b>${g.f.nombre}</b><span>${g.l.length} reserva${g.l.length===1?'':'s'} · ${g.l.reduce((s, r) => s + r.comensales, 0)} comensales</span></div>${g.l.map(r => `<div class="rf2 ${r.mia?'mia':''}"><b>${r.socio} - ${nombreDemo(r.socio)}${r.mia ? ' <i class="tu">tú</i>' : ''}</b><span>${r.comensales} comensal${r.comensales>1?'es':''}</span>${r.maq.length ? `<span class="us">${r.maq.map(id => MAQ.find(m => m.id === id).nombre).join(' · ')}</span>` : ''}</div>`).join('')}`).join('') : '<div class="espera" style="min-height:0">Ese día no hay reservas.</div>'}</div>
+    <p class="nota pie2">De cada reserva se ve el socio (número y nombre), el turno, los comensales y lo que usan. Sin teléfonos ni datos privados.</p></aside>`;
   S.cajonVisto = S.diaVer;
   return `<div class="todas"><div class="paso"><h2>Días con reservas</h2><div class="cal" style="max-width:560px;margin:0 auto"><div class="calcab"><button data-ac="mesT" data-d="-1" ${cur<=minM?'disabled':''} aria-label="Mes anterior">‹</button><b>${MESESL[mes]} ${año}</b><button data-ac="mesT" data-d="1" ${cur>=maxM?'disabled':''} aria-label="Mes siguiente">›</button></div>
     <div class="calsem">${['L','M','X','J','V','S','D'].map(x => `<span>${x}</span>`).join('')}</div><div class="calgrid">${celdas.slice(inicio).join('')}</div>

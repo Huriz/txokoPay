@@ -77,3 +77,7 @@ function ocupacionBaseDemo(dia, franjaId, comensalesMax){      // lo que ya hay 
   return {mesas, n: mesas > 0 ? Math.ceil(mesas / 2) : 0, c: Math.round(mesas * 4 * 0.8)};
 }
 const maquinaOcupadaBaseDemo = (dia, franjaId, maquinaId) => hashDemo(maquinaId + dia + franjaId) % 4 === 0;
+/* Socios de ejemplo (los mismos nombres que en el panel) para las listas de reservas de la TPV y de la web */
+const SOCIOS_DEMO = {23:'Josu Etxeberria', 7:'Mikel Aranburu', 12:'Iñaki Goikoetxea', 31:'Andoni Zubiri', 18:'Jon Ansola', 45:'Peio Larrañaga', 9:'Xabier Olano', 52:'Aitor Mendizabal'};
+const POOL_SOCIOS_DEMO = [7, 9, 12, 18, 31, 45, 52];      // quienes tienen reservas «de otros» (23 es el socio de la demo)
+const nombreDemo = n => SOCIOS_DEMO[n] || ('Socio ' + n);
