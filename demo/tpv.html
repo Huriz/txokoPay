@@ -606,7 +606,7 @@ function pintarEntrada(){
     </div>
     <div class="o">${tx('o')}</div>
     <button class="boton xl ensocio" data-accion="entrarNumero" style="width:760px">${tx('entrarNumero')}</button>
-    <div class="pistademo"><b>Solo para la demo:</b> llave de ejemplo <code id="llaveEj">064C21A1</code> <button type="button" data-accion="copiarLlave">Copiar</button> <br><span class="muted-demo" style="font-size:18px">Cópiala y pégala en el campo de arriba (o pulsa «Simular llave»).</span></div>
+    <div class="pistademo"><b>Solo para la demo:</b> llave de ejemplo <code id="llaveEj">064C21A1</code> <button type="button" data-accion="copiarLlave">Copiar</button> <br><span class="muted-demo" style="font-size:18px">Cópiala y pégala en el campo de arriba (o pulsa «Simular llave»). En la demo vale cualquier texto de más de 5 caracteres.</span></div>
     ${E.aviso?`<div class="aviso">${E.aviso}</div>`:''}
   </div>`;
 }
@@ -743,7 +743,7 @@ function leerLlave(){
   clearTimeout(tLlave);
   const c = document.getElementById('campoLlave'); if(!c || !c.value.trim()) return;
   const v = c.value.trim().toUpperCase(); c.value = '';
-  if(!LLAVES_VALIDAS.includes(v)){ llaveMal(); return; }
+  if(!LLAVES_VALIDAS.includes(v) && v.length <= 5){ llaveMal(); return; }   // demo: vale la de ejemplo y cualquier texto de más de 5 caracteres
   E.llaveMal = false;
   entrar();   // la llave da acceso total: si es válida entra directamente a la TPV, sin pedir contraseña
 }
@@ -1419,7 +1419,7 @@ $('#panelBack').addEventListener('click', e=>{
 $('#dBack').onclick = ()=>{ const p=$('#panelBack'); p.hidden=!p.hidden; if(!p.hidden) pintarBack(); };
 $('#dMarcas').onclick = ()=>{ const p=$('#panelMarcas'); p.hidden=!p.hidden; if(!p.hidden) pintarMarcas(); };
 $('#dLlave').onclick = ()=>{ if(E.pantalla!=='entrada' || ventanaAbierta()) return; document.getElementById('campoLlave').value='0004A7F3C2'; leerLlave(); };
-$('#dLlaveMala').onclick = ()=>{ if(E.pantalla!=='entrada' || ventanaAbierta()) return; document.getElementById('campoLlave').value='9999ZZZZ'; leerLlave(); };
+$('#dLlaveMala').onclick = ()=>{ if(E.pantalla!=='entrada' || ventanaAbierta()) return; document.getElementById('campoLlave').value='9Z'; leerLlave(); };
 window.addEventListener('storage', e=>{ if(e.key==='txokopay.pagos'){ E.ajustes = pagosGuardados(); pintar(); } });
 $('#dReiniciar').onclick = ()=>{
   K=null; E = estadoInicial(E.idioma); borrarContrasena();
