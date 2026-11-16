@@ -432,8 +432,7 @@ const TEXTOS = {
     ticketCerrado:'Ticket cerrado', cobradoBanca:'Cobrado de tu saldo:', cargadoBanca:'Cargado en tu saldo:', saldoAhora:'Tu saldo ahora:', tuSaldo:'Tu saldo',
     sobreTitulo:'Mete en un sobre y échalo a la caja fuerte:', sobreTicket:'el Ticket impreso', sobreDinero:'el dinero ({0})', sobreRecibo:'el recibo del datáfono',
     imprimiendo:'Imprimiendo Ticket…', terminar:'Terminar',
-    ingresoCuanto:'¿Cuánto quieres ingresar?', ingresoComo:'¿Cómo lo pagas?', ingresoAntesDatafono:'Paga antes en el datáfono',
-    ingresoHecho:'Ingreso hecho', ingresoYaDisponible:'Ya puedes gastarlo. El tesorero lo comprobará.',
+    ingresoCuanto:'¿Cuánto quieres ingresar?', ingresoComo:'¿Cómo lo pagas?',    ingresoHecho:'Ingreso hecho', ingresoYaDisponible:'Ya puedes gastarlo. El tesorero lo comprobará.',
     salirSinCerrar:'El Ticket no está cerrado', salirSinCerrarSub:'Se guarda y lo verás al volver a entrar.',
     alDia:'Al día', enNegativo:'En negativo', muyNegativo:'Muy en negativo',
     ultimosMovimientos:'Últimos movimientos', proximasReservas:'Mis próximas reservas', cambiarContrasena:'Cambiar contraseña', cerrar:'Cerrar',
@@ -951,7 +950,7 @@ function elegirFormaIngreso(c){
   abrirVentana(`<h2>${tx('ingresoComo')}</h2><div class="importe">${tx('ingreso')}: <b>${euros(c)}</b></div>
     <div class="pagos" style="grid-template-columns:1fr 1fr">
       <button class="boton pago p-efectivo" data-accion="v" data-k="efectivo">${fichaIcono('efectivo')}<span>${tx('pagoEfectivo')}</span></button>
-      <button class="boton pago p-tarjeta" data-accion="v" data-k="tarjeta">${fichaIcono('tarjeta')}<span>${tx('pagoTarjeta')}</span><small style="font-size:20px;font-weight:400">${tx('ingresoAntesDatafono')}</small></button>
+      <button class="boton pago p-tarjeta" data-accion="v" data-k="tarjeta">${fichaIcono('tarjeta')}<span>${tx('pagoTarjeta')}</span></button>
     </div>
     <button class="boton plano entero" data-accion="v" data-k="volver">${tx('cancelar')}</button>`);
 }
