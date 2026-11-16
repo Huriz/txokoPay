@@ -231,6 +231,25 @@ html{overflow-y:scroll}
 .rf .tp{min-width:76px}.rf b{min-width:74px}
 .rf .us{margin-left:auto;font-size:15px}
 @media (max-width:700px){.rf .us{margin-left:0;flex-basis:100%;font-size:14.5px}.rf{gap:0 10px}}
+/* ---- reservas por pantallas ---- */
+.wiz{max-width:720px;margin:0 auto;min-height:560px}
+.wbar{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.warrow{width:64px;height:64px;flex:none;border-radius:16px;border:1.5px solid var(--borde);background:var(--panel);font-size:42px;line-height:1;color:var(--principal);display:grid;place-items:center;padding:0 0 4px}
+.warrow:disabled{opacity:.28;cursor:not-allowed}
+.wtit{flex:1;text-align:center;line-height:1.15}.wtit small{display:block;color:var(--suave);font-size:14px}.wtit b{font-size:24px}
+.wdots{display:flex;justify-content:center;gap:8px;margin-top:6px}
+.wdots button{width:12px;height:12px;border-radius:99px;border:0;background:var(--borde);padding:0}
+.wdots .hecho{background:var(--verde);cursor:pointer}.wdots .on{background:var(--principal);width:24px}
+.wscr{background:var(--panel);border:1px solid var(--borde);border-radius:var(--radio);padding:16px;box-shadow:var(--sombra);min-height:440px}
+.wscr .turnos{grid-template-columns:1fr 1fr}
+.stepper2{display:flex;align-items:center;justify-content:center;gap:16px;margin:26px 0 10px}
+.stepper2 button{width:64px;height:64px;border-radius:50%;border:2px solid var(--borde);background:var(--panel);font-size:34px;line-height:1;color:var(--tinta)}
+input.comn{width:150px;min-height:84px;height:84px;text-align:center;font-size:52px;font-weight:800;border-radius:18px;padding:0}
+input.comn-s{width:84px;min-height:46px;height:46px;font-size:28px;border-radius:12px}
+.nota.err{color:var(--rojo);font-weight:700}
+.wscr .aparatos{grid-template-columns:repeat(3,1fr)}
+@media (max-width:700px){.wiz{min-height:0}.wscr{min-height:0}.warrow{width:56px;height:56px;font-size:38px}.wtit b{font-size:21px}.wscr .turnos{gap:8px}}
+@media (max-width:700px){.n-otra{min-height:44px;font-size:15px}.n-nueva{min-height:52px}.n-nueva b{font-size:18px}.sync{margin-bottom:8px}.wbar{margin-bottom:10px}}
 </style>
 </head>
 <body>
@@ -285,7 +304,7 @@ const cargar = () => { try { const g = JSON.parse(localStorage.getItem('txoko_re
 const guardar = () => { try { localStorage.setItem('txoko_reservas_demo', JSON.stringify({reservas:S.reservas, idr:_idr, socio:S.fase==='app'?S.socio:0, hasta:S.hasta})); } catch(e){} };
 cargar();
 const misReservas = () => S.reservas.filter(r => r.socio === S.socio).sort((a,b) => a.dia < b.dia ? 1 : a.dia > b.dia ? -1 : b.creada - a.creada);
-S.vistas = {}; S.snap = {}; S.sync = 0; S.log = []; S.errNueva = ''; S.editId = null; S.edit = null; S.errEdit = ''; S.mes = ''; S.todas = []; S.todasDias = 30; S.diaVer = ''; S.mesT = '';
+S.vistas = {}; S.snap = {}; S.sync = 0; S.log = []; S.errNueva = ''; S.editId = null; S.edit = null; S.errEdit = ''; S.mes = ''; S.paso = 1; S.todas = []; S.todasDias = 30; S.diaVer = ''; S.mesT = '';
 const MESESL = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 /* Descarga lo que hay en la sociedad para un día: plazas libres y aparatos cogidos de cada turno + las versiones */
 function descargar(dia, motivo){
@@ -383,30 +402,38 @@ function vCalendario(){
     <div class="nota" style="margin:0"><span class="pto pto-l">n</span> Comensales ya reservados ese día. El detalle de cada turno sale al elegir el día.</div>
     ${S.dia === DIA_CERRADO ? '<div class="error">Ese día la sociedad está cerrada por un evento.</div>' : ''}</div>`;
 }
+/* Nueva reserva POR PANTALLAS: una pantalla por paso (Día · Turno · Comensales · Aparatos · Resumen), con flechas grandes arriba.
+   Al elegir algo pasa a la siguiente; se puede volver atrás, pero no avanzar sin haber elegido lo anterior. */
+const NOMBRES_PASO = ['Día', 'Turno', 'Comensales', 'Aparatos', 'Resumen'];
+function maxCom(){ const sn = S.dia && S.franja ? snapDe(S.dia, S.franja) : null; return Math.max(1, Math.min(99, sn ? sn.libres : 0)); }
+function comValida(){ return Number.isInteger(S.com) && S.com >= 1 && S.com <= maxCom(); }
+function textoAyudaCom(){ const max = maxCom(); return S.com === null ? 'Escribe cuántos sois.' : S.com < 1 ? 'Tiene que ser al menos 1.' : S.com > max ? 'Máximo ' + max + ': es lo que queda libre en ese turno.' : 'Máximo ' + max + ' (plazas libres de ese turno).'; }
+function puedeSiguiente(p){ const hayDia = !!S.dia && S.dia !== DIA_CERRADO, hayTurno = hayDia && !!S.franja; return p === 1 ? hayDia : p === 2 ? hayTurno : p === 3 ? hayTurno && comValida() : p === 4; }
 function vNueva(){
   const R = resumenTxt(), fr = R.fr, sn = S.dia && fr ? snapDe(S.dia, fr.id) : null, libres = sn ? sn.libres : 0;
-  const max = Math.max(1, Math.min(99, libres)); if (S.com > max) S.com = max;
-  const hayDia = !!S.dia && S.dia !== DIA_CERRADO, hayTurno = hayDia && !!fr;      /* orden obligatorio: sin día no hay turno; sin turno no hay comensales ni solicitar */
-  const listo = hayTurno && libres > 0;
-  const turnos = FRANJAS.map(f => { const s = S.dia ? snapDe(S.dia, f.id) : null, q = s ? s.libres : null, pct = s ? Math.round((1 - s.libres / s.max) * 100) : 0, cls = s ? (s.libres / s.max < .15 ? 'p' : s.libres / s.max < .4 ? 'm' : '') : '';
-    return `<button class="turno ${S.franja===f.id?'on':''}" data-ac="franja" data-id="${f.id}" ${S.dia&&(q<=0||S.dia===DIA_CERRADO)?'disabled':''}><b>${f.nombre}</b><small>${f.desde}–${f.hasta}</small>${s?`<div class="barra ${cls}"><i style="width:${pct}%"></i></div><small>${q>0?'quedan '+q+' plazas':'completo'}</small><small>${s.res} reserva${s.res===1?'':'s'} · ${s.com} comensales</small>`:''}</button>`; }).join('');
-  const aparatos = MAQ.map(m => { const oc = sn ? sn.maq[m.id] : false; return `<button class="aparato ${S.maq.includes(m.id)?'on':''}" data-ac="maq" data-id="${m.id}" ${oc?'disabled':''}>${m.nombre}<small>${!sn?'—':oc?'ocupado':'libre'}</small></button>`; }).join('');
+  const hayDia = !!S.dia && S.dia !== DIA_CERRADO, hayTurno = hayDia && !!fr, comOk = hayTurno && comValida();
+  const tope = !hayDia ? 1 : !hayTurno ? 2 : !comOk ? 3 : 5;      /* hasta dónde se puede llegar con lo que ya está elegido */
+  if (S.paso > tope) S.paso = tope; if (S.paso < 1) S.paso = 1;
+  const p = S.paso, listo = comOk && libres > 0;
   const maqTxt = S.maq.map(id => MAQ.find(m => m.id === id).nombre).join(', ');
-  return `${S.errNueva ? `<div class="aviso toast">${esc(S.errNueva)}</div>` : ''}
-  <div class="pasos3">
-    <div class="paso p-dia"><h2><i>1</i> Día</h2>${vCalendario()}</div>
-    <div class="paso p-turno ${hayDia?'':'bloq'}"><h2><i>2</i> Turno</h2>${hayDia ? `<div class="turnos">${turnos}</div>` : '<div class="espera">Primero elige el día.</div>'}</div>
-    <div class="p-det">
-      <div class="paso ${hayTurno?'':'bloq'}"><h2><i>3</i> Comensales y aparatos</h2>${hayTurno ? `
-        <div class="sub"><div class="nota">Comensales (máximo ${max})</div><div class="stepper"><button data-ac="com" data-d="-1" aria-label="Menos">−</button><output>${S.com}</output><button data-ac="com" data-d="1" aria-label="Más">+</button></div></div>
-        <div class="sub" style="margin-bottom:0"><div class="nota">Horno o freidora (opcional · una reserva por aparato y turno)</div><div class="aparatos">${aparatos}</div></div>` : '<div class="espera">Primero elige el turno.</div>'}</div>
-      <div class="paso resu ${hayTurno?'':'bloq'}"><h2>Resumen</h2>${hayTurno ? `
-        <dl class="rdl"><dt>Día</dt><dd>${R.dia}</dd><dt>Turno</dt><dd>${fr.nombre}</dd><dt>Comensales</dt><dd>${S.com}</dd><dt>Aparatos</dt><dd>${maqTxt || 'ninguno'}</dd></dl>
-        <button class="btn" data-ac="solicitar" ${listo?'':'disabled'}>Solicitar reserva</button>
-        <p class="nota" style="margin-top:8px">Se confirma cuando la sociedad la acepta. Si algo ya no está libre, te lo decimos con el motivo.</p>` : '<div class="espera" style="min-height:90px">Aquí verás el resumen y el botón para solicitar.</div>'}</div>
-    </div>
-  </div>
-  <div class="movilbar"><div class="tx">${listo ? `${R.dia} · ${fr.nombre}<small>${S.com} comensal${S.com>1?'es':''}${maqTxt ? ' · ' + esc(maqTxt) : ''}</small>` : (hayDia ? 'Elige el turno' : 'Elige el día')}</div><button class="btn" data-ac="solicitar" ${listo?'':'disabled'}>Solicitar</button></div>`;
+  const barra = `<div class="wbar"><button class="warrow" data-ac="paso" data-d="-1" ${p===1?'disabled':''} aria-label="Pantalla anterior">‹</button>
+    <div class="wtit"><small>Paso ${p} de 5</small><b>${NOMBRES_PASO[p-1]}</b><div class="wdots">${NOMBRES_PASO.map((n, k) => `<button data-ac="ir" data-p="${k+1}" class="${k+1===p?'on':k+1<p?'hecho':''}" ${k+1<p?'':'disabled'} aria-label="${n}"></button>`).join('')}</div></div>
+    <button class="warrow" data-ac="paso" data-d="1" id="wsig" ${puedeSiguiente(p)?'':'disabled'} aria-label="Pantalla siguiente">›</button></div>`;
+  let pantalla = '';
+  if (p === 1) pantalla = vCalendario();
+  else if (p === 2) pantalla = `<p class="s" style="margin-bottom:10px">${R.dia}</p><div class="turnos">${FRANJAS.map(f => { const s = snapDe(S.dia, f.id), q = s ? s.libres : 0, pct = s ? Math.round((1 - s.libres / s.max) * 100) : 0, cls = s ? (s.libres / s.max < .15 ? 'p' : s.libres / s.max < .4 ? 'm' : '') : '';
+      return `<button class="turno ${S.franja===f.id?'on':''}" data-ac="franja" data-id="${f.id}" ${(q<=0)?'disabled':''}><b>${f.nombre}</b><small>${f.desde}–${f.hasta}</small>${s?`<div class="barra ${cls}"><i style="width:${pct}%"></i></div><small>${q>0?'quedan '+q+' plazas':'completo'}</small><small>${s.res} reserva${s.res===1?'':'s'} · ${s.com} comensales</small>`:''}</button>`; }).join('')}</div>`;
+  else if (p === 3) pantalla = `<p class="s" style="text-align:center">${R.dia} · ${fr.nombre}</p>
+    <div class="stepper2"><button data-ac="com" data-d="-1" aria-label="Menos">−</button><input id="com" class="campo comn" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${S.com === null ? '' : S.com}" aria-label="Comensales"><button data-ac="com" data-d="1" aria-label="Más">+</button></div>
+    <p id="comAyuda" class="nota ${comOk?'':'err'}" style="text-align:center">${textoAyudaCom()}</p>
+    <button class="btn" id="comSig" data-ac="paso" data-d="1" ${comOk?'':'disabled'} style="margin-top:12px">Siguiente</button>`;
+  else if (p === 4) pantalla = `<p class="s" style="text-align:center;margin-bottom:12px">Horno o freidora (opcional · una reserva por aparato y turno)</p>
+    <div class="aparatos">${MAQ.map(m => { const oc = sn ? sn.maq[m.id] : false; return `<button class="aparato ${S.maq.includes(m.id)?'on':''}" data-ac="maq" data-id="${m.id}" ${oc?'disabled':''}>${m.nombre}<small>${oc?'ocupado':'libre'}</small></button>`; }).join('')}</div>
+    <button class="btn" data-ac="paso" data-d="1" style="margin-top:16px">${S.maq.length ? 'Siguiente' : 'Seguir sin aparatos'}</button>`;
+  else pantalla = `<dl class="rdl"><dt>Día</dt><dd>${R.dia}</dd><dt>Turno</dt><dd>${fr.nombre}</dd><dt>Comensales</dt><dd>${S.com}</dd><dt>Aparatos</dt><dd>${maqTxt || 'ninguno'}</dd></dl>
+    <button class="btn" data-ac="solicitar" ${listo?'':'disabled'}>Solicitar reserva</button>
+    <p class="nota" style="margin-top:8px">Se confirma cuando la sociedad la acepta. Si algo ya no está libre, te lo decimos con el motivo.</p>`;
+  return `${S.errNueva ? `<div class="aviso toast">${esc(S.errNueva)}</div>` : ''}<div class="wiz">${barra}<div class="wscr">${pantalla}</div></div>`;
 }/* «Todas las reservas»: solo el número de socio, la fecha, el turno, los comensales y lo que usan (nunca nombres ni teléfonos). Salen de lo que se descargó de la sociedad. */
 const POOL_SOCIOS = [4, 9, 15, 18, 27, 31, 36, 42, 51, 58];
 function reservasBase(dia, fr){   /* las reservas de otros socios (inventadas) que suman lo que ya hay ocupado */
@@ -465,7 +492,7 @@ function vEditor(r){
   const sn = snapDe(r.dia, r.franja), ed = S.edit, max = Math.max(1, Math.min(99, (sn ? sn.libres : 0) + r.comensales));
   return `<div class="edit"><h3>Editar la reserva</h3>
     ${S.errEdit ? `<div class="aviso">${esc(S.errEdit)}</div>` : ''}
-    <div><div class="nota" style="margin:0 0 6px">Comensales (máximo ${max})</div><div class="stepper"><button data-ac="edcom" data-d="-1" aria-label="Menos">−</button><output>${ed.com}</output><button data-ac="edcom" data-d="1" aria-label="Más">+</button></div></div>
+    <div><div class="nota" style="margin:0 0 6px">Comensales (máximo ${max})</div><div class="stepper"><button data-ac="edcom" data-d="-1" aria-label="Menos">−</button><input id="edcom" class="campo comn comn-s" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${ed.com === null ? '' : ed.com}" aria-label="Comensales"><button data-ac="edcom" data-d="1" aria-label="Más">+</button></div></div>
     <div><div class="nota" style="margin:0 0 6px">Horno o freidora</div><div class="aparatos">${MAQ.map(m => { const oc = sn ? (sn.maq[m.id] && !r.maq.includes(m.id)) : false; return `<button class="aparato ${ed.maq.includes(m.id)?'on':''}" data-ac="edmaq" data-id="${m.id}" ${oc?'disabled':''}>${m.nombre}<small>${oc?'ocupado':'libre'}</small></button>`; }).join('')}</div></div>
     <p class="nota">El día y el turno no se cambian: si necesitas otro, anula esta reserva y pide una nueva.</p>
     <div class="fila"><button class="btn sec" data-ac="edcancelar">Cancelar</button><button class="btn" data-ac="edguardar">Guardar cambios</button></div></div>`;
@@ -509,7 +536,7 @@ const ACC = {
       else S.error = 'Número de socio o DNI incorrectos.';   /* siempre el mismo mensaje: no se dice cuál falla */
       return;
     }
-    S.intentos[n] = 0; S.socio = n; S.hasta = Date.now() + MINUTOS_SESION*60000; S.fase = 'app'; S.tab = 'nueva'; S.dia = ''; S.franja = ''; S.com = 2; S.maq = []; S.enviada = null; S.errNueva = ''; S.dni = ''; S.num = '';
+    S.intentos[n] = 0; S.socio = n; S.hasta = Date.now() + MINUTOS_SESION*60000; S.fase = 'app'; S.tab = 'nueva'; S.paso = 1; S.dia = ''; S.franja = ''; S.com = 2; S.maq = []; S.enviada = null; S.errNueva = ''; S.dni = ''; S.num = '';
     log('ot', '· Sesión abierta del socio ' + n + ' (solo para reservar)'); descargar(HOYK, 'al entrar: se resincroniza lo que hay');
   },
   salir(){ Object.assign(S, {fase:'login', socio:0, hasta:0, aviso:'Sesión cerrada. Hasta pronto.', error:'', enviada:null}); guardar(); },
@@ -525,9 +552,11 @@ const ACC = {
   mesT(el){ const b = S.mesT ? deClave(S.mesT) : (() => { const d = hoy(); d.setDate(1); return d; })(); S.mesT = clave(new Date(b.getFullYear(), b.getMonth() + parseInt(el.dataset.d, 10), 1)); S.diaVer = ''; descargarMes(S.mesT); S.sync = Date.now(); log('down', '↓ Descargado el calendario de ' + MESESL[deClave(S.mesT).getMonth()] + ' (comensales ya reservados de cada día)'); },
   actualizar(){ descargar(S.dia || HOYK, 'a mano'); S.errNueva = ''; revisa(); },
   /* Orden obligatorio: sin día no se puede elegir turno; sin turno no se pueden tocar comensales, aparatos ni solicitar. Si se cambia un paso, los siguientes se vuelven a elegir. */
-  dia(el){ const k = el.dataset.k; if (k === DIA_CERRADO || k < HOYK) return; if (k !== S.dia){ S.franja = ''; S.maq = []; S.com = 2; } S.dia = k; S.mes = clave(new Date(deClave(S.dia).getFullYear(), deClave(S.dia).getMonth(), 1)); S.enviada = null; S.errNueva = ''; descargar(S.dia); revisa(); },
-  franja(el){ if (!S.dia || S.dia === DIA_CERRADO) return; if (el.dataset.id !== S.franja){ S.maq = []; S.com = 2; } S.franja = el.dataset.id; S.enviada = null; S.errNueva = ''; revisa(); },
-  com(el){ if (!S.franja) return; S.com = Math.max(1, S.com + parseInt(el.dataset.d, 10)); S.enviada = null; },
+  dia(el){ const k = el.dataset.k; if (k === DIA_CERRADO || k < HOYK) return; if (k !== S.dia){ S.franja = ''; S.maq = []; S.com = 2; } S.dia = k; S.mes = clave(new Date(deClave(S.dia).getFullYear(), deClave(S.dia).getMonth(), 1)); S.enviada = null; S.errNueva = ''; descargar(S.dia); revisa(); S.paso = 2; },
+  franja(el){ if (!S.dia || S.dia === DIA_CERRADO) return; if (el.dataset.id !== S.franja){ S.maq = []; S.com = 2; } S.franja = el.dataset.id; S.enviada = null; S.errNueva = ''; revisa(); const mx = maxCom(); if (!Number.isInteger(S.com) || S.com < 1 || S.com > mx) S.com = Math.min(2, mx); S.paso = 3; },
+  com(el){ if (!S.franja) return; S.com = Math.max(1, Math.min(maxCom(), (Number.isInteger(S.com) ? S.com : 0) + parseInt(el.dataset.d, 10))); S.enviada = null; },
+  paso(el){ const d = parseInt(el.dataset.d, 10); if (d > 0 && !puedeSiguiente(S.paso)) return; S.paso = Math.max(1, Math.min(5, S.paso + d)); S.enviada = null; },
+  ir(el){ const p = parseInt(el.dataset.p, 10); if (p < S.paso) S.paso = p; },
   maq(el){ if (!S.franja) return; const id = el.dataset.id; S.maq = S.maq.includes(id) ? S.maq.filter(x => x !== id) : S.maq.concat(id); S.enviada = null; },
   solicitar(){
     if (!S.dia || !S.franja || S.dia === DIA_CERRADO) return;
@@ -541,16 +570,17 @@ const ACC = {
     const r = {creada:Date.now(), socio:S.socio, dia:S.dia, franja:S.franja, comensales:S.com, maq:S.maq.slice(), estado:'solicitada', idr:null, motivo:'', base:vista};
     S.reservas.push(r); sube(r.dia, r.franja);
     log('up', '↑ Solicitud enviada (basada en v' + vista + '): ' + fmtDia(r.dia) + ' ' + r.franja + ' · ' + r.comensales + ' pers.' + (r.maq.length ? ' · ' + r.maq.join('+') : ''));
-    S.enviada = true; S.tab = 'mis'; S.errNueva = ''; const d = S.dia; S.dia = ''; S.franja = ''; S.com = 2; S.maq = [];
+    S.enviada = true; S.tab = 'mis'; S.paso = 1; S.errNueva = ''; const d = S.dia; S.dia = ''; S.franja = ''; S.com = 2; S.maq = [];
     if (S.conectado) setTimeout(() => procesar(r), 1500); else log('ot', '· La sociedad no responde: la solicitud queda pendiente en la cola');
   },
   mes(el){ const b = S.mes ? deClave(S.mes) : (() => { const d = hoy(); d.setDate(1); return d; })(); S.mes = clave(new Date(b.getFullYear(), b.getMonth() + parseInt(el.dataset.d, 10), 1)); descargarMes(S.mes); S.sync = Date.now(); log('down', '↓ Descargado el calendario de ' + MESESL[deClave(S.mes).getMonth()] + ' (comensales ya reservados de cada día)'); },
   editar(el){ const r = S.reservas.find(x => x.creada === +el.dataset.id); if (!r) return; S.editId = r.creada; S.anularId = null; S.errEdit = ''; r.cambioMotivo = ''; S.edit = {com:r.comensales, maq:r.maq.slice()}; descargar(r.dia, 'al editar la Reserva ' + r.idr); },
-  edcom(el){ const r = S.reservas.find(x => x.creada === S.editId), sn = snapDe(r.dia, r.franja), max = Math.max(1, Math.min(99, (sn ? sn.libres : 0) + r.comensales)); S.edit.com = Math.max(1, Math.min(max, S.edit.com + parseInt(el.dataset.d, 10))); },
+  edcom(el){ const r = S.reservas.find(x => x.creada === S.editId), sn = snapDe(r.dia, r.franja), max = Math.max(1, Math.min(99, (sn ? sn.libres : 0) + r.comensales)); S.edit.com = Math.max(1, Math.min(max, (Number.isInteger(S.edit.com) ? S.edit.com : 0) + parseInt(el.dataset.d, 10))); },
   edmaq(el){ const id = el.dataset.id; S.edit.maq = S.edit.maq.includes(id) ? S.edit.maq.filter(x => x !== id) : S.edit.maq.concat(id); },
   edcancelar(){ S.editId = null; S.edit = null; S.errEdit = ''; },
   edguardar(){
     const r = S.reservas.find(x => x.creada === S.editId); if (!r) return;
+    { const sn0 = snapDe(r.dia, r.franja), mx0 = Math.max(1, Math.min(99, (sn0 ? sn0.libres : 0) + r.comensales)); if (!Number.isInteger(S.edit.com) || S.edit.com < 1 || S.edit.com > mx0){ S.errEdit = 'Los comensales tienen que ser entre 1 y ' + mx0 + ' (lo que queda libre en ese turno).'; return; } }
     const vista = S.vistas[vk(r.dia, r.franja)] || 0, actual = ver(r.dia, r.franja);
     if (actual > vista){   /* misma comprobación que al reservar: si Redis es más nuevo, no se escribe */
       log('err', '✕ Conflicto al editar: descargado v' + vista + ', ahora hay v' + actual + '. No se escribe nada.');
@@ -577,17 +607,20 @@ const ACC = {
 };
 function revisa(){   /* si lo elegido ya no está libre (según lo descargado), se quita */
   const sn = S.dia && S.franja ? snapDe(S.dia, S.franja) : null;
-  if (S.dia === DIA_CERRADO){ S.franja = ''; S.maq = []; return; }
+  if (S.dia === DIA_CERRADO){ S.franja = ''; S.maq = []; S.paso = 1; return; }
   if (sn){ if (sn.libres <= 0) S.franja = ''; S.maq = S.maq.filter(id => !sn.maq[id]); }
 }
 document.addEventListener('click', e => { const el = e.target.closest('[data-ac]'); if (!el || el.disabled || !ACC[el.dataset.ac]) return; const ant = S.regAbierto; ACC[el.dataset.ac](el); if (el.dataset.ac === 'reg'){ e.preventDefault(); } pintar(); });
 document.addEventListener('input', e => {
   const t = e.target;
+  if (t.id === 'com'){ const d = t.value.replace(/\D/g, '').slice(0, 2); if (d !== t.value) t.value = d; S.com = d === '' ? null : parseInt(d, 10); const ok = comValida(); const ay = document.getElementById('comAyuda'), sg = document.getElementById('comSig'), fl = document.getElementById('wsig'); if (ay){ ay.textContent = textoAyudaCom(); ay.classList.toggle('err', !ok); } if (sg) sg.disabled = !ok; if (fl) fl.disabled = !ok; return; }
+  if (t.id === 'edcom'){ const d = t.value.replace(/\D/g, '').slice(0, 2); if (d !== t.value) t.value = d; S.edit.com = d === '' ? null : parseInt(d, 10); return; }
   if (t.id === 'num'){ S.num = t.value.replace(/\D/g, '').slice(0, 5); t.value = S.num; }
   else if (t.id === 'dni') S.dni = t.value;
   else if (t.id === 'fecha'){ const v = t.value; if (v && v >= HOYK && v <= clave(sumar(hoy(), ANTELACION_DIAS))){ S.dia = v; S.enviada = null; S.errNueva = ''; descargar(S.dia, 'al elegir otro día'); revisa(); pintar(); } }
 });
-document.addEventListener('keydown', e => { if (e.key === 'Enter' && S.fase === 'login' && (e.target.id === 'num' || e.target.id === 'dni')){ ACC.entrar(); pintar(); } });
+document.addEventListener('focusin', e => { if (e.target.id === 'com' || e.target.id === 'edcom') e.target.select(); });   /* al tocar el número se selecciona entero para escribir encima */
+document.addEventListener('keydown', e => {   if (e.key === 'Enter' && e.target.id === 'com' && comValida()){ ACC.paso({dataset:{d:'1'}}); pintar(); return; } if (e.key === 'Enter' && S.fase === 'login' && (e.target.id === 'num' || e.target.id === 'dni')){ ACC.entrar(); pintar(); } });
 document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && S.completa){ S.completa = false; pintar(); } });
 /* Cada segundo solo se actualiza el texto de la cuenta atrás y del «hace N s». NO hay refresco automático (ni cron): se resincroniza al entrar, al elegir día, al pulsar Actualizar y cuando hay un conflicto de versión. */
 setInterval(() => {
