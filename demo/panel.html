@@ -327,6 +327,7 @@ function ico(n){ const P={
   alerta:'<path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3Z"/><path d="M12 9v4M12 17h.01"/>',
   persona:'<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',
   mensaje:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/>',
+  campana:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
   mail:'<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
   lapiz:'<path d="M12 20h9"/><path d="M16.4 3.6a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
   caja:'<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="12" cy="12" r="2"/>',
@@ -391,7 +392,7 @@ const S = {
   fR:{q:'', socio:'', desde:'', hasta:'', franja:'', estado:'', marca:''},
   fT:{q:'', socio:'', desde:'', hasta:'', tipo:'', forma:'', estado:'', marca:''},
   reservas:[], tickets:[], hist:[], sigR:101, sigT:1001,
-  franjas: JSON.parse(JSON.stringify(FRANJAS_BASE)), antelacion:30,
+  franjas: JSON.parse(JSON.stringify(FRANJAS_BASE)), antelacion:30, ocupAmbar:50, ocupRojo:85,
   cerrados:[{dia:clave(sumar(HOY,10)), motivo:'Boda en la sociedad'}]
 };
 /* ---------- alertas: lo que la TPV deja anotado (se pueden modificar desde el panel) ---------- */
@@ -648,7 +649,7 @@ function filaReserva(r){
     <td class="num ${ok?'':dif<0?'neg':dif>0?'pos':''}">${r.anulada||(!tks.length&&r.dia>=HOYK)?'':(dif>0?'+':'')+dif}</td>
     <td>${tks.map(t=>`<a class="tk" data-ac="abrir" data-t="ticket" data-id="${t.id}" title="Ver el ticket">Ticket ${t.id}</a>`).join('')}<br><button class="btn-ed" data-ac="editarTickets" data-id="${r.id}" title="Editar los tickets de la reserva" aria-label="Editar los tickets" ${r.anulada?'disabled':''}>${ico('lapiz')}</button></td>
     <td class="der">${tks.length?euros(imp):''}</td>
-    <td>${ok?'':tags(tg)} <button class="ib ${r.avisos?'on':''}" data-ac="avisarSocio" data-e="reserva" data-id="${r.id}" title="Avisar al socio (correo o WhatsApp)">${ico('mail')}</button>
+    <td>${ok?'':tags(tg)} <button class="ib ${r.avisos?'on':''}" data-ac="avisarSocio" data-e="reserva" data-id="${r.id}" title="Avisar al socio (por correo o WhatsApp)">${ico('campana')}</button>
       <br><small class="m">hecha ${r.creada.replace('T',' ')}${r.avisos?` · avisada ${r.avisos}×`:''}</small></td></tr>`;
 }
 function resultadoReservas(){
@@ -656,7 +657,7 @@ function resultadoReservas(){
   const reservados=vivas.reduce((a,r)=>a+r.comensales,0), ticketados=vivas.reduce((a,r)=>a+ticketsEfectivos(r).reduce((b,t)=>b+dinersDe(t),0),0);
   const sin=vivas.filter(r=>tagsReserva(r).some(x=>x.k==='sinticket')).length, faltan=vivas.filter(r=>tagsReserva(r).some(x=>x.k==='faltan')).length;
   const c=contarMarcas(S.reservas), f=S.fR;
-  const btn=$('#btnAvisar'); if(btn) btn.innerHTML = `${ico('mail')} Avisar reservas (${reservasParaAvisar().length})`;
+  const btn=$('#btnAvisar'); if(btn) btn.innerHTML = `${ico('campana')} Avisar reservas (${reservasParaAvisar().length})`;
   return `<div class="pills"><span class="pill">Reservas <b>${lista.length}</b></span><span class="pill">Comensales reservados (no anuladas) <b>${reservados}</b></span><span class="pill">Comensales ticketados <b>${ticketados}</b></span><span class="pill">Sin ticket <b>${sin}</b></span><span class="pill ${faltan?'neg':''}">Faltan comensales <b>${faltan}</b></span>
     ${['Alerta','Pendiente','Notificado','Conforme'].map(m=>`<button class="pill m m-${m} ${f.marca===m?'on':''}" data-ac="filtroMarca" data-m="${m}">${m}<b>${c[m]}</b></button>`).join('')}</div>
     <p class="nota-lista">Los tickets se unen a la reserva cuando el socio lo confirma en la TPV al cerrar. Aquí puedes unir o quitar tickets, también de <b>otros socios</b> (una reserva la puede pagar otra persona). Pasados 2 días de la fecha, «sin ticket» es sospechoso.</p>`
@@ -679,6 +680,8 @@ function ajustesReservas(){
       <button class="btn principal" data-ac="anadirFranja">Añadir</button></div></div>
   <div class="cuadro"><h3>Antelación máxima</h3><p>Hasta cuántos días por delante se puede reservar. Por defecto, 30.</p>
     <input type="number" min="1" max="365" data-aj="dias" value="${S.antelacion}"> días</div>
+  <div class="cuadro"><h3>Color del número de comensales</h3><p>En el calendario de reservas, el número de cada día sale <b style="color:#3f8a63">verde</b> con pocos comensales, <b style="color:#b9771f">ámbar</b> a medias y <b style="color:#b8554d">rojo</b> cerca del tope (la suma de «Comensales máx.» de las franjas activas: ${S.franjas.filter(f=>f.activa).reduce((s,f)=>s+f.comensalesMax,0)}).</p>
+    Ámbar desde el <input type="number" min="1" max="99" data-aj="ambar" value="${S.ocupAmbar}"> % · Rojo desde el <input type="number" min="1" max="100" data-aj="rojo" value="${S.ocupRojo}"> %</div>
   <div class="cuadro"><h3>Días cerrados a reservas</h3><p>Para eventos: nadie puede reservar ese día entero. En la TPV sale «Cerrado».</p>
     ${S.cerrados.length ? `<table><tr><th>Día</th><th>Motivo</th><th></th></tr>${S.cerrados.map(c=>`<tr><td>${fmtDiaLargo(c.dia)}</td><td>${esc(c.motivo)||'<span class="muted">sin motivo</span>'}</td><td><button class="btn" data-ac="abrirDia" data-d="${c.dia}">Volver a abrir</button></td></tr>`).join('')}</table>` : '<p>Ninguno.</p>'}
     <div class="fila-form"><input type="date" id="cDia" min="${HOYK}"><input type="text" id="cMotivo" placeholder="Motivo (opcional)" style="width:260px"><button class="btn principal" data-ac="cerrarDia">Cerrar día</button></div></div>
@@ -725,7 +728,7 @@ function resultadoTickets(){
       <td class="rev-cel">${selRev(t.id,t.marca,'data-revt')} <button class="ib ${t.nota?'on':''}" data-ac="comentar" data-t="ticket" data-id="${t.id}" title="${esc(t.nota)||'Añadir un comentario'}">${ico('mensaje')}</button></td><td>Ticket ${t.id}</td><td>${fmtFechaHora(t.fecha)}${t.fechaConsumo?`<br><small class="m">consumo del ${fmtDia(t.fechaConsumo)}</small>`:''}</td>
       <td>${s.n} - ${esc(s.nombre)}</td><td>${nombreTipo(t)}</td><td>${nombrePago(t.forma)}</td><td class="der ${tot<0?'neg':''}">${euros(tot)}</td>
       <td>${tagReserva(t,false)}</td>
-      <td class="der">${d?`${d}<small class="m desglose">${artsComensal().map(x=>[cantDe(t,x.id),x.corto]).filter(x=>x[0]>0).map(x=>`${x[0]}× ${x[1]}`).join('<br>')}</small>`:'<span class="muted">—</span>'}</td><td>${ok?'':chipCaja(t)}</td><td>${ok?'':tags(tagsTicket(t))} <button class="ib ${(t.marca==='Notificado')?'on':''}" data-ac="avisarSocio" data-e="ticket" data-id="${t.id}" title="Avisar al socio (correo o WhatsApp)">${ico('mail')}</button></td></tr>`;
+      <td class="der">${d?`${d}<small class="m desglose">${artsComensal().map(x=>[cantDe(t,x.id),x.corto]).filter(x=>x[0]>0).map(x=>`${x[0]}× ${x[1]}`).join('<br>')}</small>`:'<span class="muted">—</span>'}</td><td>${ok?'':chipCaja(t)}</td><td>${ok?'':tags(tagsTicket(t))} <button class="ib ${(t.marca==='Notificado')?'on':''}" data-ac="avisarSocio" data-e="ticket" data-id="${t.id}" title="Avisar al socio (por correo o WhatsApp)">${ico('campana')}</button></td></tr>`;
   }).join('')}</tbody></table></div>` : '<div class="vacio">No hay tickets con esos filtros.</div>');
 }
 function pintarResultado(){ const r=$('#resultado'); if(!r) return; r.innerHTML = ({reservas:resultadoReservas, tickets:resultadoTickets, caja:resultadoCaja, socios:resultadoSocios, llaves:resultadoLlaves, auditoria:resultadoAuditoria, gastos:resultadoGastos, genero:resultadoGenero, almacen:resultadoAlmacen, articulos:resultadoArticulos})[S.pagina]?.() ?? ''; }
@@ -772,7 +775,7 @@ function cajonReserva(r){
       <button class="btn verde" data-ac="marcarOK">Marcar conforme</button>
       <button class="btn azul" data-ac="cambiarReserva" ${r.anulada?'disabled':''}>Cambiar reserva</button>
       <button class="btn rojo" data-ac="anularReserva" ${r.anulada?'disabled':''}>Anular reserva</button>
-      <button class="btn" data-ac="avisarSocio" data-e="reserva" data-id="${r.id}">${ico('mail')} Avisar al socio</button></div></div>
+      <button class="btn" data-ac="avisarSocio" data-e="reserva" data-id="${r.id}">${ico('campana')} Avisar al socio</button></div></div>
     ${bloqueNota(r)}${bloqueHistorial('reserva', r.id)}
   </div>`;
 }
@@ -1477,7 +1480,7 @@ function resultadoCaja(){
       <td class="rev-cel">${selRev(t.id,t.marca,'data-revt')} <button class="ib ${t.nota?'on':''}" data-ac="comentar" data-t="ticket" data-id="${t.id}" title="${esc(t.nota)||'Añadir un comentario'}">${ico('mensaje')}</button></td>
       <td>${fmtFechaHora(t.fecha)}</td><td>${s.n} - ${esc(s.nombre)}</td>
       <td>${t.tipo==='ingreso'?'<span class="tg azul">Ingreso</span>':'<span class="tg violeta">Ticket</span>'} <a class="tk" data-ac="abrir" data-t="ticket" data-id="${t.id}">Ticket ${t.id}</a></td>
-      <td>${nombrePago(t.forma)}</td><td class="der">${euros(totalDe(t))}</td><td>${queDebeHaber(t)}</td><td>${anot} <button class="ib ${(t.marca==='Notificado')?'on':''}" data-ac="avisarSocio" data-e="ticket" data-id="${t.id}" title="Avisar al socio (correo o WhatsApp)">${ico('mail')}</button></td><td>${chipSaldo(saldoSocio(t.socio))}</td></tr>`; };
+      <td>${nombrePago(t.forma)}</td><td class="der">${euros(totalDe(t))}</td><td>${queDebeHaber(t)}</td><td>${anot} <button class="ib ${(t.marca==='Notificado')?'on':''}" data-ac="avisarSocio" data-e="ticket" data-id="${t.id}" title="Avisar al socio (por correo o WhatsApp)">${ico('campana')}</button></td><td>${chipSaldo(saldoSocio(t.socio))}</td></tr>`; };
   return `<div class="pills"><span class="pill">Ingresos <b>${lista.length}</b></span><span class="pill">Por comprobar <b>${pend.length}</b> · efectivo <b>${euros(sumar2(pend.filter(t=>t.forma==='efectivo')))}</b> · datáfono <b>${euros(sumar2(pend.filter(t=>t.forma==='tarjeta')))}</b></span>
     <span class="pill">Esperado (comprobados) <b>${euros(esp)}</b></span><span class="pill">Encontrado <b>${euros(enc)}</b></span><span class="pill ${dif<0?'neg':dif>0?'pos':''}">Diferencia <b>${dif>0?'+':''}${euros(dif)}</b></span>
     ${['Alerta','Pendiente','Notificado','Conforme'].map(m=>`<button class="pill m m-${m} ${f.marca===m?'on':''}" data-ac="filtroMarca" data-m="${m}">${m}<b>${c[m]}</b></button>`).join('')}</div>
@@ -2176,6 +2179,7 @@ document.addEventListener('change', e=>{
   if(t.dataset.aj){
     const k=t.dataset.aj;
     if(k==='dias'){ S.antelacion=Math.max(1,Math.min(365,parseInt(t.value||'30',10))); }
+    else if(k==='ambar'||k==='rojo'){ const v=Math.max(1,Math.min(100,parseInt(t.value||'0',10)||1)); if(k==='ambar'){ S.ocupAmbar=Math.min(v,S.ocupRojo-1); t.value=S.ocupAmbar; } else { S.ocupRojo=Math.max(v,S.ocupAmbar+1); t.value=S.ocupRojo; } }
     else if(k.startsWith('maq.')){ maq(k.slice(4)).activa=t.checked; }
     else if(k.startsWith('maqn.')){ const m=maq(k.slice(5)), v=t.value.trim(); if(!v || MAQUINAS.some(x=>x!==m && x.nombre.toLowerCase()===v.toLowerCase())){ aviso(v?'Ya hay una máquina con ese nombre':'El nombre no puede estar vacío'); t.value=m.nombre; return; } m.nombre=v; }
     

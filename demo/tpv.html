@@ -166,6 +166,7 @@ button:active{transform:scale(.98)}
 .sobre-item{display:flex;align-items:center;gap:16px;background:#fff;border-radius:var(--radio);padding:12px 16px;margin-bottom:10px;font-weight:700;box-shadow:0 1px 3px rgba(31,41,51,.12)}
 .sobre-item .num{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:50%;background:var(--tinta);color:#fff;font-size:26px;font-weight:800}
 .sobre-item .sobre-imp{margin-left:auto;background:var(--amarillo);color:var(--amarillo-tinta);padding:2px 12px;border-radius:8px;font-variant-numeric:tabular-nums}
+.sdib{display:grid;grid-template-columns:1fr 1fr;gap:12px}.sd{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;background:#fff;border-radius:var(--radio);padding:12px 8px 10px;font-weight:700;font-size:24px;line-height:1.15;text-align:center;box-shadow:0 1px 3px rgba(31,41,51,.12)}.sd svg{width:150px;height:auto}.sd .sn{position:absolute;left:8px;top:8px;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--tinta);color:#fff;font-size:24px;font-weight:800;font-style:normal}.sflecha{display:block;width:44px;height:36px;margin:6px auto}.sd .sobre-imp{margin:0}
 .sobre-fin{display:flex;align-items:center;gap:14px;margin-top:16px;padding-top:16px;border-top:2px dashed var(--amarillo);font-weight:700}
 .pastilla{display:inline-flex;align-items:center;gap:10px;padding:6px 16px;border-radius:12px;font-weight:800}
 
@@ -262,7 +263,7 @@ button:active{transform:scale(.98)}
 .sn-nueva .mas{width:38px;height:38px;font-size:28px;background:#fff;color:#3f8a63}
 .sn-nueva b{font-size:26px}.sn-nueva small{font-size:18px;color:var(--suave)}
 .sn-nueva:not(.on){opacity:1}.sn-nueva.on{background:#e1f0e7;border:3px solid #3f8a63;outline:none}
-.sn-otra{font-size:24px}.sn-otra small{font-size:18px}.cd{position:relative}.pto{position:absolute;bottom:4px;min-width:32px;height:28px;padding:0 8px;border-radius:99px;background:var(--acento);color:#3a2000;font-size:19px;font-weight:800;display:grid;place-items:center;line-height:1}.pto-l{position:static;display:inline-grid;min-width:28px;height:26px;font-size:16px;vertical-align:-6px;margin-right:4px}.cd:has(.pto){justify-content:flex-start;padding-top:6px}
+.sn-otra{font-size:24px}.sn-otra small{font-size:18px}.cd{position:relative}.pto{position:absolute;bottom:4px;min-width:32px;height:28px;padding:0 8px;border-radius:99px;background:var(--acento);color:#3a2000;font-size:19px;font-weight:800;display:grid;place-items:center;line-height:1}.pto-l{position:static;display:inline-grid;min-width:28px;height:26px;font-size:16px;vertical-align:-6px;margin-right:4px}.cd:has(.pto){justify-content:flex-start;padding-top:6px}.pto-v{background:#bfe3cc;color:#123d27}.pto-r{background:var(--rojo);color:#fff}
 .cd .ocu{font-size:20px;font-weight:700;color:var(--suave);line-height:1.1}.cd.sel .ocu{color:#e3eaf0}
 .franja .rs{font-size:22px;color:var(--suave);font-weight:600}
 .cd.cerrado{background:#f6e6e3;border-color:#ebcbc5;color:#a05a4f;box-shadow:none}
@@ -439,7 +440,7 @@ const TEXTOS = {
     pendiente:'pendiente de comprobar', comprobado:'comprobado', hoy:'Hoy', reserva:'Reserva', cierrePorInactividad:'Sesión cerrada por no usarla',
     noEnPrototipo:'En el prototipo esto no hace nada todavía.', pagadoCon:'pagado con {0}', lineaIngreso:'Ingreso · {0}',
     mas:'Más', atras:'Atrás', formaBanca:'saldo', formaEfectivo:'efectivo', formaTarjeta:'tarjeta',
-    sobreDentro:'Mete <mark>dentro del sobre</mark>:', sobreElDinero:'el dinero', sobreFin:'Cierra el sobre y échalo a la caja fuerte',
+    sobreDentro:'Mete <mark>dentro del sobre</mark>:', sobreElDinero:'el dinero', sobreFin:'Cierra el sobre y échalo a la caja fuerte', sobreCierra:'Cierra el sobre', sobreCaja:'Échalo a la caja fuerte',
     modoConsumo:'Consumo', modoReservas:'Reservas', manana:'Mañana', hoyM:'HOY', mananaM:'MAÑANA',
     pasoDia:'Día', pasoFranja:'Franja', pasoComensales:'Comensales', pasoMaquinas:'Máquinas', misReservas:'Mis reservas', nuevaReserva:'Nueva reserva', nuevaReservaSub:'Día, franja, comensales y máquinas', todasReservas:'Todas las reservas', leyendaPunto:'El círculo naranja de cada día son los comensales ya reservados. Toca un día para ver las reservas.', sinReservasDia:'Ese día no hay reservas.', soloNumeros:'De cada reserva se ve el socio (número y nombre), el turno, los comensales y lo que usan.',
     queDia:'¿Qué día?', cerrado:'Cerrado', hastaEl:'Puedes reservar hasta el {0}', queFranja:'¿Para qué comida?', cuantosComen:'¿Cuántos comensales?', quierMaquinas:'¿Quieres horno o freidora?',
@@ -470,6 +471,7 @@ const LIMITE_AMARILLO = 10000; // −100 €
 
 /* ---------- reservas: configuración (en la app real saldrá de `ajuste`) ---------- */
 const PLAZAS_MESA = 4;
+let UMBRAL_AMBAR = 50, UMBRAL_ROJO = 85;   // % del tope del día a partir del cual el número sale ámbar o rojo (configurable desde el panel)
 let ANTELACION_DIAS = 30;   // antelación máxima por defecto: 30 días (configurable desde el panel)
 // Franjas del día (las configura la junta desde el panel): activa o no, y máximo de comensales de cada una
 const FRANJAS_BASE = [
@@ -869,19 +871,35 @@ function recibo(tipo, forma, importe, idt, idr){
     out.push('IDT: '+idt+(idr?' · IDR: '+idr:'')); E.lineas.forEach(l=>{ const a=ARTICULO[l.id]; out.push(nom(a).slice(0,ANCHO), dos(`  ${l.cantidad} x ${euros(a.precio)}`, euros(l.cantidad*a.precio))); });
     out.push(raya, dos(tx('total').toUpperCase(), euros(importe)), nombreForma(forma));
   }
-  out.push(raya, ...ajustar('→ '+tx('sobreTitulo').replace(':',''), ANCHO));
+  // lo que hay que meter en el sobre, escrito en el propio ticket
+  const mete = forma==='efectivo' ? tx('sobreDinero').replace('{0}', euros(importe)) : tx('sobreRecibo');
+  out.push(raya, tx('sobreDentro').replace(/<[^>]+>/g,'').replace(':','').toUpperCase()+':', ...ajustar('1. '+tx('sobreTicket').replace(/ticket/i,'TICKET'), ANCHO), ...ajustar('2. '+mete.replace(/dinero|recibo/i,m=>m.toUpperCase()), ANCHO), ...ajustar('→ '+tx('sobreFin'), ANCHO));
   return out.join('\n');
 }
+/* Dibujos grandes de lo que hay que meter en el sobre (ticket, dinero o recibo del datáfono, el sobre y la caja fuerte) */
+const DIB = {
+  ticket:'<svg viewBox="0 0 120 96"><path d="M30 6h60v78l-7.5-6-7.5 6-7.5-6-7.5 6-7.5-6-7.5 6-7.5-6-7.5 6z" fill="#fff" stroke="#5b6670" stroke-width="3" stroke-linejoin="round"/><path d="M42 24h36M42 38h36M42 52h24" stroke="#9aa5ae" stroke-width="4" stroke-linecap="round"/></svg>',
+  dinero:'<svg viewBox="0 0 120 96"><rect x="12" y="38" width="86" height="46" rx="6" fill="#bfe3cc" stroke="#3f8a63" stroke-width="3" transform="rotate(-8 55 61)"/><rect x="22" y="26" width="86" height="46" rx="6" fill="#d7f0e0" stroke="#3f8a63" stroke-width="3"/><circle cx="65" cy="49" r="14" fill="#fff" stroke="#3f8a63" stroke-width="3"/><text x="65" y="56" text-anchor="middle" font-size="20" font-weight="800" fill="#3f8a63" font-family="sans-serif">€</text></svg>',
+  datafono:'<svg viewBox="0 0 120 96"><rect x="52" y="4" width="38" height="30" rx="2" fill="#fff" stroke="#5b6670" stroke-width="3"/><path d="M58 14h26M58 22h18" stroke="#9aa5ae" stroke-width="3" stroke-linecap="round"/><rect x="26" y="30" width="68" height="62" rx="9" fill="#3b4650"/><rect x="36" y="40" width="48" height="18" rx="3" fill="#bfe3cc"/><g fill="#aeb8c1"><circle cx="42" cy="70" r="4"/><circle cx="60" cy="70" r="4"/><circle cx="78" cy="70" r="4"/><circle cx="42" cy="82" r="4"/><circle cx="60" cy="82" r="4"/><circle cx="78" cy="82" r="4"/></g></svg>',
+  sobre:'<svg viewBox="0 0 120 96"><rect x="10" y="22" width="100" height="64" rx="7" fill="#fff0b3" stroke="#c99a00" stroke-width="3"/><path d="M12 26l48 36 48-36" fill="none" stroke="#c99a00" stroke-width="3" stroke-linejoin="round"/></svg>',
+  caja:'<svg viewBox="0 0 120 96"><rect x="12" y="8" width="96" height="82" rx="8" fill="#9aa5ae" stroke="#4a5560" stroke-width="3"/><rect x="22" y="18" width="76" height="62" rx="5" fill="#c4ccd3" stroke="#4a5560" stroke-width="2"/><circle cx="60" cy="49" r="17" fill="#fff" stroke="#4a5560" stroke-width="3"/><circle cx="60" cy="49" r="5" fill="#4a5560"/><path d="M60 49V36M60 49l10 6" stroke="#4a5560" stroke-width="3" stroke-linecap="round"/><rect x="22" y="90" width="12" height="4" fill="#4a5560"/><rect x="86" y="90" width="12" height="4" fill="#4a5560"/></svg>'
+};
+const FLECHA = (c='') => `<svg class="sflecha ${c}" viewBox="0 0 40 40"><path d="M20 4v28M9 22l11 11 11-11" fill="none" stroke="#c99a00" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 function cajaSobre(forma, importe){
   const segundo = forma==='efectivo' ? tx('sobreElDinero') : tx('sobreRecibo');
   return `<div class="sobre">
     <div class="sobre-tit">${icono('sobre','inline')} ${tx('sobreDentro')}</div>
-    <div class="sobre-item"><span class="num">1</span>${fichaIcono('recibo','m')}<span>${tx('sobreTicket')}</span></div>
-    <div class="sobre-item"><span class="num">2</span>${fichaIcono(forma==='efectivo'?'efectivo':'tarjeta','m')}<span>${segundo}</span><span class="sobre-imp">${euros(importe)}</span></div>
-    <div class="sobre-fin">${fichaIcono('sobre','m')}<span>${tx('sobreFin')}</span></div>
+    <div class="sdib">
+      <div class="sd"><i class="sn">1</i>${DIB.ticket}<span>${tx('sobreTicket')}</span></div>
+      <div class="sd"><i class="sn">2</i>${forma==='efectivo'?DIB.dinero:DIB.datafono}<span>${segundo}</span>${forma==='efectivo'?`<b class="sobre-imp">${euros(importe)}</b>`:''}</div>
+    </div>
+    ${FLECHA()}
+    <div class="sdib sfin2">
+      <div class="sd">${DIB.sobre}<span>${tx('sobreCierra')}</span></div>
+      <div class="sd">${DIB.caja}<span>${tx('sobreCaja')}</span></div>
+    </div>
   </div>`;
 }
-
 function calcularMarcas(){
   const comensales = contarComensales(), r = reservaDeHoy();
   if(comensales>0 && !E.ticketUnido) marcar('pendiente', `Comensales sin reserva (${comensales})`);
@@ -987,6 +1005,9 @@ function resumenFranja(dia, f){
   E.reservas.filter(r=>!r.anulada && r.dia===dia && r.franjaId===f.id).forEach(r=>{ n++; c += parseInt(r.comensales,10)||0; });
   return {n, c};
 }
+/* color del número del calendario según lo lleno que está el día: verde pocos, ámbar a medias, rojo cerca o en el tope de comensales de las franjas activas */
+const topeDia = () => franjasActivas().reduce((s,f)=>s+f.comensalesMax, 0);
+const nivelOcup = c => { const p = topeDia() ? c/topeDia() : 0; return p*100>=UMBRAL_ROJO ? 'pto-r' : p*100>=UMBRAL_AMBAR ? 'pto-a' : 'pto-v'; };
 const totalComensalesDia = dia => franjasActivas().reduce((s,f)=>s+resumenFranja(dia,f).c, 0);
 function estadoR(){
   const r = E.R, c = parseInt(r.comensales||'0',10);
@@ -1032,7 +1053,7 @@ function centroDia(){
     h += (dentro && diaCerrado(clave))
       ? `<span class="cd cerrado"><b>${d.getDate()}</b><small>${tx('cerrado')}</small></span>`
       : dentro
-      ? `<button class="cd ${clave===hoyClave?'hoy':''} ${r.dia===clave?'sel':''}" data-accion="rDiaClave" data-c="${clave}"><b>${d.getDate()}</b>${marca}${totalComensalesDia(clave)?`<span class="pto">${totalComensalesDia(clave)}</span>`:''}</button>`
+      ? `<button class="cd ${clave===hoyClave?'hoy':''} ${r.dia===clave?'sel':''}" data-accion="rDiaClave" data-c="${clave}"><b>${d.getDate()}</b>${marca}${totalComensalesDia(clave)?`<span class="pto ${nivelOcup(totalComensalesDia(clave))}">${totalComensalesDia(clave)}</span>`:''}</button>`
       : `<span class="cd fuera"><b>${d.getDate()}</b></span>`;
   }
   const meses = mesDe(HOY)===mesDe(lim) ? mesDe(HOY) : `${mesDe(HOY)} – ${mesDe(lim)}`;
@@ -1111,11 +1132,11 @@ function centroTodas(){
     const d = sumarDias(ini,i), clave = fechaClave(d), dentro = d>=HOY && d<=lim;
     const marca = `<small>${d.toLocaleDateString('es-ES',{month:'short'}).replace('.','')}</small>`;   // el mes en todos los días
     h += (dentro && diaCerrado(clave)) ? `<span class="cd cerrado"><b>${d.getDate()}</b><small>${tx('cerrado')}</small></span>`
-      : dentro ? `<button class="cd ${clave===hoyClave?'hoy':''}" data-accion="rVerDia" data-c="${clave}"><b>${d.getDate()}</b>${marca}${totalComensalesDia(clave)?`<span class="pto">${totalComensalesDia(clave)}</span>`:''}</button>`
+      : dentro ? `<button class="cd ${clave===hoyClave?'hoy':''}" data-accion="rVerDia" data-c="${clave}"><b>${d.getDate()}</b>${marca}${totalComensalesDia(clave)?`<span class="pto ${nivelOcup(totalComensalesDia(clave))}">${totalComensalesDia(clave)}</span>`:''}</button>`
       : `<span class="cd fuera"><b>${d.getDate()}</b></span>`;
   }
   const meses = mesDe(HOY)===mesDe(lim) ? mesDe(HOY) : `${mesDe(HOY)} – ${mesDe(lim)}`;
-  return `<h2 class="rtit">${tx('todasReservas')} <span class="mesesTit">${meses}</span></h2><div class="cal">${h}</div><p class="sub" style="font-size:22px"><span class="pto pto-l">n</span> ${tx('leyendaPunto')}</p>`;
+  return `<h2 class="rtit">${tx('todasReservas')} <span class="mesesTit">${meses}</span></h2><div class="cal">${h}</div><p class="sub" style="font-size:22px"><span class="pto pto-v pto-l">n</span><span class="pto pto-a pto-l">n</span><span class="pto pto-r pto-l">n</span> ${tx('leyendaPunto')}</p>`;
 }
 function verDiaReservas(dia, pag=0){
   /* Ventana encima de todo, en lista (una columna) y sin scroll. Las flechas van a la derecha, largas y en vertical, para no quitar sitio a la lista. */
@@ -1328,15 +1349,24 @@ window.addEventListener('keydown', e=>{
 window.addEventListener('input', e=>{ if(e.target.id==='campoLlave'){ if(E.llaveMal){ E.llaveMal=false; const cj=e.target.closest('.cajallave'); if(cj){ cj.classList.remove('mal'); const p=cj.querySelector('.pista'); if(p) p.textContent=tx('pistaLlave'); } } clearTimeout(tLlave); tLlave = setTimeout(leerLlave, PAUSA_LECTURA); } }, true);
 
 /* ---------- inactividad y reloj ---------- */
-const LIMITE_INACTIVO = 120;
+const LIMITE_INACTIVO = 120, AVISO_ANTES = 20;     // a los 20 s del cierre sale un aviso grande con cuenta atrás
+function avisoInactivo(ver){
+  let d=document.getElementById('avInactivo');
+  if(!ver){ if(d) d.remove(); return; }
+  if(!d){ d=document.createElement('div'); d.id='avInactivo'; d.style.cssText='position:absolute;inset:0;background:rgba(10,20,28,.7);display:flex;align-items:center;justify-content:center;z-index:99';
+    d.innerHTML='<div class="hoja" style="width:760px"><h2 style="font-size:44px;margin:0 0 14px">¿Sigues ahí?</h2><p style="font-size:30px;margin:0 0 26px">La sesión se cerrará en <b id="avSeg"></b> s</p><button class="boton verde xl entero">Seguir aquí</button></div>';
+    document.getElementById('ventana').parentNode.appendChild(d); }
+  document.getElementById('avSeg').textContent=Math.max(0,LIMITE_INACTIVO-inactivo);
+}
 let inactivo = 0;
 window.addEventListener('pointerdown', ()=>{ inactivo=0; }, true);
 setInterval(()=>{
   actualizarReloj();
   if(E.pantalla==='tpv'){
     inactivo++;
-    if(inactivo>=LIMITE_INACTIVO) salirSesion(tx('cierrePorInactividad'));
-  }
+    if(inactivo>=LIMITE_INACTIVO){ avisoInactivo(false); salirSesion(tx('cierrePorInactividad')); }
+    else avisoInactivo(LIMITE_INACTIVO-inactivo<=AVISO_ANTES);
+  } else avisoInactivo(false);
   $('#dInactivo').textContent = E.pantalla==='tpv' ? `Cierre por inactividad en ${Math.max(0,LIMITE_INACTIVO-inactivo)} s` : '';
 }, 1000);
 
@@ -1359,6 +1389,7 @@ function pintarBack(){
       <td><input type="time" data-f="${f.id}" data-c="desde" value="${f.desde}"></td><td><input type="time" data-f="${f.id}" data-c="hasta" value="${f.hasta}"></td>
       <td><input type="number" min="4" max="200" step="4" data-f="${f.id}" data-c="comensalesMax" value="${f.comensalesMax}"></td></tr>`).join('')}</table>
     <div class="fila-meses"><label>Antelación máxima de las reservas: <input type="number" min="1" max="365" id="bDias" value="${ANTELACION_DIAS}"> días</label></div>
+    <div class="fila-meses"><label>Color del número: ámbar desde el <input type="number" min="1" max="99" id="bAmbar" value="${UMBRAL_AMBAR}"> % · rojo desde el <input type="number" min="1" max="100" id="bRojo" value="${UMBRAL_ROJO}"> %</label></div>
     <div class="fila-meses"><b>Días cerrados a reservas</b> (por eventos)
       <div style="margin:6px 0">${DIAS_CERRADOS.length ? DIAS_CERRADOS.map(d=>`<div>${nombreDia(d.dia)} · ${d.motivo||'sin motivo'} <button data-ac="abrirDia" data-d="${d.dia}">Abrir</button></div>`).join('') : 'Ninguno'}</div>
       <input type="date" id="bDia" min="${fechaClave(HOY)}" max="${fechaClave(sumarDias(HOY,diasAdelante()-1))}"> <input type="text" id="bMotivo" placeholder="Motivo (opcional)" style="width:150px"> <button data-ac="cerrarDia">Cerrar día</button>
@@ -1366,6 +1397,7 @@ function pintarBack(){
 }
 $('#panelBack').addEventListener('change', e=>{
   const t = e.target;
+  if(t.id==='bAmbar'||t.id==='bRojo'){ const v=Math.max(1,Math.min(100,parseInt(t.value||'0',10)||1)); if(t.id==='bAmbar') UMBRAL_AMBAR=Math.min(v,UMBRAL_ROJO-1); else UMBRAL_ROJO=Math.max(v,UMBRAL_AMBAR+1); pintar(); return; }
   if(t.id==='bDias'){ ANTELACION_DIAS = Math.max(1, Math.min(365, parseInt(t.value||'30',10))); pintar(); return; }
   const f = FRANJAS.find(x=>x.id===t.dataset.f); if(!f) return;
   const c = t.dataset.c;
@@ -1392,7 +1424,7 @@ $('#dLlaveMala').onclick = ()=>{ if(E.pantalla!=='entrada' || ventanaAbierta()) 
 window.addEventListener('storage', e=>{ if(e.key==='txokopay.pagos'){ E.ajustes = pagosGuardados(); pintar(); } });
 $('#dReiniciar').onclick = ()=>{
   K=null; E = estadoInicial(E.idioma); borrarContrasena();
-  FRANJAS.splice(0, FRANJAS.length, ...JSON.parse(JSON.stringify(FRANJAS_BASE))); ANTELACION_DIAS = 30; DIAS_CERRADOS = diasCerradosBase();
+  FRANJAS.splice(0, FRANJAS.length, ...JSON.parse(JSON.stringify(FRANJAS_BASE))); ANTELACION_DIAS = 30; UMBRAL_AMBAR = 50; UMBRAL_ROJO = 85; DIAS_CERRADOS = diasCerradosBase();
   if(!$('#panelBack').hidden) pintarBack();
   cerrarVentana(); pintar();
 };

@@ -111,6 +111,8 @@ input.codigo{text-align:center;letter-spacing:.5em;font-size:40px;font-weight:70
 input.cantidad{width:112px;height:72px;text-align:center;font-size:46px;font-weight:800;border:2px solid var(--borde);border-radius:var(--radio);background:var(--fondo);font-variant-numeric:tabular-nums}
 input.cantidad:focus{outline:none;border-color:var(--principal)}
 .cant.peq button{width:52px;height:52px;font-size:28px}
+.cmfila{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0;font-size:19px;font-weight:700}
+.cmfila .cant{gap:8px}.cmfila input.cantidad{width:84px;height:56px;font-size:32px}
 .cant.peq output{font-size:34px;min-width:50px}
 .importe{text-align:center;font-size:24px;font-weight:700}
 /* iconos y fichas de color, como en la TPV */
@@ -175,7 +177,10 @@ const RESERVAS = {
 const SALDOS = {1:5000, 2:-13000, 3:0};
 const HORAS_SESION = 6, MIN_CODIGO = 10, MAX_INTENTOS = 3;
 const CATS_BEBIDA = ['refresco','cerveza','vino','agua','chupito','combinado','cafe'];
-const COCINA = {comensal:'comensal', horno:'hora_horno', freidora:'freidora'};   /* artículos de cocina, en el catálogo */
+const SERV = Object.entries(CATALOGO.art).filter(([id,a]) => a.servicio && a.activo !== false).map(([id,a]) => ({id, ...a}));   /* servicios del catálogo, con su configuración (la misma que en la TPV) */
+const SERV_COMENSAL = SERV.filter(a => a.reserva === 'comensales');   /* tipos de comensal: Menú, Pikoteo… */
+const ID_MAQ = {'Horno 1':'hora_horno', 'Horno 2':'hora_horno2', 'Freidora':'freidora'};   /* reservable → servicio enlazado */
+const idMaq = m => ID_MAQ[m] || null;
 const COMENSALES = 'Comensales';   /* paso de «¿Cuántos habéis comido?» al cerrar el Ticket */
 /* La reserva se ve como en «Mis reservas» de la TPV: cuadrito del día (HOY / MAÑANA / día + número y mes), la comida o cena, y debajo los electrodomésticos separados por puntos */
 const DIAS = ['dom','lun','mar','mié','jue','vie','sáb'], MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -185,8 +190,8 @@ const chipDia = r => { const d = diaDe(r); return `<span class="chipdia"><b>${ro
 const textoReserva = r => [r.franja, ...r.maq].join(' · ');   /* «Cena · Horno 1 · Freidora»; si no hay electrodomésticos, solo «Cena» */
 const mk = id => ({id, nombre:CATALOGO.art[id].nombre, precio:CATALOGO.art[id].precio});
 const BEBIDAS = Object.entries(CATALOGO.art).filter(([id,a]) => CATS_BEBIDA.includes(a.cat)).map(([id]) => mk(id));
-const ARTS = {}; BEBIDAS.forEach(b => ARTS[b.id] = b); Object.values(COCINA).forEach(id => ARTS[id] = mk(id));
-const BUSCABLES = [...BEBIDAS, ...Object.values(COCINA).map(id => ARTS[id])];   /* también se pueden apuntar a mano la hora de horno y la freidora */
+const ARTS = {}; BEBIDAS.forEach(b => ARTS[b.id] = b); SERV.forEach(a => ARTS[a.id] = mk(a.id));
+const BUSCABLES = [...BEBIDAS, ...SERV.map(a => ARTS[a.id])];   /* los servicios también se pueden apuntar a mano */
 const MAX_RES = 6;
 let _idt = 1200;   /* número de Ticket (IDT): se asigna al apuntar lo primero */
 const nuevoIdT = () => ++_idt;
@@ -198,8 +203,6 @@ const nomSocio = n => n + ' - ' + SOCIOS[n].nombre;
 const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const reservasDe = n => (RESERVAS[n] || []).filter(r => !r.dia);   /* solo salen las reservas de hoy */
 const reservaAct = () => reservasDe(S.socio).find(r => r.id === S.reserva) || null;
-const artDeMaquina = m => m === COMENSALES ? COCINA.comensal : /horno/i.test(m) ? COCINA.horno : COCINA.freidora;
-const valorInicial = (paso, r) => paso === COMENSALES ? String((r && r.comensales) || 1) : '1';   /* comensales: los de la reserva; horas: 1 */
 /* Iconos de trazo fino, los mismos de la TPV */
 const ICONOS = {
   banca:'<path d="M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M12 2l8 5H4z"/>',
@@ -353,15 +356,22 @@ function vModal(){
 function vCierre(){
   const k = S.cierre;
   if (k.paso === 'horas'){
-    const m = k.lista[k.i];
+    const p = k.lista[k.i];
+    if (p.k === 'cm'){
+      const tot = SERV_COMENSAL.reduce((s, a) => s + (k.cm[a.id] || 0), 0);
+      return `<div class="vela" data-ac="kcancelar"></div>
+      <div class="modal teclado" role="dialog"><h2>¿Cuántos habéis comido de cada tipo?</h2>
+        ${SERV_COMENSAL.map(a => `<div class="cmfila"><span>${esc(a.nombre)}</span><div class="cant peq"><button data-ac="cmmas" data-id="${a.id}" data-d="-1" aria-label="Menos">−</button><input class="cantidad cmin" data-id="${a.id}" inputmode="numeric" autocomplete="off" value="${k.cm[a.id] || 0}"><button data-ac="cmmas" data-id="${a.id}" data-d="1" aria-label="Más">+</button></div></div>`).join('')}
+        <p class="ayuda">Total: <b id="cmTot">${tot}</b> · en la reserva: ${p.total}</p>
+        <div class="fila"><button class="btn sec" data-ac="kcancelar">Cancelar</button><button class="btn verde" data-ac="kok">Aceptar</button></div></div>`;
+    }
     return `<div class="vela" data-ac="kcancelar"></div>
-      <div class="modal teclado" role="dialog"><h2>${m === COMENSALES ? '¿Cuántos habéis comido?' : `¿Cuántas horas habéis usado: ${esc(m)}?`}</h2>
-        ${m === COMENSALES ? '' : '<p class="sub">Reservado para vosotros</p>'}
-        <div class="cant"><button data-ac="kmas" data-d="-1" aria-label="Menos">−</button><input id="horas" class="cantidad" inputmode="numeric" autocomplete="off" aria-label="Horas" value="${esc(k.valor)}"><button data-ac="kmas" data-d="1" aria-label="Más">+</button></div>
-        <p class="ayuda">${m === COMENSALES ? 'Pon 0 si no ha comido nadie' : 'Pon 0 si no lo habéis usado'}</p>
+      <div class="modal teclado" role="dialog"><h2>${esc(p.txt)}</h2>
+        ${p.sub ? `<p class="sub">${esc(p.sub)}</p>` : ''}
+        <div class="cant"><button data-ac="kmas" data-d="-1" aria-label="Menos">−</button><input id="horas" class="cantidad" inputmode="numeric" autocomplete="off" aria-label="Cantidad" value="${esc(k.valor)}"><button data-ac="kmas" data-d="1" aria-label="Más">+</button></div>
+        <p class="ayuda">${esc(p.ayuda || '')}</p>
         <div class="fila"><button class="btn sec" data-ac="kcancelar">Cancelar</button><button class="btn verde" data-ac="kok" ${k.valor === '' ? 'disabled' : ''}>Aceptar</button></div></div>`;
-  }
-  const t = totales(), saldo = S.saldos[S.socio];
+  }  const t = totales(), saldo = S.saldos[S.socio];
   return `<div class="vela" data-ac="kcancelar"></div>
     <div class="modal teclado" role="dialog"><h2>¿Cómo pagas?</h2>
       <div class="importe2">Total: <b>${eur(t.total)}</b></div>
@@ -417,6 +427,7 @@ function sesionCaducada(){
   olvidar(); Object.assign(S, {fase:'acceso', socio:0, hasta:0, ticket:[], idt:null, cajon:null, conf:'', cierre:null, error:'', aviso:'Tu sesión ha caducado. Vuelve a entrar.', num:'', movil:''});
 }
 const fallos = {};
+function iniciarPaso(){ const k = S.cierre, p = k.lista[k.i]; if (p.k === 'cm'){ k.cm = {}; SERV_COMENSAL.forEach((a, n) => k.cm[a.id] = n === 0 ? p.total : 0); } else k.valor = String(p.ini || 1); }
 const ACC = {
   verificar(){
     const n = parseInt(S.num, 10), m = solo9(S.movil);
@@ -475,29 +486,34 @@ const ACC = {
   },
   /* Cerrar Ticket: si la reserva lleva electrodomésticos, se pregunta por las horas de cada uno (como la TPV); si no, directo a pagar */
   pedirCobro(){
-    /* Con reserva se pregunta, por este orden, por los comensales y por cada horno o freidora reservados; pero solo si todavía no están en el Ticket (si ya hay «Comensal», «Hora de horno» o «Freidora» anotados, no se pide nada) */
-    const r = reservaAct(), lista = [];
-    if (r){
-      if (!S.ticket.some(l => l.id === COCINA.comensal)) lista.push(COMENSALES);
-      r.maq.filter(m => !S.ticket.some(l => l.id === artDeMaquina(m))).forEach(m => lista.push(m));
+    /* Igual que la TPV: con reserva se pregunta por los comensales (si hay varios tipos, se reparten) y por las horas de cada reservable; y los servicios «cualquier reserva» y «siempre» según su configuración. Lo que ya está en el Ticket no se vuelve a pedir */
+    const r = reservaAct(), lista = [], hay = id => S.ticket.some(l => l.id === id), nombre = id => CATALOGO.art[id].nombre;
+    const enMaq = id => Object.values(ID_MAQ).includes(id);
+    if (r && SERV_COMENSAL.length && !SERV_COMENSAL.some(a => hay(a.id))){
+      if (SERV_COMENSAL.length === 1) lista.push({k:'num', id:SERV_COMENSAL[0].id, txt:'¿Cuántos habéis comido?', ayuda:'Pon 0 si no ha comido nadie', ini:r.comensales || 1});
+      else lista.push({k:'cm', total:r.comensales || 1});
     }
-    S.cierre = lista.length ? {paso:'horas', i:0, lista, horas:{}, valor:valorInicial(lista[0], r)} : {paso:'forma'};
+    if (r) r.maq.forEach(m => { const id = idMaq(m), a = id && CATALOGO.art[id];
+      if (a && a.pregunta !== 'nunca' && !hay(id) && !lista.some(p => p.id === id)) lista.push({k:'num', id, txt:`¿Cuántas horas habéis usado: ${m}?`, sub:'Reservado para vosotros', ayuda:'Pon 0 si no lo habéis usado', ini:1}); });
+    SERV.filter(a => a.reserva !== 'comensales' && !enMaq(a.id) && !hay(a.id) && ((r && a.reserva === 'cualquiera' && a.pregunta !== 'nunca') || a.pregunta === 'siempre')).forEach(a =>
+      lista.push({k:'num', id:a.id, txt:`¿Cuántos: ${nombre(a.id)}?`, ayuda:'Pon 0 si no ha habido', ini:1}));
+    S.cierre = lista.length ? {paso:'horas', i:0, lista, res:{}, valor:String(lista[0].ini || 1), cm:null} : {paso:'forma'};
+    if (S.cierre.paso === 'horas') iniciarPaso();
   },
   kmas(el){   /* las horas se cambian con − y + como un producto (y también se pueden escribir) */
     const k = S.cierre;
     k.valor = String(Math.max(0, Math.min(99, (parseInt(k.valor || '0', 10)) + parseInt(el.dataset.d, 10))));
   },
+  cmmas(el){ const k = S.cierre, id = el.dataset.id; k.cm[id] = Math.max(0, Math.min(999, (k.cm[id] || 0) + parseInt(el.dataset.d, 10))); },
   kok(){
-    const k = S.cierre;
-    if (k.valor === '') return;
-    k.horas[k.lista[k.i]] = parseInt(k.valor || '0', 10); k.i++;
-    if (k.i < k.lista.length){ k.valor = valorInicial(k.lista[k.i], reservaAct()); return; }
-    const por = {};   /* los dos hornos usan el mismo artículo «Hora de horno»: se suman */
-    k.lista.forEach(m => { const id = artDeMaquina(m); por[id] = (por[id] || 0) + k.horas[m]; });
-    Object.entries(por).forEach(([id, h]) => { S.ticket = S.ticket.filter(x => x.id !== id); if (h > 0) S.ticket.push({id, c:h}); });
+    const k = S.cierre, p = k.lista[k.i];
+    if (p.k === 'cm') SERV_COMENSAL.forEach(a => { k.res[a.id] = k.cm[a.id] || 0; });
+    else { if (k.valor === '') return; k.res[p.id] = parseInt(k.valor || '0', 10); }
+    k.i++;
+    if (k.i < k.lista.length){ iniciarPaso(); return; }
+    Object.entries(k.res).forEach(([id, h]) => { S.ticket = S.ticket.filter(x => x.id !== id); if (h > 0) S.ticket.push({id, c:h}); });
     S.cierre = {paso:'forma'};
-  },
-  kcancelar(){ S.cierre = null; },
+  },  kcancelar(){ S.cierre = null; },
   pagarBanca(){
     const t = totales();
     S.saldos[S.socio] -= t.total;   /* solo se paga con banca; puede quedar en negativo y no se bloquea */
@@ -520,6 +536,7 @@ document.addEventListener('input', e => {
   else if (t.id === 'movil') S.movil = t.value;
   else if (t.id === 'busca'){ S.busca = t.value; pintar(); }
   else if (t.id === 'horas'){ S.cierre.valor = t.value.replace(/\D/g,'').slice(0,2); pintar(); }
+  else if (t.classList.contains('cmin')){ const v = Math.min(999, parseInt(t.value.replace(/\D/g,'') || '0', 10)); S.cierre.cm[t.dataset.id] = v; t.value = v; const T = document.getElementById('cmTot'); if (T) T.textContent = SERV_COMENSAL.reduce((s, a) => s + (S.cierre.cm[a.id] || 0), 0); }
   else if (t.id === 'cantidad'){   /* se puede escribir a mano: 25, 30… sin pulsar + muchas veces */
     const txt = t.value.replace(/\D/g,'').slice(0,3);
     S.cajon.txt = txt; S.cajon.c = txt === '' ? null : parseInt(txt, 10);
@@ -541,7 +558,7 @@ document.addEventListener('input', e => {
   }
 });
 document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && S.completa){ S.completa = false; pintar(); } });   /* si se sale con el gesto del móvil, el botón se actualiza */
-document.addEventListener('focusin', e => { if (e.target.id === 'cantidad' || e.target.id === 'horas') e.target.select(); });   /* al tocar el número se selecciona entero para escribir encima */
+document.addEventListener('focusin', e => { if (e.target.id === 'cantidad' || e.target.id === 'horas' || e.target.classList.contains('cmin')) e.target.select(); });   /* al tocar el número se selecciona entero para escribir encima */
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && S.fase === 'acceso' && (e.target.id === 'num' || e.target.id === 'movil')){ ACC.verificar(); pintar(); }
 });
