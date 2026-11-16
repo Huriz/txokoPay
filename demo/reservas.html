@@ -247,7 +247,7 @@ const FRANJAS = [
   {id:'cena',     nombre:'Cena',     desde:'19:00', hasta:'02:00', max:40}
 ];
 const MAQ = [{id:'horno1',nombre:'Horno 1'},{id:'horno2',nombre:'Horno 2'},{id:'freidora',nombre:'Freidora'}];
-const HORAS_SESION = 2, MAX_INTENTOS = 5, ANTELACION_DIAS = 30;
+const MINUTOS_SESION = 30, MAX_INTENTOS = 5, ANTELACION_DIAS = 30;   /* la sesión de reservas dura 30 minutos como mucho */
 const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'], MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const clave = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -359,7 +359,7 @@ function vLogin(){
         <div class="pista"><b>Solo para la demo</b> (datos inventados): socio <code>23</code> con DNI <code>12345678Z</code> · socio <code>7</code> con <code>87654321X</code> · socio <code>12</code> con <code>11223344B</code>.</div>
       </div></div></div>`;
 }
-function textoCuenta(){ const s = Math.max(0, Math.floor((S.hasta - Date.now())/1000)); return Math.floor(s/3600)+' h '+String(Math.floor(s%3600/60)).padStart(2,'0')+' min'; }
+function textoCuenta(){ const s = Math.max(0, Math.floor((S.hasta - Date.now())/1000)); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')+' min'; }
 function textoSync(){ if (!S.sync) return 'sin descargar'; const s = Math.floor((Date.now() - S.sync)/1000); return s < 5 ? 'ahora mismo' : 'hace ' + s + ' s'; }
 function resumenTxt(){
   const fr = FRANJAS.find(f => f.id === S.franja);
@@ -489,7 +489,7 @@ function vApp(){
   const cuerpo = S.fase === 'app' ? vApp() : vLogin();
   const app = document.getElementById('app');
   app.classList.toggle('completa', S.completa);
-  app.innerHTML = `<div class="demo"><span>Demostración · datos inventados</span><span class="bs"><button data-ac="conexion">Servidor de la sociedad: ${S.conectado ? 'conectado' : 'SIN conexión'}</button><button data-ac="otro">Otro socio reserva ahora</button><button data-ac="caducar">Simular que pasan 2 h</button></span></div>${cuerpo}<div class="pie">${esc(SOCIEDAD.nombre)} · ${esc(SOCIEDAD.sub)}</div>`;
+  app.innerHTML = `<div class="demo"><span>Demostración · datos inventados</span><span class="bs"><button data-ac="conexion">Servidor de la sociedad: ${S.conectado ? 'conectado' : 'SIN conexión'}</button><button data-ac="otro">Otro socio reserva ahora</button><button data-ac="caducar">Simular que pasan 30 min</button></span></div>${cuerpo}<div class="pie">${esc(SOCIEDAD.nombre)} · ${esc(SOCIEDAD.sub)}</div>`;
   if (id){ const n = document.getElementById(id); if (n){ n.focus(); try{ n.setSelectionRange(ini, ini); }catch(e){} } }
   window.scrollTo(0, y);
   if (S.fase === 'app') guardar();
@@ -509,7 +509,7 @@ const ACC = {
       else S.error = 'Número de socio o DNI incorrectos.';   /* siempre el mismo mensaje: no se dice cuál falla */
       return;
     }
-    S.intentos[n] = 0; S.socio = n; S.hasta = Date.now() + HORAS_SESION*3600000; S.fase = 'app'; S.tab = 'nueva'; S.dia = ''; S.franja = ''; S.com = 2; S.maq = []; S.enviada = null; S.errNueva = ''; S.dni = ''; S.num = '';
+    S.intentos[n] = 0; S.socio = n; S.hasta = Date.now() + MINUTOS_SESION*60000; S.fase = 'app'; S.tab = 'nueva'; S.dia = ''; S.franja = ''; S.com = 2; S.maq = []; S.enviada = null; S.errNueva = ''; S.dni = ''; S.num = '';
     log('ot', '· Sesión abierta del socio ' + n + ' (solo para reservar)'); descargar(HOYK, 'al entrar: se resincroniza lo que hay');
   },
   salir(){ Object.assign(S, {fase:'login', socio:0, hasta:0, aviso:'Sesión cerrada. Hasta pronto.', error:'', enviada:null}); guardar(); },
