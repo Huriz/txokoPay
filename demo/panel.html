@@ -357,7 +357,7 @@ const FRANJAS_BASE = [
 ];
 const MAQUINAS = [
   {id:'horno1',   nombre:'Horno 1',  articulo:'hora_horno', activa:true},
-  {id:'horno2',   nombre:'Horno 2',  articulo:'hora_horno', activa:true},
+  {id:'horno2',   nombre:'Horno 2',  articulo:'hora_horno2', activa:true},
   {id:'freidora', nombre:'Freidora', articulo:'freidora',   activa:true}
 ];
 // CATEGORÍAS de los artículos (se crean y editan en Artículos > Categorías). `cuenta` = cómo cuenta en la regla de bebida:
@@ -672,13 +672,13 @@ function ajustesReservas(){
   <div class="cuadro"><h3>Días cerrados a reservas</h3><p>Para eventos: nadie puede reservar ese día entero. En la TPV sale «Cerrado».</p>
     ${S.cerrados.length ? `<table><tr><th>Día</th><th>Motivo</th><th></th></tr>${S.cerrados.map(c=>`<tr><td>${fmtDiaLargo(c.dia)}</td><td>${esc(c.motivo)||'<span class="muted">sin motivo</span>'}</td><td><button class="btn" data-ac="abrirDia" data-d="${c.dia}">Volver a abrir</button></td></tr>`).join('')}</table>` : '<p>Ninguno.</p>'}
     <div class="fila-form"><input type="date" id="cDia" min="${HOYK}"><input type="text" id="cMotivo" placeholder="Motivo (opcional)" style="width:260px"><button class="btn principal" data-ac="cerrarDia">Cerrar día</button></div></div>
-  <div class="cuadro"><h3>Máquinas reservables</h3><p>Una reserva por máquina y franja, sin horarios. Se cobran por horas al cerrar el ticket. Cambia aquí el nombre y el precio de la hora; el precio vale para todas las máquinas que se cobran con el mismo artículo.</p>
-    <table><tr><th>Activa</th><th>Máquina</th><th>Precio por hora (€)</th><th>Se cobra con</th><th></th></tr>
-    ${MAQUINAS.map(m=>{ const comp=MAQUINAS.filter(x=>x.articulo===m.articulo&&x.id!==m.id).map(x=>x.nombre); return `<tr><td>${icoSiNo(m.activa, `data-ac="toggleAj" data-k="maq.${m.id}"`)}</td><td><input type="text" data-aj="maqn.${m.id}" value="${esc(m.nombre)}" style="width:170px"></td><td><input type="number" min="0" step="0.01" data-aj="maqp.${m.id}" value="${(ART[m.articulo].precio/100).toFixed(2)}" style="width:90px"></td><td class="muted">${esc(ART[m.articulo].nombre)}${comp.length?` · compartido con ${esc(comp.join(', '))}`:''}</td>
+  <div class="cuadro"><h3>Máquinas reservables</h3><p>Una reserva por máquina y franja, sin horarios. Cada máquina tiene su propio precio por hora, sin depender de ninguna otra: se cobra al cerrar el ticket con su servicio (se ve y se edita también en Artículos &gt; Servicios).</p>
+    <table><tr><th>Activa</th><th>Máquina</th><th>Precio por hora (€)</th><th>Servicio que se cobra</th><th></th></tr>
+    ${MAQUINAS.map(m=>{ const comp=MAQUINAS.filter(x=>x.articulo===m.articulo&&x.id!==m.id).map(x=>x.nombre); return `<tr><td>${icoSiNo(m.activa, `data-ac="toggleAj" data-k="maq.${m.id}"`)}</td><td><input type="text" data-aj="maqn.${m.id}" value="${esc(m.nombre)}" style="width:170px"></td><td><input type="number" min="0" step="0.01" data-aj="maqp.${m.id}" value="${(ART[m.articulo].precio/100).toFixed(2)}" style="width:90px"></td><td class="muted">${esc(ART[m.articulo].nombre)}</td>
       <td><button class="btn rojo" data-ac="borrarMaquina" data-id="${m.id}">Borrar</button></td></tr>`; }).join('') || '<tr><td colspan="5" class="muted">No hay máquinas.</td></tr>'}</table>
     <div class="fila-form" style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--borde)"><b>Añadir máquina:</b>
       <input type="text" id="nmNombre" placeholder="Nombre (p. ej. Horno 3)" style="width:190px">
-      <select id="nmArt">${Object.entries(ART).filter(([,a])=>a.cat==='servicio').map(([id,a])=>`<option value="${id}">${a.nombre} · ${euros(a.precio)}</option>`).join('')}</select>
+      <input type="number" min="0" step="0.01" id="nmPrecio" placeholder="Precio/hora €" value="3.00" style="width:120px">
       <button class="btn principal" data-ac="anadirMaquina">Añadir</button></div></div>`;
 }
 
@@ -1003,9 +1003,9 @@ const ACC = {
       <div class="pie"><button class="btn" data-ac="cerrarModal">Cancelar</button><button class="btn rojo" data-ac="confirmarBorrarFranja" data-id="${f.id}">Borrar franja</button></div>`); },
   confirmarBorrarFranja: el=>{ S.franjas=S.franjas.filter(f=>f.id!==el.dataset.id); cerrarModal(); pintarPagina(); aviso('Franja borrada'); },
   desactivarFranja: el=>{ S.franjas.find(f=>f.id===el.dataset.id).activa=false; cerrarModal(); pintarPagina(); aviso('Franja desactivada'); },
-  anadirMaquina: ()=>{ const nombre=$('#nmNombre').value.trim(), art=$('#nmArt').value;
+  anadirMaquina: ()=>{ const nombre=$('#nmNombre').value.trim(), precio=Math.max(0,Math.round(parseFloat(($('#nmPrecio').value||'0').replace(',','.'))*100)||0);
     if(!nombre) return aviso('Ponle un nombre a la máquina'); if(MAQUINAS.some(m=>m.nombre.toLowerCase()===nombre.toLowerCase())) return aviso('Ya hay una máquina con ese nombre');
-    MAQUINAS.push({id:idUnico(nombre,MAQUINAS.map(m=>m.id)), nombre, articulo:art, activa:true}); pintarPagina(); aviso(`Máquina «${nombre}» añadida`); },
+    const art=idUnico('hora '+nombre,Object.keys(ART)); ART[art]={nombre:'Hora de '+nombre.toLowerCase(), cat:'servicio', precio, num:siguienteNum(), img:null, activo:true, servicio:true, pregunta:'reserva'}; MAQUINAS.push({id:idUnico(nombre,MAQUINAS.map(m=>m.id)), nombre, articulo:art, activa:true}); pintarPagina(); aviso(`Máquina «${nombre}» añadida`); },
   borrarMaquina: el=>{ const m=maq(el.dataset.id), n=S.reservas.filter(r=>r.maquinas.includes(m.id)).length;
     if(n){ abrirModal(`<h3>No se puede borrar «${esc(m.nombre)}»</h3><p class="nota">Está en ${n} reserva(s) y las reservas no se borran. Puedes desactivar la máquina: ya no se podrá reservar, pero se conserva el historial.</p>
       <div class="pie"><button class="btn" data-ac="cerrarModal">Entendido</button><button class="btn principal" data-ac="desactivarMaquina" data-id="${m.id}">Desactivar la máquina</button></div>`); return; }
@@ -1844,16 +1844,36 @@ const _nt2 = t => ({bebida:'bebida (cuenta 1)', botella:'botella (cuenta 5)', ca
 const _CUENTAS = [['bebida','bebida (cuenta 1)'],['botella','botella (cuenta 5 bebidas)'],['cafe','café (no cuenta)'],['comensal','comensal'],['otro','servicio u otro (no cuenta)']];
 
 function paginaArticulos(){
-  const tabs=[['articulos','Artículos'],['categorias','Categorías']];
+  const tabs=[['articulos','Artículos'],['servicios','Servicios'],['categorias','Categorías']];
   const cab=`<div class="tit"><h1>Artículos</h1></div><p class="sub">Todo lo que se vende es un <b>artículo</b> y cada uno va en una <b>categoría</b> (refresco, chupito, servicio, cerveza, vino…). Un artículo puede <b>venir de otro</b> y gastar del original: el chupito de Brugal viene de 1/6 de botella; el cubata, de 1 chupito + 1 Coca-Cola. Los nuevos se crean con <b>+ Nuevo artículo</b> y cada artículo se edita en <b>su misma línea</b>.</p>
     <div class="pestanas">${tabs.map(([k,t])=>`<button class="pestana ${S.pestArt===k?'on':''}" data-ac="pestArt" data-p="${k}">${t}</button>`).join('')}</div>`;
   if(S.pestArt==='categorias') return cab+'<div id="resultado"></div>';
+  if(S.pestArt==='servicios') return cab+formServicio()+'<div id="resultado"></div>';
   const opcCat = CATS.map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
   return cab+`<div class="filtros"><div class="fila"><label class="q">Buscar<input type="search" data-f="fA.q" value="${esc(S.fA.q)}"></label>
     <label>Categoría<select data-f="fA.cat"><option value="">Todas</option>${CATS.map(c=>`<option value="${c.id}" ${S.fA.cat===c.id?'selected':''}>${esc(c.nombre)}</option>`).join('')}</select></label>
     <button class="btn" data-ac="duplicarArt" ${S.selArt&&ART[S.selArt]?'':'disabled'} style="margin-left:auto" title="Marca el círculo de un artículo y pulsa aquí">Duplicar${S.selArt&&ART[S.selArt]?' «'+esc(ART[S.selArt].nombre)+'»':''}</button><button class="btn principal" data-ac="naAbrir">+ Nuevo artículo</button></div></div><div id="resultado"></div>`;
 }
-const resultadoArticulos = () => S.pestArt==='categorias' ? resultadoCategorias() : resultadoListaArticulos();
+const resultadoArticulos = () => S.pestArt==='categorias' ? resultadoCategorias() : S.pestArt==='servicios' ? resultadoServicios() : resultadoListaArticulos();
+/* SERVICIOS: artículos que se revisan en la cuenta (hora de horno, de cocina, de freidora, comensales...). Precio libre cada uno. */
+const maquinasDe = id => MAQUINAS.filter(m=>m.articulo===id);
+const formServicio = () => `<div class="filtros"><div class="fila"><label>Nuevo servicio<input type="text" id="nsNombre" placeholder="Nombre (p. ej. Hora de parrilla)" style="width:260px"></label>
+  <label>Precio (€)<input type="number" min="0" step="0.01" id="nsPrecio" value="0.00" style="width:90px"></label><button class="btn principal" data-ac="nuevoServicio">Añadir servicio</button></div></div>`;
+function filaServicio(k,a){
+  const ms=maquinasDe(k), fija=ms.length?ms.map(m=>m.nombre).join(', '):'';
+  const enlace = ms.length ? `<span class="muted">Máquina: ${esc(fija)}</span>` : `<select class="ed" data-a="${k}.reserva"><option value="" ${!a.reserva?'selected':''}>Ninguno</option><option value="comensales" ${a.reserva==='comensales'?'selected':''}>Comensales de la reserva</option><option value="cocina" ${a.reserva==='cocina'?'selected':''}>Hora de cocina de la reserva</option></select>`;
+  return `<tr class="${a.activo?'':'inactivo'}"><td><code class="idart">${a.num}</code></td><td><input class="ed" type="text" data-a="${k}.nombre" value="${esc(a.nombre)}" style="width:190px"></td>
+    <td><input class="ed" type="number" min="0" step="0.01" data-a="${k}.precio" value="${(a.precio/100).toFixed(2)}" style="width:80px"></td>
+    <td>${enlace}</td>
+    <td><select class="ed" data-a="${k}.pregunta"><option value="nunca" ${(a.pregunta||'nunca')==='nunca'?'selected':''}>Nunca (solo si lo marcan)</option><option value="reserva" ${a.pregunta==='reserva'?'selected':''}>Si está en la reserva</option><option value="siempre" ${a.pregunta==='siempre'?'selected':''}>Siempre</option></select></td>
+    <td>${icoActivo(k,a)}</td><td><button class="ib" data-ac="borrarArticulo" data-id="${k}" title="Borrar">×</button></td></tr>`;
+}
+function resultadoServicios(){
+  const lista=Object.entries(ART).filter(([,a])=>a.servicio);
+  return `<div class="scrollx"><table class="tabla compacta" style="width:100%"><thead><tr><th>ID</th><th>Servicio</th><th>Precio (€)</th><th>Se enlaza con la reserva</th><th>Preguntar en la TPV al cerrar el ticket</th><th>Activo</th><th></th></tr></thead><tbody>
+    ${lista.map(([k,a])=>filaServicio(k,a)).join('') || '<tr><td colspan="7" class="muted">No hay servicios.</td></tr>'}</tbody></table></div>
+    <p class="nota-lista">Cada servicio tiene <b>su propio precio</b>. «Si está en la reserva»: la TPV pregunta antes de cerrar el ticket si hay una reserva con ese servicio (la máquina reservada, la hora de cocina o los comensales). «Siempre»: pregunta en todos los tickets. «Nunca»: solo se cobra si lo marcan a mano; <b>cualquier servicio se puede marcar sin reserva</b>. Todos aparecen en el <b>Menú de la TPV</b> para enlazarlos a un botón.</p>`;
+}
 function filaArt(k,a){
   const modo = a.almacen ? ((a.soloBarra||!S.usaAlmacen)?'barra':'almacen') : (a.deriva && a.deriva.length) ? 'deriva' : 'ninguno';
   const cand = Object.entries(ART).filter(([x])=>x!==k && !usaA(x,k));
@@ -1909,6 +1929,8 @@ function editarArt(id, c, t){
   else if(c==='cat') a.cat=t.value;
   else if(c==='precio') a.precio=Math.round(parseFloat(t.value||'0')*100);
   else if(c==='activo') a.activo=t.checked;
+  else if(c==='pregunta') a.pregunta=t.value;
+  else if(c==='reserva') a.reserva=t.value;
   else if(c==='modo'){ const v=t.value; if(!cambiarModo(id, v==='barra'?'almacen':v)){ pintarResultado(); return; } if(v==='barra') a.soloBarra=true; else delete a.soloBarra; }
   else if(/^dc\d+$/.test(c)){ const v=parseCant(t.value); if(!(v>0)){ aviso('Pon una cantidad mayor que 0 (por ejemplo 1/6)'); pintarResultado(); return; } a.deriva[+c.slice(2)].c=v; }
   else if(/^da\d+$/.test(c)){ a.deriva[+c.slice(2)].a=t.value; }
@@ -2001,6 +2023,9 @@ document.addEventListener('change', e=>{
   S.na.error='';
 }, true);Object.assign(ACC, {
   pestArt: el=>{ S.pestArt=el.dataset.p; pintarPagina(); },
+  nuevoServicio: ()=>{ const nombre=$('#nsNombre').value.trim(), precio=Math.max(0,Math.round(parseFloat(($('#nsPrecio').value||'0').replace(',','.'))*100)||0);
+    if(!nombre) return aviso('Ponle un nombre al servicio'); if(Object.values(ART).some(a=>a.nombre.toLowerCase()===nombre.toLowerCase())) return aviso('Ya hay un artículo con ese nombre');
+    ART[idUnico(nombre,Object.keys(ART))]={nombre, cat:'servicio', precio, num:siguienteNum(), img:null, activo:true, servicio:true, pregunta:'nunca'}; pintarPagina(); aviso('Servicio «'+nombre+'» creado'); },
   toggleActivo: el=>{ const a=ART[el.dataset.id]; a.activo=!a.activo; pintarResultado(); aviso(a.activo?'Artículo activado':'Artículo desactivado'); },
   duplicarArt: ()=>{ const o=ART[S.selArt]; if(!o) return aviso('Marca primero el círculo de un artículo');
     let nombre=o.nombre+' (copia)', i=2; while(Object.values(ART).some(a=>a.nombre.toLowerCase()===nombre.toLowerCase())) nombre=o.nombre+' (copia '+(i++)+')';
@@ -2139,7 +2164,7 @@ document.addEventListener('change', e=>{
     const k=t.dataset.aj;
     if(k==='dias'){ S.antelacion=Math.max(1,Math.min(365,parseInt(t.value||'30',10))); }
     else if(k.startsWith('maq.')){ maq(k.slice(4)).activa=t.checked; }
-    else if(k.startsWith('maqn.')){ const m=maq(k.slice(5)), v=t.value.trim(); if(!v || MAQUINAS.some(x=>x!==m && x.nombre.toLowerCase()===v.toLowerCase())){ aviso(v?'Ya hay una máquina con ese nombre':'El nombre no puede estar vacío'); t.value=m.nombre; return; } m.nombre=v; }
+    else if(k.startsWith('maqn.')){ const m=maq(k.slice(5)), v=t.value.trim(); if(!v || MAQUINAS.some(x=>x!==m && x.nombre.toLowerCase()===v.toLowerCase())){ aviso(v?'Ya hay una máquina con ese nombre':'El nombre no puede estar vacío'); t.value=m.nombre; return; } m.nombre=v; if(ART[m.articulo] && MAQUINAS.every(x=>x===m||x.articulo!==m.articulo)) ART[m.articulo].nombre='Hora de '+v.toLowerCase(); }
     else if(k.startsWith('maqp.')){ const m=maq(k.slice(5)); ART[m.articulo].precio=Math.max(0,Math.round(parseFloat(t.value||'0')*100)); pintarPagina(); }
     else { const [id,c]=k.split('.'); const f=S.franjas.find(x=>x.id===id); if(c==='nombre' && !t.value.trim()){ aviso('El nombre no puede estar vacío'); t.value=f.nombre; return; } f[c]= c==='activa'?t.checked : c==='comensalesMax'?Math.max(4,parseInt(t.value||'4',10)) : t.value; }
     aviso('Guardado (la TPV lo recoge al momento)');
