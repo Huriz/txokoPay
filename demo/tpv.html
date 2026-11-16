@@ -373,6 +373,14 @@ button:active{transform:scale(.98)}
 .flechasdia button,.hoja.dia .xcerrar{background:#d3d7dc;border:2px solid #8e959e;color:#2b3440;box-shadow:0 3px 0 #8e959e}
 .flechasdia button:active:not(:disabled),.hoja.dia .xcerrar:active{background:#c2c7ce}
 .flechasdia button:disabled{background:#e6e8eb;border-color:#c9cdd2;color:#a3a9b1;box-shadow:none;opacity:1}
+/* reparto de comensales por tipo (Menú, Pikoteo…) al cerrar el ticket */
+.repartocm{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.rcm{display:flex;align-items:center;gap:14px;background:var(--panel);border:var(--grosor) solid var(--borde);border-radius:18px;padding:10px 16px;text-align:left}
+.rcm .rn{flex:1;font-size:30px;font-weight:700}.rcm .rn small{display:block;font-size:22px;font-weight:500;color:var(--suave)}
+.rcm .rb{width:84px;height:84px;border-radius:18px;border:2px solid #8e959e;background:#d3d7dc;color:#2b3440;font-size:46px;font-weight:700;line-height:1;padding:0;box-shadow:0 3px 0 #8e959e}
+.rcm .rb:disabled{background:#e6e8eb;border-color:#c9cdd2;color:#a3a9b1;box-shadow:none}
+.rcm .rv{min-width:70px;text-align:center;font-size:44px}
+.rtot{font-weight:700}.rtot.ok{color:var(--verde)}
 </style>
 </head>
 <body>
@@ -435,7 +443,8 @@ const TEXTOS = {
     seguroAnular:'¿Seguro que quieres anular la reserva?', seQuedaRegistro:'Quedará anotada como anulada.', siAnular:'Sí, anular',
     masRecientes:'Más recientes', masAntiguos:'Más antiguos', volverCuenta:'Volver a mi cuenta', ingresoYaCuenta:'Ya cuenta en tu banca. El tesorero lo comprobará.', ingresoComprobado:'El tesorero ya lo ha comprobado.',
     contrasenaNueva:'Escribe tu nueva contraseña', contrasenaRepite:'Repite la contraseña', contrasenaCambiada:'Contraseña cambiada. Ya vale para siempre.',
-    contrasenaNoCoincide:'No coinciden. Inténtalo otra vez.', contrasenaIncorrecta:'Contraseña incorrecta'
+    contrasenaNoCoincide:'No coinciden. Inténtalo otra vez.', contrasenaIncorrecta:'Contraseña incorrecta',
+    tipoComensales:'¿Cuántos comensales y de qué tipo?', repartoTotal:'Total {0} de {1} reservados', aceptar:'Aceptar', cuantosDe:'¿Cuántos?', unidadesDe:'Se cobra {0}'
   }
 };
 
@@ -443,7 +452,7 @@ const TEXTOS = {
 // Menú y artículos: vienen del catálogo compartido con el panel (catalogo.js), que es donde se editan
 const GRUPOS = CATALOGO.menu.map(g=>({id:g.id, nombre:{es:g.nombre}}));
 const tipoDe = a => a.cat===CATALOGO.poca.comen ? 'comensal' : CATALOGO.poca.cats.includes(a.cat) ? 'bebida' : 'otro';
-const artDe = (id,grupo) => { const a=CATALOGO.art[id]; return {id, grupo, nombre:{es:a.nombre}, precio:a.precio, tipo:tipoDe(a)}; };
+const artDe = (id,grupo) => { const a=CATALOGO.art[id]; return {id, grupo, nombre:{es:a.nombre}, precio:a.precio, tipo:tipoDe(a), servicio:!!a.servicio, pregunta:a.pregunta||'nunca', reserva:a.reserva||'', activo:a.activo!==false}; };
 const ARTICULOS = CATALOGO.menu.flatMap(g=>g.items.map(id=>artDe(id,g.id)));
 const ARTICULO = Object.fromEntries(Object.keys(CATALOGO.art).map(id=>[id, artDe(id,null)]));
 const POR_PAGINA = 12;
@@ -756,38 +765,65 @@ function salirSesion(texto){ K=null; cerrarVentana(); E.pantalla='entrada'; E.av
 function textoReserva(r){
   return `<b>${tx('hoy')} · ${nom(r.franja)}</b><br>${r.comensales} ${tx('comensales')}<br>${r.maquinas.map(m=>nom(m)).join('<br>')}<br>${tagId('IDR',r.id)}`;
 }
+/* Los servicios (Artículos > Servicios del panel) mandan qué se pregunta al cerrar el ticket:
+   - comensales: si el ticket es de una reserva, se elige entre TODOS los servicios de comensal (Menú, Pikoteo…) cuántos de cada
+   - máquinas reservadas (horno, freidora…): sus horas, si el servicio pregunta
+   - «cualquier reserva» (hora de cocina): si hay reserva
+   - «siempre»: en todos los tickets */
+const serviciosDeComensal = () => Object.values(ARTICULO).filter(a=>a.servicio && a.reserva==='comensales' && a.activo);
+const serviciosAparte = (cuando) => Object.values(ARTICULO).filter(a=>a.servicio && a.activo && ((cuando==='reserva' && a.reserva==='cualquiera' && a.pregunta!=='nunca') || a.pregunta==='siempre') && !serviciosDeComensal().includes(a) && !MAQUINAS.some(m=>m.articulo===a.id));
 function cerrarTicket(){
   if(!E.lineas.length){ mensaje(tx('avisoTicketVacio')); return; }
   const r = reservaDeHoy();
-  if(r && !r.unida && !E.ticketUnido) preguntarReserva(); else elegirPago();
+  if(r && !r.unida && !E.ticketUnido) preguntarReserva(); else preguntarServicios(serviciosAparte(E.ticketUnido?'reserva':'no').filter(a=>E.ticketUnido||a.pregunta==='siempre'), 0);
 }
 function preguntarReserva(){
   V.si = ()=>{ cerrarVentana(); E.ticketUnido=true; preguntarComensales(); };
-  V.no = ()=>{ cerrarVentana(); elegirPago(); };
+  V.no = ()=>{ cerrarVentana(); preguntarServicios(serviciosAparte('no').filter(a=>a.pregunta==='siempre'), 0); };
   abrirVentana(`<div class="icocentro">${fichaIcono('calendario')}</div><h2>${tx('esDeReserva')}</h2>
     <div class="tarjetareserva">${textoReserva(reservaDeHoy())}</div>
     <div class="dos"><button class="boton verde xl" data-accion="v" data-k="si">${tx('si')}</button><button class="boton xl" data-accion="v" data-k="no">${tx('no')}</button></div>`);
 }
 function preguntarComensales(){
-  const r = reservaDeHoy();
-  teclado({titulo:tx('cuantosComensales'), sub:tx('reservados',r.comensales), valor:r.comensales,
-    alAceptar:n=>{
-      E.comensalesReales = n;
-      // comensales reales = todas las líneas de comensal; «Comensal» completa lo que no cubren almuerzo y bocadillo
-      ponerCantidad('comensal', Math.max(0, n - cantidadDe('almuerzo') - cantidadDe('bocadillo')));
-      preguntarHoras(0);
-    },
-    alCancelar:()=>{ E.ticketUnido=false; pintar(); }});
+  const r = reservaDeHoy(), tipos = serviciosDeComensal();
+  const seguir = ()=>preguntarHoras(0);
+  if(tipos.length<=1){
+    const id = tipos.length ? tipos[0].id : 'comensal';
+    teclado({titulo:tx('cuantosComensales'), sub:tx('reservados',r.comensales), valor:r.comensales,
+      alAceptar:n=>{ E.comensalesReales = n; ponerCantidad(id, Math.max(0, n - cantidadDe('almuerzo') - cantidadDe('bocadillo'))); seguir(); },
+      alCancelar:()=>{ E.ticketUnido=false; pintar(); }});
+    return;
+  }
+  /* varios tipos de comensal: se reparten los de la reserva entre los que existan (el primero lleva todos al empezar) */
+  const rep = {}; tipos.forEach((a,i)=>{ rep[a.id] = cantidadDe(a.id) || 0; });
+  if(!Object.values(rep).some(v=>v>0)) rep[tipos[0].id] = Math.max(0, r.comensales - cantidadDe('almuerzo') - cantidadDe('bocadillo'));
+  const pintarReparto = ()=>{
+    const total = Object.values(rep).reduce((s,v)=>s+v,0);
+    tipos.forEach(a=>{ V['cm_menos_'+a.id]=()=>{ rep[a.id]=Math.max(0,rep[a.id]-1); pintarReparto(); }; V['cm_mas_'+a.id]=()=>{ rep[a.id]++; pintarReparto(); }; });
+    V.cmOk = ()=>{ cerrarVentana(); E.comensalesReales = total + cantidadDe('almuerzo') + cantidadDe('bocadillo'); tipos.forEach(a=>ponerCantidad(a.id, rep[a.id])); seguir(); };
+    V.cmNo = ()=>{ cerrarVentana(); E.ticketUnido=false; pintar(); };
+    abrirVentana(`<h2>${tx('tipoComensales')}</h2><p class="sub">${tx('reservados', r.comensales)}</p>
+      <div class="repartocm">${tipos.map(a=>`<div class="rcm"><span class="rn">${nom(a)}<small>${euros(a.precio)}</small></span><button class="rb" data-accion="v" data-k="cm_menos_${a.id}" ${rep[a.id]<=0?'disabled':''}>−</button><b class="rv">${rep[a.id]}</b><button class="rb" data-accion="v" data-k="cm_mas_${a.id}">+</button></div>`).join('')}</div>
+      <p class="sub rtot ${total===r.comensales?'ok':''}">${tx('repartoTotal', total, r.comensales)}</p>
+      <div class="dos"><button class="boton xl" data-accion="v" data-k="cmNo">${tx('volver')}</button><button class="boton verde xl" data-accion="v" data-k="cmOk">${tx('aceptar')}</button></div>`, 'media');
+  };
+  pintarReparto();
 }
 function preguntarHoras(i){
-  const ms = reservaDeHoy().maquinas;
-  if(i>=ms.length){ pintar(); elegirPago(); return; }
+  const ms = reservaDeHoy().maquinas.filter(m=>{ const a=ARTICULO[m.articulo]; return a && a.pregunta!=='nunca'; });
+  if(i>=ms.length){ pintar(); preguntarServicios(serviciosAparte('reserva'), 0); return; }
   const m = ms[i];
   teclado({titulo:tx('horasDe', nom(m)), sub:tx('reservadoM2'), valor:HORAS_POR_DEFECTO, ayuda:tx('ayudaHoras'),
     alAceptar:h=>{ E.horasMaquina[m.id]=h; ponerCantidad(m.articulo, h); preguntarHoras(i+1); },
     alCancelar:()=>{ pintar(); }});
 }
-function elegirPago(){
+function preguntarServicios(lista, i){
+  if(i>=lista.length){ pintar(); elegirPago(); return; }
+  const a = lista[i];
+  teclado({titulo:tx('cuantosDe')+' '+nom(a), sub:tx('unidadesDe', euros(a.precio)), valor:cantidadDe(a.id)||HORAS_POR_DEFECTO,
+    alAceptar:n=>{ ponerCantidad(a.id, n); preguntarServicios(lista, i+1); },
+    alCancelar:()=>{ pintar(); }});
+}function elegirPago(){
   pintar();
   const a = E.ajustes;
   const formas = [['banca','banca','pagoBanca'],['efectivo','efectivo','pagoEfectivo'],['tarjeta','tarjeta','pagoTarjeta']].filter(f=>a[f[0]]);

@@ -39,7 +39,7 @@ window.CATALOGO = {
     kalimotxo:d('Kalimotxo','combinado',300,[{a:'rioja',c:1/5},{a:'cola',c:1}]),
     solo:n('Café solo','cafe',100), cortado:n('Cortado','cafe',110), con_leche:n('Café con leche','cafe',130),
     descafeinado:n('Descafeinado','cafe',110), infusion:n('Infusión','cafe',100),
-    comensal:{...n('Comensal','comensal',500), servicio:true, pregunta:'reserva', reserva:'comensales'}, almuerzo:n('Comensal almuerzo','comensal',300), bocadillo:n('Comensal bocadillo','comensal',200), pizza:n('Comensal pizza','comensal',200),
+    comensal:{...n('Comensal Menú','comensal',300), servicio:true, pregunta:'reserva', reserva:'comensales'}, comensal_pikoteo:{...n('Comensal Pikoteo','comensal',150), servicio:true, pregunta:'reserva', reserva:'comensales'}, almuerzo:n('Comensal almuerzo','comensal',300), bocadillo:n('Comensal bocadillo','comensal',200), pizza:n('Comensal pizza','comensal',200),
     hora_horno:{...n('Hora de horno 1','servicio',300), servicio:true, pregunta:'reserva'}, hora_horno2:{...n('Hora de horno 2','servicio',300), servicio:true, pregunta:'reserva'},
     freidora:{...n('Hora de freidora','servicio',300), servicio:true, pregunta:'reserva'}, hora_cocina:{...n('Hora de cocina','servicio',300), servicio:true, pregunta:'reserva', reserva:'cualquiera'},
     hielo:{...n('Hielo','servicio',100), servicio:true, pregunta:'nunca'}, descorche:{...n('Descorche','servicio',300), servicio:true, pregunta:'nunca'}, mantel:n('Mantel','varios',100), servilletas:n('Servilletas de tela','varios',50)
@@ -47,7 +47,7 @@ window.CATALOGO = {
   menu:[
     {id:'aperitivos', nombre:'Aperitivos', items:['vermut','cerveza','zurito','mosto']},
     {id:'cafes',      nombre:'Cafés',      items:['solo','cortado','con_leche','descafeinado','infusion']},
-    {id:'cocina',     nombre:'Cocina',     items:['comensal','almuerzo','bocadillo','pizza','hora_horno','hora_horno2','freidora','hora_cocina']},
+    {id:'cocina',     nombre:'Cocina',     items:['comensal','comensal_pikoteo','almuerzo','bocadillo','pizza','hora_horno','hora_horno2','freidora','hora_cocina']},
     {id:'combinados', nombre:'Combinados', items:['cubata_brugal','cubata_whisky','kalimotxo']},
     {id:'conservas',  nombre:'Conservas',  items:['bonito','anchoas','esparragos','pimientos']},
     {id:'licores',    nombre:'Licores',    items:['brugal','pacharan','whisky','ginebra','conac','orujo','brugal_bot']},
