@@ -312,7 +312,7 @@ function vApp(){
   }
   const t = totales();
   const pie = `<div class="cobro"><button class="btn verde" data-ac="pedirCobro" ${t.uds && S.reserva !== null ? '' : 'disabled'}>${fichaIcono('ok')}Cerrar Ticket</button>
-       <div class="suma"><span>${t.uds} ${t.uds===1?'unidad':'unidades'} · con tu banca</span><b>${eur(t.total)}</b></div></div>`;
+       <div class="suma"><span>${t.uds} ${t.uds===1?'unidad':'unidades'} · con tu saldo</span><b>${eur(t.total)}</b></div></div>`;
   return `<div class="cab"><button data-ac="expandir" aria-label="${S.completa ? 'Reducir' : 'Ocupar toda la pantalla'}">${iconoExp()}</button><div style="flex:1;min-width:0"><b>${esc(nomSocio(S.socio))}</b><small>Sesión abierta · caduca en <span id="cuenta" class="cuenta">${textoCuenta()}</span></small></div><button data-ac="salir">Salir</button></div>
     ${vReserva()}
     <div class="busca"><input id="busca" class="campo" placeholder="Escribe una bebida…" autocomplete="off" value="${esc(S.busca)}"></div>
@@ -326,7 +326,7 @@ function vCobrado(){
     <div class="icocentro">${fichaIcono('ok','xl verde')}</div>
     <h1>Ticket cerrado</h1>
     <p style="margin-top:-8px"><span class="idtag">IDT: ${S.cobrado.idt}</span>${S.cobrado.idr ? ' <span class="idtag">IDR: ' + S.cobrado.idr + '</span>' : ''}</p>
-    <p class="imp2">Cobrado de tu banca: <b>${eur(S.cobrado.total)}</b></p>
+    <p class="imp2">Cobrado de tu saldo: <b>${eur(S.cobrado.total)}</b></p>
     <p class="imp2">Tu saldo ahora: <span class="pastilla ${claseSaldo(S.cobrado.saldo)}">${icono('banca')} ${eurS(S.cobrado.saldo)}</span></p>
     <p class="suave">Tu sesión se ha cerrado. Si quieres tomar algo más, vuelve a entrar.</p>
     <button class="btn verde xl" data-ac="salir">Terminar</button>
@@ -365,7 +365,7 @@ function vCierre(){
   return `<div class="vela" data-ac="kcancelar"></div>
     <div class="modal teclado" role="dialog"><h2>¿Cómo pagas?</h2>
       <div class="importe2">Total: <b>${eur(t.total)}</b></div>
-      <button class="pago" data-ac="pagarBanca">${fichaIcono('banca','claro m')}<span>Con banca</span>
+      <button class="pago" data-ac="pagarBanca">${fichaIcono('banca','claro m')}<span>Con saldo</span>
         <span class="saldo-caja ${saldo < 0 ? 'neg' : ''}">Tu saldo: <b>${eurS(saldo)}</b></span></button>
       <button class="btn sec" data-ac="kcancelar">Volver al Ticket</button></div>`;
 }

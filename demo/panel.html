@@ -702,7 +702,7 @@ function paginaTickets(){
     <label>Desde<input type="date" data-f="fT.desde" value="${f.desde}"></label>
     <label>Hasta<input type="date" data-f="fT.hasta" value="${f.hasta}"></label>
     <label>Tipo<select data-f="fT.tipo">${opts([['','Todos'],['consumo','Consumo'],['ingreso','Ingreso'],['ajuste','Ajuste']], f.tipo)}</select></label>
-    <label>Pago<select data-f="fT.forma">${opts([['','Todos'],['banca','Banca'],['efectivo','Efectivo'],['tarjeta','Datáfono']], f.forma)}</select></label>
+    <label>Pago<select data-f="fT.forma">${opts([['','Todos'],['banca','Saldo'],['efectivo','Efectivo'],['tarjeta','Datáfono']], f.forma)}</select></label>
     <label>Estado<select data-f="fT.estado">${opts([['','Todos'],['incidencia','Con incidencia'],['sinreserva','Comensales sin reserva'],['ok','Correctos']], f.estado)}</select></label>
     <label>Revisión<select data-f="fT.marca">${opts([['','Todas'],['Pendiente','Pendiente'],['Alerta','Alerta'],['Notificado','Notificado'],['Conforme','Conforme'],['sin','Sin marca']], f.marca)}</select></label>
     <button class="limpiar" data-ac="limpiar">Limpiar</button>
@@ -1041,8 +1041,8 @@ const COLORES = [['naranja','Naranja'],['rojo','Rojo'],['verde','Verde'],['azul'
 function celdaPoca(a){ return `<div class="campo" style="font-size:12px;color:var(--suave)">Cuentan como bebida<details class="desp"><summary>${a.cats.length} categoría${a.cats.length===1?'':'s'}</summary><div class="desp-lista">${CATS.map(c=>`<label><input type="checkbox" data-alcat="${c.id}" ${a.cats.includes(c.id)?'checked':''}> ${esc(c.nombre)}</label>`).join('')}</div></details></div><div class="campo" style="font-size:12px;color:var(--suave);margin-top:6px">Comensales<select data-al="poca.comen">${CATS.map(c=>`<option value="${c.id}" ${a.comen===c.id?'selected':''}>${esc(c.nombre)}</option>`).join('')}</select></div>`; }
 function guardarPagos(){ try{ localStorage.setItem('txokopay.pagos', JSON.stringify(S.pagos)); }catch(e){} }
 function paginaPagos(){
-  const filas=[['cobro','Cobrar al cerrar el ticket','Si está desactivado, no se cobra nada al cerrar: todo ticket se descuenta de la banca del socio (puede quedar en negativo) y no se ofrecen formas de pago.'],
-    ['banca','Banca','Se descuenta del saldo que el socio tiene en txokoPay.'],
+  const filas=[['cobro','Cobrar al cerrar el ticket','Si está desactivado, no se cobra nada al cerrar: todo ticket se descuenta del saldo del socio (puede quedar en negativo) y no se ofrecen formas de pago.'],
+    ['banca','Saldo','Se descuenta del saldo que el socio tiene en txokoPay.'],
     ['efectivo','Efectivo',`El socio paga con dinero; el ticket y el dinero van al ${ico('sobre')} sobre de la caja fuerte.`],
     ['tarjeta','Datáfono',`El socio paga con tarjeta; el recibo del datáfono va al ${ico('sobre')} sobre de la caja fuerte.`]];
   const libre = S.pagos.cobro;
@@ -1050,7 +1050,7 @@ function paginaPagos(){
   return `<div class="tit"><h1>Formas de pago</h1></div><p class="sub">Activa o desactiva cada forma de pago. Lo que dejes activo es lo único que ofrece la TPV al cerrar un ticket; se aplica al momento.</p>
   <div class="cuadro"><table><tr><th>Activa</th><th>Forma de pago</th><th>Qué significa</th></tr>
   ${filas.map(([k,n,d])=>`<tr class="${k!=='cobro'&&!libre?'inactivo':''}"><td>${icoSiNo(S.pagos[k], `data-ac="togglePago" data-k="${k}"`)}</td><td><b>${n}</b>${k!=='cobro'?' '+nombrePago(k):''}</td><td class="muted">${d}</td></tr>`).join('')}</table>
-  ${libre && !hayForma ? '<p class="nota" style="margin-top:10px">No hay ninguna forma de pago activa: la TPV cerrará los tickets sin preguntar y los descontará de la banca.</p>' : ''}</div>`;
+  ${libre && !hayForma ? '<p class="nota" style="margin-top:10px">No hay ninguna forma de pago activa: la TPV cerrará los tickets sin preguntar y los descontará del saldo.</p>' : ''}</div>`;
 }/* --- Copias de seguridad --- */
 S.copias = { hora:'04:00', cifrar:true, clave:'', retencion:'todas', avisoActivo:true, aviso:'junta@sociedad.example', avisoCuando:'fallo',
   destinos:[
@@ -1354,7 +1354,7 @@ function cajonSocio(n){
       <dt>Correo</dt><dd><input type="text" data-sf="${n}.email" value="${esc(f.email)}" style="width:100%"></dd>
       <dt>Teléfonos</dt><dd>${f.telefonos.map((t,i)=>`<div class="padre" style="margin-bottom:5px"><select data-sf="${n}.teltipo${i}">${['Móvil','Fijo'].map(v=>`<option ${t.tipo===v?'selected':''}>${v}</option>`).join('')}</select><input type="text" data-sf="${n}.tel${i}" value="${esc(t.numero)}" style="width:150px"><button class="ib" data-ac="telQuitar" data-n="${n}" data-i="${i}" title="Quitar">×</button></div>`).join('')}<button class="ib" style="width:auto;padding:0 10px" data-ac="telAnadir" data-n="${n}">+ teléfono</button></dd></dl></div>
     <div class="bloque"><h3>Cuenta bancaria</h3><div class="muted" style="margin-bottom:6px">${esc(f.banco)}</div>${iban}</div>
-    <div class="bloque"><h3>Saldo de banca virtual</h3><div class="padre" style="margin-bottom:8px"><b style="font-size:18px">${chipSaldo(saldoSocio(n))}</b><button class="btn" data-ac="verSaldos" title="Ver u ocultar los saldos">${ico(S.verSaldos?'ojoOff':'ojo')} ${S.verSaldos?'Ocultar saldos':'Ver saldos'}</button></div>
+    <div class="bloque"><h3>Saldo</h3><div class="padre" style="margin-bottom:8px"><b style="font-size:18px">${chipSaldo(saldoSocio(n))}</b><button class="btn" data-ac="verSaldos" title="Ver u ocultar los saldos">${ico(S.verSaldos?'ojoOff':'ojo')} ${S.verSaldos?'Ocultar saldos':'Ver saldos'}</button></div>
       ${S.verSaldos ? (movBanca(n).length ? `<table class="lineas"><tr><th>Fecha</th><th>Movimiento</th><th class="der">Importe</th></tr>${movBanca(n).slice(0,8).map(m=>`<tr><td>${fmtFechaHora(m.fecha)}</td><td>${m.texto} <a class="tk" data-ac="abrir" data-t="ticket" data-id="${m.id}">Ticket ${m.id}</a></td><td class="der ${m.imp<0?'neg':'pos'}">${euros(m.imp)}</td></tr>`).join('')}</table>` : '<div class="muted">Sin movimientos.</div>') : '<p class="nota" style="margin:0">Dinero virtual del socio en la sociedad (no es una cuenta de banco). Los movimientos se ven al pulsar «Ver saldos».</p>'}</div>    <div class="bloque"><h3>Alta y baja</h3><table class="lineas"><tr><th>Desde</th><th>Hasta</th></tr>${f.periodos.map((p,i)=>`<tr><td><input type="date" data-sf="${n}.pdesde${i}" value="${p.desde}"></td><td>${p.hasta?`<input type="date" data-sf="${n}.phasta${i}" value="${p.hasta}">`:'<span class="tg verde">sigue de alta</span>'}</td></tr>`).join('')}</table>
       <div class="acciones" style="margin-top:8px"><button class="btn" data-ac="altaBajaSocio" data-n="${n}">${al?'Dar de baja hoy':'Volver a dar de alta'}</button></div><p class="nota" style="margin:6px 0 0">Si vuelve, se abre otro periodo y los anteriores se conservan.</p></div>
     <div class="bloque"><h3>Llaves</h3><div class="padre"><b>${f.llaves.length}</b> llave${f.llaves.length===1?'':'s'} (${act} activa${act===1?'':'s'}) <button class="btn principal" data-ac="abrir" data-t="llaves" data-id="${n}">${ico('llave')} Ver y gestionar llaves</button></div></div>
@@ -1432,7 +1432,7 @@ document.addEventListener('change', e=>{ const t=e.target; if(!S.sesion) return;
 }
 
 /* --- Ingresos (los sobres de la caja fuerte) --- */
-const nombrePago = f => `<span class="tg pg-${f}">${({banca:'Banca', efectivo:'Efectivo', tarjeta:'Datáfono'})[f] || f}</span>`;
+const nombrePago = f => `<span class="tg pg-${f}">${({banca:'Saldo', efectivo:'Efectivo', tarjeta:'Datáfono'})[f] || f}</span>`;
 const sobresTodos = () => S.tickets.filter(t=>t.estadoCaja && (t.tipo==='ingreso' || (t.tipo==='consumo' && !t.ajusteDe)));
 const queDebeHaber = t => t.forma==='efectivo' ? 'el ticket + el dinero' : 'el ticket + el recibo del datáfono';
 function saldoSocio(n){
@@ -1481,7 +1481,7 @@ function resultadoCaja(){
   return `<div class="pills"><span class="pill">Ingresos <b>${lista.length}</b></span><span class="pill">Por comprobar <b>${pend.length}</b> · efectivo <b>${euros(sumar2(pend.filter(t=>t.forma==='efectivo')))}</b> · datáfono <b>${euros(sumar2(pend.filter(t=>t.forma==='tarjeta')))}</b></span>
     <span class="pill">Esperado (comprobados) <b>${euros(esp)}</b></span><span class="pill">Encontrado <b>${euros(enc)}</b></span><span class="pill ${dif<0?'neg':dif>0?'pos':''}">Diferencia <b>${dif>0?'+':''}${euros(dif)}</b></span>
     ${['Alerta','Pendiente','Notificado','Conforme'].map(m=>`<button class="pill m m-${m} ${f.marca===m?'on':''}" data-ac="filtroMarca" data-m="${m}">${m}<b>${c[m]}</b></button>`).join('')}</div>
-  <p class="nota-lista">Los pagos en efectivo o datáfono de un ticket de consumo crean un ingreso automático (origen «Ticket») además del cargo a la banca: el saldo no se mueve, pero el dinero queda pendiente de comprobar como cualquier otro ingreso. Con <b>Alerta</b> ese importe deja de contar en la banca del socio.</p>`
+  <p class="nota-lista">Los pagos en efectivo o datáfono de un ticket de consumo crean un ingreso automático (origen «Ticket») además del cargo al saldo: el saldo no se mueve, pero el dinero queda pendiente de comprobar como cualquier otro ingreso. Con <b>Alerta</b> ese importe deja de contar en el saldo del socio.</p>`
   + (lista.length ? `<div class="scrollx"><table class="tabla" style="min-width:1050px"><thead><tr><th>Revisión</th><th>Fecha</th><th>Socio</th><th>Origen</th><th>Modo</th><th class="der">Importe</th><th>${ico('sobre')} Debe haber en el sobre</th><th>Anotaciones</th><th>Saldo del socio</th></tr></thead><tbody>${lista.map(fila).join('')}</tbody></table></div>` : '<div class="vacio">No hay ingresos con esos filtros.</div>');
 }
 // el desplegable de Revisión de un sobre: Conforme = comprobado, Alerta/Notificado = incidencia, Pendiente o «–» = por comprobar
@@ -1748,7 +1748,7 @@ Object.assign(ACC, {
   anotarCaja: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id); abrirModal(`<h3>Anotación en el Ticket ${t.id}</h3><p class="nota">Escribe lo que quieras dejar apuntado (por ejemplo: «Hablado con el socio, trae el dinero mañana»). Puedes poner todas las anotaciones que haga falta; cada una se quita con su ✕.</p><div class="campo"><input type="text" id="acTexto" placeholder="Anotación" style="width:100%" autofocus></div><div class="error" id="mErr"></div><div class="pie"><button class="btn" data-ac="cerrarModal">Cancelar</button><button class="btn principal" data-ac="guardarAnotCaja" data-id="${t.id}">Guardar anotación</button></div>`); setTimeout(()=>{ const i=$('#acTexto'); if(i) i.focus(); },30); },
   guardarAnotCaja: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id), txt=$('#acTexto').value.trim(); if(!txt) return $('#mErr').textContent='Escribe la anotación.'; (t.notasCaja=t.notasCaja||[]).push(txt); anota('ticket', t.id, `Anotación en caja: ${txt}`); cerrarModal(); refrescar(true); aviso('Anotación guardada'); },
   quitarNotaCaja: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id), k=+el.dataset.i; let txt; if(k<0){ txt=t.cajaNota; t.cajaNota=''; } else { txt=(t.notasCaja||[])[k]; (t.notasCaja||[]).splice(k,1); } anota('ticket', t.id, `Anotación quitada: ${txt}`); refrescar(true); aviso('Anotación quitada'); },
-  quitarAlerta: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id); abrirModal(`<h3>Quitar la alerta del Ticket ${t.id}</h3><p class="nota">El sobre vuelve a <b>por comprobar</b> y el importe vuelve a contar en la banca de ${esc(socio(t.socio).nombre)}. <b>No se borra nada:</b> queda anotado en el historial del Ticket.</p><div class="pie"><button class="btn" data-ac="cancelarIncidencia">Cancelar</button><button class="btn rojo" data-ac="confirmarQuitarAlerta" data-id="${t.id}">Quitar la alerta</button></div>`); },
+  quitarAlerta: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id); abrirModal(`<h3>Quitar la alerta del Ticket ${t.id}</h3><p class="nota">El sobre vuelve a <b>por comprobar</b> y el importe vuelve a contar en el saldo de ${esc(socio(t.socio).nombre)}. <b>No se borra nada:</b> queda anotado en el historial del Ticket.</p><div class="pie"><button class="btn" data-ac="cancelarIncidencia">Cancelar</button><button class="btn rojo" data-ac="confirmarQuitarAlerta" data-id="${t.id}">Quitar la alerta</button></div>`); },
   confirmarQuitarAlerta: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id); const antes=t.cajaMotivo||'incidencia'; t.estadoCaja='pendiente'; t.cajaEncontrado=null; t.cajaMotivo=''; t.cajaNota=''; t.marca=null; anota('ticket', t.id, `Alerta del sobre quitada (era: ${antes}). Vuelve a por comprobar.`); auditar('Alerta del sobre quitada', `Ticket ${t.id}`); cerrarModal(); refrescar(true); aviso('Alerta quitada: el sobre vuelve a por comprobar'); },
   cancelarIncidencia: ()=>{ S.pendMarca=null; cerrarModal(); pintarResultado(); pintarCajon(true); },
   confirmarIncidencia: el=>{ const t=S.tickets.find(x=>x.id===+el.dataset.id), imp=Math.round(parseFloat($('#icImp').value||'0')*100), nota=$('#icNota').value.trim();
@@ -1756,7 +1756,7 @@ Object.assign(ACC, {
     const nueva = S.pendMarca && S.pendMarca.id===t.id ? S.pendMarca.nueva : 'Alerta'; S.pendMarca=null;
     marcarSobre(t,'incidencia',imp,$('#icMotivo').value,nota); t.marca=nueva;
     if($('#icAviso').checked) anota('ticket', t.id, `Aviso al socio por la incidencia en el sobre (${socio(t.socio).nombre})`);
-    cerrarModal(); refrescar(true); aviso('Alerta anotada: el importe deja de contar en la banca'); },  /* inventario y almacén */
+    cerrarModal(); refrescar(true); aviso('Alerta anotada: el importe deja de contar en el saldo'); },  /* inventario y almacén */
   toggleAlmacen: el=>{ S.usaAlmacen = !!el.checked; pintarPagina(); aviso(S.usaAlmacen ? 'Almacén activado: las compras entran en el almacén y se pasan a la barra' : 'Solo barra: todo está en la barra'); },
   reponer: el=>{ const id=el.dataset.id||almacen()[0].id;
     abrirModal(`<h3>Pasar género a la barra</h3><p class="nota">Pasa género del almacén a la barra. El consumo siempre sale de la barra.</p>
